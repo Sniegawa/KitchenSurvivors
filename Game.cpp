@@ -8,7 +8,7 @@
 #include "Player.h"
 #include "PlayerRenderer.h"
 #include "EnemyRenderer.h"
-
+#include "Projectile.h"
 
 glm::vec2 ScreenCenter;
 
@@ -25,14 +25,12 @@ Player* player;
 
 GameObject* pizza;
 
-GameObject* Projectile;
-
 glm::vec2 PlayerPosition;
 
 float PlayerSize = 2.0f;
 float PlayerSpeed = 75.0f;
 
-std::vector<GameObject*> projectiles;
+std::vector<Projectile*> projectiles;
 
 glm::vec2 mouseDir;
 
@@ -74,8 +72,6 @@ void Game::Init()
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
 	pizza = new GameObject(pizzaCoordinates, glm::vec2(64.0f), ResourceManager::GetTexture("pizza"));
-
-	Projectile = new GameObject(glm::vec2(0.0f), glm::vec2(16.0f), ResourceManager::GetTexture("pizza"));
 }
 
 void Game::Render()
@@ -95,7 +91,7 @@ float c;
 void Game::Update(float dt)
 {	
 	
-	for (GameObject* obj : projectiles)
+	for (Projectile* obj : projectiles)
 	{
 		obj->UpdatePosition(dt);
 	}
@@ -141,14 +137,26 @@ void Game::ProcessInput(float dt)
 		
 		if (this->Keys[GLFW_KEY_E]) 
 		{
-			
-			float angle = atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
+			//Kat myszka/gracz
+			float angle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 			
 			glm::vec2 position;
 
-			position = MousePos - ScreenCenter;
+			position = glm::normalize(MousePos - ScreenCenter);
 			
-			projectiles.push_back(new GameObject(PlayerPosition + ScreenCenter + glm::normalize(position) * 120.0f, glm::vec2(16.0f), ResourceManager::GetTexture("pizza"), glm::vec3(1.0f), angle,glm::normalize(position)));
+			projectiles.push_back(
+				new Projectile(
+					GameObject(
+						PlayerPosition + ScreenCenter + position * 20.0f,
+						glm::vec2(16.0f),
+						ResourceManager::GetTexture("pizza"),
+						glm::vec3(1.0f),
+						angle
+					),
+					position,
+					rand()%100+25
+				)
+			);
 
 		}
 	}
