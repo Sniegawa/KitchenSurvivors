@@ -3,8 +3,17 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm.hpp>
-#include "ShaderLoader.hpp"
+#include "ResourceManager.h"
+#include "Game.h"
 using namespace glm;
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_HEIGHT = 600;
+
+Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main()
 {
@@ -22,13 +31,14 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window;
-	window = glfwCreateWindow(1024, 768, "VOXEL ENGINE", NULL, NULL);
+	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kitchen Survivors", NULL, NULL);
 	if (window == NULL)
 	{
 		fprintf(stderr, "Failed to create window");
 		glfwTerminate();
 		return -1;
 	}
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glfwMakeContextCurrent(window);
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK) 
@@ -37,50 +47,60 @@ int main()
 		return -1;
 	}
 
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #pragma endregion
 
-	GLfloat testTriangleVertex[] = {
-		-1.0f,-1.0f,0.0f,
-		1.0f,-1.0f,0.0f,
-		0.0f,1.0f,0.0f
-	};
+	game.Init();
 
-	GLuint ShaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");
-
-
-
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(testTriangleVertex), testTriangleVertex, GL_STATIC_DRAW);
-
-	//Main Loop
-	do 
-	{
-		glClearColor(0.2f, 0.2f, 0.75f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-		//Draw calls
-		glUseProgram(ShaderProgram);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glVertexAttribPointer(
-			0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0
-		);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDisableVertexAttribArray(0);
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-		glfwWindowShouldClose(window) == 0);
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
+	
 	
 
+	while (!glfwWindowShouldClose(window))
+	{
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		glfwPollEvents();
+
+		game.ProcessInput(deltaTime);
+
+		game.Update(deltaTime);
+
+		glClearColor(0.0f, 0.0f, 0.6f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		game.Render();
+
+		glfwSwapBuffers(window);
+	}
+	
+	ResourceManager::Clear();
+
+	glfwTerminate();
+
 	return 0;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+			game.Keys[key] = true;
+		else if (action == GLFW_RELEASE)
+			game.Keys[key] = false;
+	}
+}
+void framebuffer_size_callback(GLFWwindow* window, int width, int heigth)
+{
+	glViewport(0, 0, width, heigth);
 }
