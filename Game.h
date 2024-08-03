@@ -1,5 +1,5 @@
 #pragma once
-
+#include <glm.hpp>
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
@@ -11,6 +11,7 @@ class Game
 public:
 	GameState State;
 	bool Keys[1024];
+	glm::vec2 MousePos;
 	unsigned int Width, Height;
 	Game(unsigned int width, unsigned int height);
 	~Game();

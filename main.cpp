@@ -9,6 +9,7 @@ using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+glm::vec2 GetMousePos(GLFWwindow* window);
 
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
@@ -69,7 +70,7 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		glfwPollEvents();
-
+		game.MousePos = GetMousePos(window);
 		game.ProcessInput(deltaTime);
 
 		game.Update(deltaTime);
@@ -100,6 +101,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			game.Keys[key] = false;
 	}
 }
+
+glm::vec2 GetMousePos(GLFWwindow* window)
+{
+	double x, y;
+	glfwGetCursorPos(window, &x, &y);
+	return glm::vec2(x, y);
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int heigth)
 {
 	glViewport(0, 0, width, heigth);

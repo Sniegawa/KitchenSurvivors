@@ -4,11 +4,13 @@
 #include "SpriteRenderer.h"
 #include "GameObject.h"
 #include <iostream>
+#include<vector>
 #include "Player.h"
 #include "PlayerRenderer.h"
 #include "EnemyRenderer.h"
 
 
+glm::vec2 ScreenCenter;
 
 Game::Game(unsigned int width, unsigned int height)
 	: State(GAME_ACTIVE),Keys(),Width(width),Height(height){}
@@ -23,10 +25,16 @@ Player* player;
 
 GameObject* pizza;
 
+GameObject* Projectile;
+
 glm::vec2 PlayerPosition;
 
 float PlayerSize = 2.0f;
 float PlayerSpeed = 75.0f;
+
+std::vector<GameObject*> projectiles;
+
+glm::vec2 mouseDir;
 
 Game::~Game()
 {
@@ -41,7 +49,7 @@ void Game::Init()
 	//load shaders
 	ResourceManager::LoadShader("shader/SpriteShader.vert", "shader/SpriteShader.frag", "sprite");
 
-
+	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
 
@@ -57,9 +65,9 @@ void Game::Init()
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
 	enemyRenderer = new EnemyRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")), &PlayerPosition);
 
-	auto PlayerSprite = ResourceManager::GetTexture("player");
+	auto PlayerSprite = ResourceManager::GetTexture("pizza");
 	
-	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width / 2, static_cast<float>(this->Height) / 2 - PlayerSprite.Height / 2);
+	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);
 
 	player = new Player(GameObject(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*PlayerSize, PlayerSprite));
 	
@@ -67,19 +75,43 @@ void Game::Init()
 
 	pizza = new GameObject(pizzaCoordinates, glm::vec2(64.0f), ResourceManager::GetTexture("pizza"));
 
-
+	Projectile = new GameObject(glm::vec2(0.0f), glm::vec2(16.0f), ResourceManager::GetTexture("pizza"));
 }
 
 void Game::Render()
 {
 	renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width, this->Height), 0.0f);
-	player->Draw(*playerRenderer);
-
 	pizza->Draw(*enemyRenderer);
-}
 
+	//TODO: gpu instancing
+	for(GameObject* obj : projectiles)
+	{
+		obj->Draw(*enemyRenderer);
+	}
+
+	player->Draw(*playerRenderer);
+}
+float c;
 void Game::Update(float dt)
 {	
+	
+	for (GameObject* obj : projectiles)
+	{
+		obj->UpdatePosition(dt);
+	}
+	pizza->Position = glm::vec2(sin(c), cos(c)) * 200.0f;
+
+	c += dt;
+	//Menu
+	if (this->Keys[GLFW_KEY_TAB])
+	{
+		if (this->State == GAME_ACTIVE)
+			this->State = GAME_MENU;
+		else
+			this->State = GAME_ACTIVE;
+	}
+
+
 	//Collisions
 	//Lvl up
 }
@@ -105,6 +137,19 @@ void Game::ProcessInput(float dt)
 		else if (this->Keys[GLFW_KEY_S])
 		{
 			PlayerPosition.y += velocity;
+		}
+		
+		if (this->Keys[GLFW_KEY_E]) 
+		{
+			
+			float angle = atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
+			
+			glm::vec2 position;
+
+			position = MousePos - ScreenCenter;
+			
+			projectiles.push_back(new GameObject(PlayerPosition + ScreenCenter + glm::normalize(position) * 120.0f, glm::vec2(16.0f), ResourceManager::GetTexture("pizza"), glm::vec3(1.0f), angle,glm::normalize(position)));
+
 		}
 	}
 }

@@ -14,7 +14,7 @@ void PlayerRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2
     model = glm::translate(model, glm::vec3(position, 0.0f));
     //Rotation
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); //We transform model to be centered at center of object
-    model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
+    model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
     model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f)); //transform model so it's center is back at top left corner
 
     model = glm::scale(model, glm::vec3(size, 1.0f));

@@ -19,66 +19,84 @@
     <Filter Include="Source Files\textures">
       <UniqueIdentifier>{c72d510d-d6d9-42b6-bfe0-4847a59a4582}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Objects">
+      <UniqueIdentifier>{b2677ecd-64ea-49a3-ae99-7e770877d1c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resources">
+      <UniqueIdentifier>{a8f186d2-35d7-46b8-bf91-11d74a5cf95b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderers">
+      <UniqueIdentifier>{be919ebd-f638-43c4-b68c-b697e4f4dbb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendereres">
+      <UniqueIdentifier>{423325a0-d0a4-419e-9072-6e8ba890160c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{c33e7c5c-16de-4e5c-8a46-d0db68e8ecc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resources">
+      <UniqueIdentifier>{ded36b6f-8d7d-4350-86b6-4f41c51119b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="EnemyRenderer.cpp">
+      <Filter>Source Files\Rendereres</Filter>
     </ClCompile>
     <ClCompile Include="PlayerRenderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Rendereres</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyRenderer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="SpriteRenderer.cpp">
+      <Filter>Source Files\Rendereres</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLoader.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteRenderer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
     <ClInclude Include="PlayerRenderer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteRenderer.h">
+      <Filter>Header Files\Renderers</Filter>
     </ClInclude>
     <ClInclude Include="EnemyRenderer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

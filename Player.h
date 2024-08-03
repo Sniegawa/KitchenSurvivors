@@ -16,7 +16,6 @@ public:
 private:
 	unsigned int Kills;
 
-};
-
+}
 
 #endif // !PLAYER_HPP
