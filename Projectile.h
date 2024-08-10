@@ -4,10 +4,9 @@
 class Projectile : public GameObject
 {
 public:
-
-	Projectile(const GameObject& g, glm::vec2 velocity, float speed = 16.0f) : GameObject(g), Velocity(velocity), Speed(speed){}
-
-	glm::vec2 Velocity;
+	Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f,float speed = 10.0f,glm::vec2 velocity = glm::vec2(0.0f));
+	
+	glm::vec2 Velocity = glm::vec2(0.0f);
 	float Speed;
 	void UpdatePosition(float dt);
 };

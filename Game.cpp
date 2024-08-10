@@ -13,7 +13,7 @@
 glm::vec2 ScreenCenter;
 
 Game::Game(unsigned int width, unsigned int height)
-	: State(GAME_ACTIVE),Keys(),Width(width),Height(height){}
+	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
 
 SpriteRenderer* renderer;
 
@@ -67,7 +67,7 @@ void Game::Init()
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);
 
-	player = new Player(GameObject(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*PlayerSize, PlayerSprite));
+	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*PlayerSize, PlayerSprite);
 	
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
@@ -87,7 +87,9 @@ void Game::Render()
 
 	player->Draw(*playerRenderer);
 }
+
 float c;
+
 void Game::Update(float dt)
 {	
 	
@@ -107,7 +109,7 @@ void Game::Update(float dt)
 			this->State = GAME_ACTIVE;
 	}
 
-
+	player->ReduceCooldowns(dt);
 	//Collisions
 	//Lvl up
 }
@@ -134,10 +136,10 @@ void Game::ProcessInput(float dt)
 		{
 			PlayerPosition.y += velocity;
 		}
-		
-		if (this->Keys[GLFW_KEY_E]) 
+		//Test Strzelania
+		if (this->Keys[GLFW_KEY_E] && player->CanShoot)
 		{
-			//Kat myszka/gracz
+			//K¹t myszka/gracz
 			float angle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 			
 			glm::vec2 position;
@@ -146,18 +148,17 @@ void Game::ProcessInput(float dt)
 			
 			projectiles.push_back(
 				new Projectile(
-					GameObject(
-						PlayerPosition + ScreenCenter + position * 20.0f,
-						glm::vec2(16.0f),
-						ResourceManager::GetTexture("pizza"),
-						glm::vec3(1.0f),
-						angle
-					),
-					position,
-					rand()%100+25
+					PlayerPosition + ScreenCenter + position * 20.0f,
+					glm::vec2(32.0f),
+					ResourceManager::GetTexture("pizza"),
+					glm::vec3(1.0f),
+					angle,
+					250,
+					position
 				)
 			);
 
+			player->Shoot();
 		}
 	}
 }
