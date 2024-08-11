@@ -2,9 +2,16 @@
 
 #include "GameObject.h"
 
-class Enemy : GameObject 
+class Enemy : public GameObject 
 {
-
-		
+public:
+	Enemy(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float health = 100.0f, float dmg = 0.0f, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
+	void TakeDamage(float amount);
+	void Update(float dt);
+	bool isDead;
+	float Health;
+private:
+	float DamageDealt;
+	float HurtTiming;
 
 };

@@ -15,9 +15,9 @@ public:
 	float LvlProgress = 0;
 	int MaxHealth = 100;
 	float Health = MaxHealth;
-	//Ekwipunek broni i pasywek
-	bool CanShoot = true;
 	float AttackSpeed = 1.0f;
+
+	bool CanShoot = true;
 
 private:
 	unsigned int Kills;

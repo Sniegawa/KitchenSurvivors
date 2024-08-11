@@ -6,11 +6,15 @@
 #include <iostream>
 #include<vector>
 #include "Player.h"
+#include "Enemy.h"
 #include "PlayerRenderer.h"
 #include "EnemyRenderer.h"
 #include "Projectile.h"
 
 glm::vec2 ScreenCenter;
+
+
+bool CheckCollision(GameObject& one, GameObject& two);
 
 Game::Game(unsigned int width, unsigned int height)
 	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
@@ -23,7 +27,9 @@ EnemyRenderer* enemyRenderer;
 
 Player* player;
 
-GameObject* pizza;
+std::vector<std::shared_ptr<Enemy>> enemies;
+
+std::shared_ptr<Enemy> pizza;
 
 glm::vec2 PlayerPosition;
 
@@ -38,7 +44,7 @@ Game::~Game()
 {
 	delete renderer;
 	delete playerRenderer;
-	delete pizza;
+	
 	delete player;
 }
 
@@ -71,13 +77,25 @@ void Game::Init()
 	
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
-	pizza = new GameObject(pizzaCoordinates, glm::vec2(64.0f), ResourceManager::GetTexture("pizza"));
+	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates, glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
+	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates + glm::vec2(100.0f,0.0f), glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
+	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates + glm::vec2(200.0f, 0.0f), glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
 }
 
 void Game::Render()
 {
 	renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width, this->Height), 0.0f);
-	pizza->Draw(*enemyRenderer);
+	
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		if (enemies[i]->isDead)
+		{
+			
+			enemies.erase(enemies.begin() + i);
+			continue;
+		}
+		enemies[i]->Draw(*enemyRenderer);
+	}
 
 	//TODO: gpu instancing
 	for(GameObject* obj : projectiles)
@@ -88,8 +106,6 @@ void Game::Render()
 	player->Draw(*playerRenderer);
 }
 
-float c;
-
 void Game::Update(float dt)
 {	
 	
@@ -97,9 +113,12 @@ void Game::Update(float dt)
 	{
 		obj->UpdatePosition(dt);
 	}
-	pizza->Position = glm::vec2(sin(c), cos(c)) * 200.0f;
 
-	c += dt;
+	for (auto enemy : enemies)
+	{
+		enemy->Update(dt);
+	}
+
 	//Menu
 	if (this->Keys[GLFW_KEY_TAB])
 	{
@@ -151,14 +170,41 @@ void Game::ProcessInput(float dt)
 					PlayerPosition + ScreenCenter + position * 20.0f,
 					glm::vec2(32.0f),
 					ResourceManager::GetTexture("pizza"),
+					25.0f,
 					glm::vec3(1.0f),
 					angle,
-					250,
+					500,
 					position
 				)
 			);
 
 			player->Shoot();
+			//enemies[0]->TakeDamage(25.0f);
 		}
 	}
+}
+
+void Game::Collisions()
+{
+	for (int i = 0; i < enemies.size();i++)
+	{
+		auto enemy = enemies[i];
+		for (auto projectile : projectiles)
+		{
+			if (CheckCollision(*projectile, *enemy))
+			{
+				enemy->TakeDamage(projectile->DamageDealt);
+				
+			}
+		}
+	}
+}
+
+
+bool CheckCollision(GameObject& one, GameObject& two)
+{
+	bool axisX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
+	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
+	
+	return axisX && axisY;
 }

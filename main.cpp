@@ -14,7 +14,7 @@ glm::vec2 GetMousePos(GLFWwindow* window);
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
-Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
+Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main()
 {
@@ -57,7 +57,7 @@ int main()
 
 #pragma endregion
 
-	game.Init();
+	game->Init();
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -70,14 +70,14 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		glfwPollEvents();
-		game.MousePos = GetMousePos(window);
-		game.ProcessInput(deltaTime);
+		game->MousePos = GetMousePos(window);
+		game->ProcessInput(deltaTime);
 
-		game.Update(deltaTime);
-
+		game->Update(deltaTime);
+		game->Collisions();
 		glClearColor(0.0f, 0.0f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		game.Render();
+		game->Render();
 
 		glfwSwapBuffers(window);
 	}
@@ -96,9 +96,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
-			game.Keys[key] = true;
+			game->Keys[key] = true;
 		else if (action == GLFW_RELEASE)
-			game.Keys[key] = false;
+			game->Keys[key] = false;
 	}
 }
 

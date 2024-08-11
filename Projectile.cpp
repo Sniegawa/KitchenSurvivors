@@ -1,6 +1,6 @@
 #include "Projectile.h"
 
-Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color, float rotation, float speed, glm::vec2 velocity)
+Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float dmg, glm::vec3 color, float rotation, float speed, glm::vec2 velocity)
 {
 	this->Position = pos;
 	this->Size = size;
@@ -9,6 +9,7 @@ Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec
 	this->Rotation = rotation;
 	this->Speed = speed;
 	this->Velocity = velocity;
+	this->DamageDealt = dmg;
 }
 
 void Projectile::UpdatePosition(float dt)
