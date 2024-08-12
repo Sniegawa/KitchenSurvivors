@@ -172,6 +172,8 @@
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="EnemyShader.frag" />
+    <None Include="EnemyShader.vert" />
     <None Include="shader\SpriteShader.frag" />
     <None Include="shader\SpriteShader.vert" />
   </ItemGroup>
@@ -179,6 +181,7 @@
     <Image Include="512X512.png" />
     <Image Include="pizza.png" />
     <Image Include="player.png" />
+    <Image Include="textures\Knife-temp.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

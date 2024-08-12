@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\shader">
-      <UniqueIdentifier>{78581dfb-89f0-440c-b020-13c23f12f5b7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\textures">
       <UniqueIdentifier>{c72d510d-d6d9-42b6-bfe0-4847a59a4582}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="Source Files\Resources">
       <UniqueIdentifier>{ded36b6f-8d7d-4350-86b6-4f41c51119b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{78581dfb-89f0-440c-b020-13c23f12f5b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -116,10 +116,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\SpriteShader.frag">
-      <Filter>Source Files\shader</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="shader\SpriteShader.vert">
-      <Filter>Source Files\shader</Filter>
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="EnemyShader.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="EnemyShader.frag">
+      <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +136,9 @@
       <Filter>Source Files\textures</Filter>
     </Image>
     <Image Include="player.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\Knife-temp.png">
       <Filter>Source Files\textures</Filter>
     </Image>
   </ItemGroup>

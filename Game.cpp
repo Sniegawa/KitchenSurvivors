@@ -64,6 +64,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("textures/512X512.png", false, "background");
 	ResourceManager::LoadTexture("textures/pizza.png", true, "pizza");
 	ResourceManager::LoadTexture("textures/player.png", true, "player");
+	ResourceManager::LoadTexture("textures/knife.png", true, "knife");
 
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
@@ -106,13 +107,107 @@ void Game::Render()
 	player->Draw(*playerRenderer);
 }
 
+float spawnerTime;
+
+float WeaponTimer = 0.0f;
+
 void Game::Update(float dt)
 {	
 	
+	if (!player->Alive)
+		this->State = GAME_LOSE;
+
+
+	WeaponTimer += dt;
+	if (WeaponTimer >= 1.0f / player->AttackSpeed)
+	{
+		float angle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
+
+		Texture2D knifetex = ResourceManager::GetTexture("knife");
+
+		int projectileCount = player->stats.projectileCount;
+
+		if (projectileCount > 1) {
+
+			if (projectileCount % 2 == 0)
+			{
+				for (int i = -projectileCount/2; i < projectileCount/2 + 1; i++)
+				{
+					if (i == 0)
+						continue;
+					float angleoffset = (glm::pi<float>() / 12) * i;
+					projectiles.push_back(
+						new Projectile(
+							PlayerPosition + ScreenCenter,
+							glm::vec2(knifetex.Width, knifetex.Height),
+							knifetex,
+							25.0f,
+							glm::vec3(1.0f),
+							angle + glm::pi<float>() / 2.0f + angleoffset,
+							500,
+							glm::vec2(-sin(angle + angleoffset), cos(angle + angleoffset))
+						)
+					);
+				}
+			}
+			else
+			{
+				for (int i = -projectileCount / 2; i < projectileCount / 2 + 1; i++)
+				{
+					float angleoffset = (glm::pi<float>() / 12) * i;
+					projectiles.push_back(
+						new Projectile(
+							PlayerPosition + ScreenCenter,
+							glm::vec2(knifetex.Width, knifetex.Height),
+							knifetex,
+							25.0f,
+							glm::vec3(1.0f),
+							angle + glm::pi<float>() / 2.0f + angleoffset,
+							500,
+							glm::vec2(-sin(angle + angleoffset), cos(angle + angleoffset))
+						)
+					);
+				}
+			}
+		}
+		else 
+		{
+			projectiles.push_back(
+				new Projectile(
+					PlayerPosition + ScreenCenter,
+					glm::vec2(knifetex.Width, knifetex.Height),
+					knifetex,
+					25.0f,
+					glm::vec3(1.0f),
+					angle + glm::pi<float>() / 2.0f,
+					500,
+					glm::vec2(-sin(angle), cos(angle))
+				)
+			);
+		}
+		WeaponTimer = 0.0f;
+	}
+
+
 	for (Projectile* obj : projectiles)
 	{
 		obj->UpdatePosition(dt);
 	}
+
+	spawnerTime += dt;
+
+	if (spawnerTime >= 5.0f)
+	{
+		enemies.push_back(std::make_shared<Enemy>(
+			Enemy(
+				glm::vec2(rand()%200+100,rand()%200+100),
+				glm::vec2(64.0f),
+				ResourceManager::GetTexture("pizza")
+			)));
+		spawnerTime = 0.0f;
+		printf("Enemy spawned in %f,%f\n", enemies[enemies.size() - 1]->Position.x, enemies[enemies.size() - 1]->Position.y);
+	}
+
 
 	for (auto enemy : enemies)
 	{
@@ -128,11 +223,9 @@ void Game::Update(float dt)
 			this->State = GAME_ACTIVE;
 	}
 
-	player->ReduceCooldowns(dt);
-	//Collisions
 	//Lvl up
 }
-
+float cd;
 void Game::ProcessInput(float dt)
 {
 	if (this->State == GAME_ACTIVE)
@@ -155,32 +248,12 @@ void Game::ProcessInput(float dt)
 		{
 			PlayerPosition.y += velocity;
 		}
-		//Test Strzelania
-		if (this->Keys[GLFW_KEY_E] && player->CanShoot)
+		if (this->Keys[GLFW_KEY_UP] && cd >= 1.0f)
 		{
-			//K¹t myszka/gracz
-			float angle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
-			
-			glm::vec2 position;
-
-			position = glm::normalize(MousePos - ScreenCenter);
-			
-			projectiles.push_back(
-				new Projectile(
-					PlayerPosition + ScreenCenter + position * 20.0f,
-					glm::vec2(32.0f),
-					ResourceManager::GetTexture("pizza"),
-					25.0f,
-					glm::vec3(1.0f),
-					angle,
-					500,
-					position
-				)
-			);
-
-			player->Shoot();
-			//enemies[0]->TakeDamage(25.0f);
+			player->stats.projectileCount += 1;
+			cd = 0.0f;
 		}
+		cd += dt;
 	}
 }
 
@@ -196,6 +269,11 @@ void Game::Collisions()
 				enemy->TakeDamage(projectile->DamageDealt);
 				
 			}
+		}
+		if (CheckCollision(*enemy, *player))
+		{
+			enemy->TakeDamage(1.0f);
+			player->TakeDamage(1.0f);
 		}
 	}
 }

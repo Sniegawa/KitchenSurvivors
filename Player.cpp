@@ -9,24 +9,16 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color,
 	this->Rotation = rotation;
 	this->Kills = 0;
 	this->Level = 1;
+	this->stats.projectileCount = 1;
 }
 
-void Player::ReduceCooldowns(float dt)
-{
-	AttackCooldown -= dt;
 
-	if (AttackCooldown <= 0.0f)
-	{
-		CanShoot = true;
-	}
-	else 
-	{
-		CanShoot = false;
-	}
-}
-
-void Player::Shoot()
+void Player::TakeDamage(float amount)
 {
-	CanShoot = false;
-	AttackCooldown = 1.0f / AttackSpeed;
+	this->Health -= amount;
+	printf("Player hit! current healt %f", this->Health);
+	if (this->Health <= 0.0f)
+	{
+		this -> Alive = false;
+	}
 }
