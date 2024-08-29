@@ -194,20 +194,17 @@ void Game::Update(float dt)
 
 
 	
-	//Nie wiem czy to najlepsze podejscie bo wywala acces violation przy auto despawnie
-	int counter = 0;
-	for (auto const& obj : PlayerProjectiles)
+
+
+	for (int i = 0; i < PlayerProjectiles.size();i++)
 	{
-		if (obj == nullptr)
-			continue;
+		auto obj = PlayerProjectiles[i].get();
 		if (obj->IsDead())
 		{
-			PlayerProjectiles.erase(PlayerProjectiles.begin() + counter);
-			counter++;
+			PlayerProjectiles.erase(PlayerProjectiles.begin() + i);
 			continue;
 		}
 		obj->Update(dt);
-		counter++;
 	}
 
 	spawnerTime += dt;
@@ -288,7 +285,7 @@ void Game::Collisions()
 			player->TakeDamage(1.0f);
 		}
 	}
-	printf("Collisions checked : %i\n", c);
+	printf("Collisions checked : %i\n Projectiles : %i\n Enemies : %i\n", c,PlayerProjectiles.size(),enemies.size());
 }
 
 
