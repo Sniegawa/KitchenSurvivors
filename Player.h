@@ -2,29 +2,32 @@
 #define PLAYER_HPP
 
 #include "GameObject.h"
-
+#include <vector>
+#include "Projectile.h"
+#include <memory>
 struct PlayerStats {
+	float AttackSpeed = 1.0f;
+	int MaxHealth = 100;
 	int projectileCount = 1;
+
 };
 
 class Player : public GameObject
 {
 public:
-	Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
+	Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std::unique_ptr<Projectile>>* pprojptr, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
 
 	void TakeDamage(float amount);
 
+	PlayerStats stats;
 	unsigned int Level = 0;
 	float LvlProgress = 0;
-	int MaxHealth = 100;
-	float Health = MaxHealth;
-	float AttackSpeed = 1.50f;
+	float Health = stats.MaxHealth;
 	bool Alive = true;
-
-	PlayerStats stats;
 
 private:
 	unsigned int Kills;
+	std::vector<std::unique_ptr<Projectile>>* PlayerProjectilesPtr;
 };
 
 #endif // !PLAYER_HPP

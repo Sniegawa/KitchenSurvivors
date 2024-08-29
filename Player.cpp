@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color, float rotation)
+Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std::unique_ptr<Projectile>>* pprojptr, glm::vec3 color, float rotation)
 {
 	this->Position = pos;
 	this->Size = size;
@@ -10,6 +10,7 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color,
 	this->Kills = 0;
 	this->Level = 1;
 	this->stats.projectileCount = 1;
+	this->PlayerProjectilesPtr = pprojptr;
 }
 
 

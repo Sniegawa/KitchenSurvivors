@@ -4,12 +4,15 @@
 #include "SpriteRenderer.h"
 #include "GameObject.h"
 #include <iostream>
-#include<vector>
+#include <memory>
+#include <vector>
+#include <algorithm>
 #include "Player.h"
 #include "Enemy.h"
 #include "PlayerRenderer.h"
 #include "EnemyRenderer.h"
 #include "Projectile.h"
+#include "Weapon.h"
 
 glm::vec2 ScreenCenter;
 
@@ -36,7 +39,7 @@ glm::vec2 PlayerPosition;
 float PlayerSize = 2.0f;
 float PlayerSpeed = 75.0f;
 
-std::vector<Projectile*> projectiles;
+std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
 
 glm::vec2 mouseDir;
 
@@ -74,7 +77,7 @@ void Game::Init()
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);
 
-	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*PlayerSize, PlayerSprite);
+	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*PlayerSize, PlayerSprite,&PlayerProjectiles);
 	
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
@@ -99,7 +102,7 @@ void Game::Render()
 	}
 
 	//TODO: gpu instancing
-	for(GameObject* obj : projectiles)
+	for(auto const& obj : PlayerProjectiles)
 	{
 		obj->Draw(*enemyRenderer);
 	}
@@ -111,6 +114,7 @@ float spawnerTime;
 
 float WeaponTimer = 0.0f;
 
+
 void Game::Update(float dt)
 {	
 	
@@ -119,25 +123,25 @@ void Game::Update(float dt)
 
 
 	WeaponTimer += dt;
-	if (WeaponTimer >= 1.0f / player->AttackSpeed)
+	if (WeaponTimer >= 1.0f / player->stats.AttackSpeed)
 	{
 		float angle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 
 		Texture2D knifetex = ResourceManager::GetTexture("knife");
 
 		int projectileCount = player->stats.projectileCount;
-
+		printf("Projectile count : %i\n", projectileCount);
 		if (projectileCount > 1) {
 
-			if (projectileCount % 2 == 0)
+			if (projectileCount % 2 == 0 && projectileCount < 25)
 			{
 				for (int i = -projectileCount/2; i < projectileCount/2 + 1; i++)
 				{
 					if (i == 0)
 						continue;
 					float angleoffset = (glm::pi<float>() / 12) * i;
-					projectiles.push_back(
-						new Projectile(
+					PlayerProjectiles.push_back(
+						std::make_unique<Projectile>(Projectile(
 							PlayerPosition + ScreenCenter,
 							glm::vec2(knifetex.Width, knifetex.Height),
 							knifetex,
@@ -146,7 +150,7 @@ void Game::Update(float dt)
 							angle + glm::pi<float>() / 2.0f + angleoffset,
 							500,
 							glm::vec2(-sin(angle + angleoffset), cos(angle + angleoffset))
-						)
+						))
 					);
 				}
 			}
@@ -155,8 +159,8 @@ void Game::Update(float dt)
 				for (int i = -projectileCount / 2; i < projectileCount / 2 + 1; i++)
 				{
 					float angleoffset = (glm::pi<float>() / 12) * i;
-					projectiles.push_back(
-						new Projectile(
+					PlayerProjectiles.push_back(
+						std::make_unique<Projectile>(Projectile(
 							PlayerPosition + ScreenCenter,
 							glm::vec2(knifetex.Width, knifetex.Height),
 							knifetex,
@@ -165,15 +169,15 @@ void Game::Update(float dt)
 							angle + glm::pi<float>() / 2.0f + angleoffset,
 							500,
 							glm::vec2(-sin(angle + angleoffset), cos(angle + angleoffset))
-						)
+						))
 					);
 				}
 			}
 		}
 		else 
 		{
-			projectiles.push_back(
-				new Projectile(
+			PlayerProjectiles.push_back(
+				std::make_unique<Projectile>(Projectile(
 					PlayerPosition + ScreenCenter,
 					glm::vec2(knifetex.Width, knifetex.Height),
 					knifetex,
@@ -182,16 +186,28 @@ void Game::Update(float dt)
 					angle + glm::pi<float>() / 2.0f,
 					500,
 					glm::vec2(-sin(angle), cos(angle))
-				)
+				))
 			);
 		}
 		WeaponTimer = 0.0f;
 	}
 
 
-	for (Projectile* obj : projectiles)
+	
+	//Nie wiem czy to najlepsze podejscie bo wywala acces violation przy auto despawnie
+	int counter = 0;
+	for (auto const& obj : PlayerProjectiles)
 	{
-		obj->UpdatePosition(dt);
+		if (obj == nullptr)
+			continue;
+		if (obj->IsDead())
+		{
+			PlayerProjectiles.erase(PlayerProjectiles.begin() + counter);
+			counter++;
+			continue;
+		}
+		obj->Update(dt);
+		counter++;
 	}
 
 	spawnerTime += dt;
@@ -225,7 +241,6 @@ void Game::Update(float dt)
 
 	//Lvl up
 }
-float cd;
 void Game::ProcessInput(float dt)
 {
 	if (this->State == GAME_ACTIVE)
@@ -248,34 +263,32 @@ void Game::ProcessInput(float dt)
 		{
 			PlayerPosition.y += velocity;
 		}
-		if (this->Keys[GLFW_KEY_UP] && cd >= 1.0f)
-		{
-			player->stats.projectileCount += 1;
-			cd = 0.0f;
-		}
-		cd += dt;
 	}
 }
 
 void Game::Collisions()
 {
+	int c = 0;
 	for (int i = 0; i < enemies.size();i++)
 	{
 		auto enemy = enemies[i];
-		for (auto projectile : projectiles)
+		for (auto const& projectile : PlayerProjectiles)
 		{
+			c++;
 			if (CheckCollision(*projectile, *enemy))
 			{
 				enemy->TakeDamage(projectile->DamageDealt);
-				
+				projectile->Hit();
 			}
 		}
+		c++;
 		if (CheckCollision(*enemy, *player))
 		{
 			enemy->TakeDamage(1.0f);
 			player->TakeDamage(1.0f);
 		}
 	}
+	printf("Collisions checked : %i\n", c);
 }
 
 

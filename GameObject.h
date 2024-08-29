@@ -13,7 +13,6 @@ public:
 	glm::vec3 Color;
 	float Rotation;
 	bool IsSolid;
-	bool Destroyed;
 
 	Texture2D Sprite;
 

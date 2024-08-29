@@ -9,5 +9,9 @@ public:
 	glm::vec2 Velocity = glm::vec2(0.0f);
 	float Speed;
 	float DamageDealt;
-	void UpdatePosition(float dt);
+	void Update(float dt);
+	void Hit();
+	bool IsDead();
+private:
+	float lifetime;
 };

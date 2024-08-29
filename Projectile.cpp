@@ -10,9 +10,20 @@ Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float dm
 	this->Speed = speed;
 	this->Velocity = velocity;
 	this->DamageDealt = dmg;
+	this->lifetime = 2;
 }
 
-void Projectile::UpdatePosition(float dt)
+void Projectile::Update(float dt)
 {
 	this->Position += this->Velocity * dt * Speed;
+	this->lifetime -= dt;
+}
+void Projectile::Hit()
+{
+	lifetime = 0.0f;
+}
+
+bool Projectile::IsDead()
+{
+	return (this->lifetime <= 0.0f);
 }

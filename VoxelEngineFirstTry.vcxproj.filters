@@ -37,6 +37,12 @@
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{78581dfb-89f0-440c-b020-13c23f12f5b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Weapons">
+      <UniqueIdentifier>{92f5ee17-7eba-4363-a5dc-cf1322a933a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Weapons">
+      <UniqueIdentifier>{e9c91da7-3771-4013-9500-902e7e684f88}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -75,6 +81,9 @@
     <ClCompile Include="Enemy.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon.cpp">
+      <Filter>Source Files\Weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -112,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon.h">
+      <Filter>Header Files\Weapons</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
