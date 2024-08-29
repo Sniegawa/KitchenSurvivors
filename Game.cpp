@@ -1,17 +1,22 @@
 #include "Game.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "SpriteRenderer.h"
-#include "GameObject.h"
+
 #include <iostream>
 #include <memory>
 #include <vector>
 #include <algorithm>
+
+#include "GameObject.h"
 #include "Player.h"
 #include "Enemy.h"
+
+#include "SpriteRenderer.h"
 #include "PlayerRenderer.h"
 #include "EnemyRenderer.h"
+
 #include "Projectile.h"
+
 #include "Weapon.h"
 
 glm::vec2 ScreenCenter;
@@ -130,7 +135,7 @@ void Game::Update(float dt)
 		Texture2D knifetex = ResourceManager::GetTexture("knife");
 
 		int projectileCount = player->stats.projectileCount;
-		printf("Projectile count : %i\n", projectileCount);
+	
 		if (projectileCount > 1) {
 
 			if (projectileCount % 2 == 0 && projectileCount < 25)
@@ -193,9 +198,6 @@ void Game::Update(float dt)
 	}
 
 
-	
-
-
 	for (int i = 0; i < PlayerProjectiles.size();i++)
 	{
 		auto obj = PlayerProjectiles[i].get();
@@ -206,7 +208,7 @@ void Game::Update(float dt)
 		}
 		obj->Update(dt);
 	}
-
+	
 	spawnerTime += dt;
 
 	if (spawnerTime >= 5.0f)
@@ -218,7 +220,7 @@ void Game::Update(float dt)
 				ResourceManager::GetTexture("pizza")
 			)));
 		spawnerTime = 0.0f;
-		printf("Enemy spawned in %f,%f\n", enemies[enemies.size() - 1]->Position.x, enemies[enemies.size() - 1]->Position.y);
+		
 	}
 
 
@@ -265,27 +267,24 @@ void Game::ProcessInput(float dt)
 
 void Game::Collisions()
 {
-	int c = 0;
 	for (int i = 0; i < enemies.size();i++)
 	{
 		auto enemy = enemies[i];
 		for (auto const& projectile : PlayerProjectiles)
 		{
-			c++;
 			if (CheckCollision(*projectile, *enemy))
 			{
 				enemy->TakeDamage(projectile->DamageDealt);
 				projectile->Hit();
 			}
 		}
-		c++;
 		if (CheckCollision(*enemy, *player))
 		{
 			enemy->TakeDamage(1.0f);
 			player->TakeDamage(1.0f);
 		}
 	}
-	printf("Collisions checked : %i\n Projectiles : %i\n Enemies : %i\n", c,PlayerProjectiles.size(),enemies.size());
+	
 }
 
 

@@ -5,6 +5,10 @@
 #include <glm.hpp>
 #include "ResourceManager.h"
 #include "Game.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -14,7 +18,11 @@ glm::vec2 GetMousePos(GLFWwindow* window);
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
+bool showdemo = true;
+
 Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+GLFWwindow* window;
 
 int main()
 {
@@ -31,7 +39,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window;
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kitchen Survivors", NULL, NULL);
 	if (window == NULL)
 	{
@@ -47,7 +54,6 @@ int main()
 		fprintf(stderr, "Failed to initialize GLEW");
 		return -1;
 	}
-
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -57,33 +63,88 @@ int main()
 
 #pragma endregion
 
+	IMGUI_CHECKVERSION();
+
+	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+
+	ImGui::StyleColorsDark();
+
+
+	ImGui_ImplOpenGL3_Init();
+
+	ImGuiWindowFlags fpsFlag = 0;
+
+	fpsFlag |= ImGuiWindowFlags_NoMove;
+	fpsFlag |= ImGuiWindowFlags_AlwaysAutoResize;
+	fpsFlag |= ImGuiWindowFlags_NoCollapse;
+
+
 	game->Init();
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
-	
-	
-
+	int frames = 0;
+	float t = 0;
+	float fps = 60.0f;
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
+		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+		{
+			ImGui_ImplGlfw_Sleep(10);
+			continue;
+		}
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		frames++;
+
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		glfwPollEvents();
+
+
 		game->MousePos = GetMousePos(window);
 		game->ProcessInput(deltaTime);
 
 		game->Update(deltaTime);
 		game->Collisions();
+
 		glClearColor(0.0f, 0.0f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		game->Render();
+
+		if (t >= 1.0f)
+		{
+			fps = frames / deltaTime;
+			t = 0.0f;
+		}
+		else
+		{
+			t += deltaTime;
+		}
+		float f = 0.0f;
+		ImGui::Begin("stats",(bool *)0, fpsFlag);
+		ImGui::Text("fps : %.2f",fps);
+		ImGui::Text("ms : %.4f", 1000.0f / fps);
+		ImGui::SetNextWindowPos(ImVec2(100,100));
+		ImGui::End();
+		frames = 0;
+		ImGui::Render();
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 	}
 	
 	ResourceManager::Clear();
-
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	glfwTerminate();
 
 	return 0;
