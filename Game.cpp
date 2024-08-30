@@ -226,7 +226,7 @@ void Game::Update(float dt)
 	{
 		enemies.push_back(std::make_shared<Enemy>(
 			Enemy(
-				glm::vec2(rand()%400+200,rand()%400+200),
+				glm::vec2(rand()%100+50,rand()%100+50),
 				glm::vec2(64.0f),
 				ResourceManager::GetTexture("pizza")
 			)));
@@ -307,6 +307,11 @@ void Game::Collisions()
 			debuginfo.CollisionChecks++;
 			if (i == j)
 				continue;
+			if (CheckCollision(*enemies[i], *enemies[j]))
+			{
+				glm::vec2 test(glm::normalize(enemies[i]->Position - enemies[j]->Position));
+				enemy->Position += test;
+			}
 		}
 	}
 	
