@@ -45,7 +45,7 @@ std::shared_ptr<Enemy> pizza;
 glm::vec2 PlayerPosition;
 
 float PlayerSize = 2.0f;
-float PlayerSpeed = 75.0f;
+
 
 std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
 
@@ -222,11 +222,11 @@ void Game::Update(float dt)
 	
 	spawnerTime += dt;
 
-	if (spawnerTime >= 5.0f)
+	if (spawnerTime >= 0.5f)
 	{
 		enemies.push_back(std::make_shared<Enemy>(
 			Enemy(
-				glm::vec2(rand()%100+50,rand()%100+50),
+				glm::vec2(rand()%500,rand()%500),
 				glm::vec2(64.0f),
 				ResourceManager::GetTexture("pizza")
 			)));
@@ -258,7 +258,7 @@ void Game::ProcessInput(float dt)
 {
 	if (this->State == GAME_ACTIVE)
 	{
-		float velocity = PlayerSpeed * dt;
+		float velocity = player->stats.PlayerSpeed * dt;
 
 		if (this->Keys[GLFW_KEY_A])
 		{
@@ -293,6 +293,8 @@ void Game::Collisions()
 			{
 				enemy->TakeDamage(projectile->DamageDealt);
 				projectile->Hit();
+				if (enemy->Health <= 0.0f)
+					player->Kills++;
 			}
 		}
 		debuginfo.CollisionChecks++;
@@ -324,6 +326,11 @@ void Game::RenderDebug()
 	ImGui::Text("Projectiles : %i", debuginfo.Projectiles);
 	ImGui::Text("Enemies : %i", debuginfo.Enemies);
 	ImGui::Text("CollisionChecks : %i", debuginfo.CollisionChecks);
+	ImGui::Text("Kills : %i",player->Kills);
+	ImGui::End();
+	ImGui::Begin("Stat tweaker", (bool*)0, flags);
+	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 5.0f);
+	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 150.0f);
 	ImGui::End();
 }
 

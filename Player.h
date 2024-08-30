@@ -9,7 +9,7 @@ struct PlayerStats {
 	float AttackSpeed = 1.0f;
 	int MaxHealth = 100;
 	int projectileCount = 1;
-
+	float PlayerSpeed = 75.0f;
 };
 
 class Player : public GameObject
@@ -24,9 +24,9 @@ public:
 	float LvlProgress = 0;
 	float Health = stats.MaxHealth;
 	bool Alive = true;
+	unsigned int Kills;
 
 private:
-	unsigned int Kills;
 	std::vector<std::unique_ptr<Projectile>>* PlayerProjectilesPtr;
 };
 
