@@ -1,6 +1,9 @@
 #include "Game.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #include <iostream>
 #include <memory>
@@ -48,13 +51,18 @@ std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
 
 glm::vec2 mouseDir;
 
+DebugInfo debuginfo;
+
+
 Game::~Game()
 {
 	delete renderer;
 	delete playerRenderer;
-	
 	delete player;
 }
+
+ImGuiWindowFlags flags = 0;
+
 
 void Game::Init()
 {
@@ -89,6 +97,9 @@ void Game::Init()
 	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates, glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
 	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates + glm::vec2(100.0f,0.0f), glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
 	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates + glm::vec2(200.0f, 0.0f), glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
+
+	flags |= ImGuiWindowFlags_AlwaysAutoResize;
+	flags |= ImGuiWindowFlags_NoCollapse;
 }
 
 void Game::Render()
@@ -215,7 +226,7 @@ void Game::Update(float dt)
 	{
 		enemies.push_back(std::make_shared<Enemy>(
 			Enemy(
-				glm::vec2(rand()%200+100,rand()%200+100),
+				glm::vec2(rand()%400+200,rand()%400+200),
 				glm::vec2(64.0f),
 				ResourceManager::GetTexture("pizza")
 			)));
@@ -238,6 +249,9 @@ void Game::Update(float dt)
 			this->State = GAME_ACTIVE;
 	}
 
+	debuginfo.Enemies = enemies.size();
+	debuginfo.Projectiles = PlayerProjectiles.size();
+	debuginfo.PlayerHealth = player->Health;
 	//Lvl up
 }
 void Game::ProcessInput(float dt)
@@ -267,26 +281,46 @@ void Game::ProcessInput(float dt)
 
 void Game::Collisions()
 {
+	debuginfo.CollisionChecks = 0;
 	for (int i = 0; i < enemies.size();i++)
 	{
 		auto enemy = enemies[i];
+
 		for (auto const& projectile : PlayerProjectiles)
 		{
+			debuginfo.CollisionChecks++;
 			if (CheckCollision(*projectile, *enemy))
 			{
 				enemy->TakeDamage(projectile->DamageDealt);
 				projectile->Hit();
 			}
 		}
+		debuginfo.CollisionChecks++;
+		/* nie dodajemy player position w przypadku playera do naprawy
 		if (CheckCollision(*enemy, *player))
 		{
 			enemy->TakeDamage(1.0f);
 			player->TakeDamage(1.0f);
+		}*/
+		for (int j = 0; j < enemies.size(); j++)
+		{
+			debuginfo.CollisionChecks++;
+			if (i == j)
+				continue;
 		}
 	}
 	
 }
 
+void Game::RenderDebug()
+{
+	ImGui::Begin("Debug info",(bool*)0,flags);
+	ImGui::Text("HP : %i", debuginfo.PlayerHealth);
+	ImGui::Text("Projectiles : %i", debuginfo.Projectiles);
+	ImGui::Text("Enemies : %i", debuginfo.Enemies);
+	ImGui::Text("CollisionChecks : %i", debuginfo.CollisionChecks);
+	ImGui::End();
+}
 
 bool CheckCollision(GameObject& one, GameObject& two)
 {

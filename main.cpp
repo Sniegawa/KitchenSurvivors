@@ -75,7 +75,7 @@ int main()
 
 	ImGuiWindowFlags fpsFlag = 0;
 
-	fpsFlag |= ImGuiWindowFlags_NoMove;
+	//fpsFlag |= ImGuiWindowFlags_NoMove;
 	fpsFlag |= ImGuiWindowFlags_AlwaysAutoResize;
 	fpsFlag |= ImGuiWindowFlags_NoCollapse;
 
@@ -117,7 +117,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		game->Render();
-
+		game->RenderDebug();
 		if (t >= 1.0f)
 		{
 			fps = frames / deltaTime;
@@ -131,7 +131,7 @@ int main()
 		ImGui::Begin("stats",(bool *)0, fpsFlag);
 		ImGui::Text("fps : %.2f",fps);
 		ImGui::Text("ms : %.4f", 1000.0f / fps);
-		ImGui::SetNextWindowPos(ImVec2(100,100));
+		ImGui::SetNextWindowPos(ImVec2(500,100),ImGuiCond_FirstUseEver);
 		ImGui::End();
 		frames = 0;
 		ImGui::Render();

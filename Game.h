@@ -6,6 +6,13 @@ enum GameState {
 	GAME_WIN,
 	GAME_LOSE
 };
+struct DebugInfo
+{
+	int CollisionChecks;
+	int Enemies;
+	int Projectiles;
+	int PlayerHealth;
+};
 
 class Game
 {
@@ -21,4 +28,5 @@ public:
 	void Update(float dt);
 	void Render();
 	void Collisions();
+	void RenderDebug();
 };
