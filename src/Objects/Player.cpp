@@ -15,11 +15,18 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std:
 
 
 void Player::TakeDamage(float amount)
-{
+{	
+	if (this->InvulnerabilityCD > 0.0f)
+		return;
 	this->Health -= amount;
-	printf("Player hit! current healt %f", this->Health);
 	if (this->Health <= 0.0f)
 	{
 		this -> Alive = false;
 	}
+	this->InvulnerabilityCD = 0.1f;
+}
+
+void Player::UpdateCooldowns(float dt)
+{
+	this->InvulnerabilityCD -= dt;
 }

@@ -10,22 +10,22 @@
 #include <vector>
 #include <algorithm>
 
-#include "GameObject.h"
-#include "Player.h"
-#include "Enemy.h"
+#include "Objects/GameObject.h"
+#include "Objects/Player.h"
+#include "Objects/Enemy.h"
+#include "Objects/Projectile.h"
 
-#include "SpriteRenderer.h"
-#include "PlayerRenderer.h"
-#include "EnemyRenderer.h"
+#include "Weapons/Weapon.h"
 
-#include "Projectile.h"
-
-#include "Weapon.h"
+#include "Renderers/PlayerRenderer.h"
+#include "Renderers/EnemyRenderer.h"
+#include "Renderers/SpriteRenderer.h"
+#include "ResourceHandlers/ResourceManager.h"
 
 glm::vec2 ScreenCenter;
 
-
 bool CheckCollision(GameObject& one, GameObject& two);
+bool CheckCollisionWithPlayer(GameObject& one);
 
 Game::Game(unsigned int width, unsigned int height)
 	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
@@ -43,9 +43,6 @@ std::vector<std::shared_ptr<Enemy>> enemies;
 std::shared_ptr<Enemy> pizza;
 
 glm::vec2 PlayerPosition;
-
-float PlayerSize = 2.0f;
-
 
 std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
 
@@ -67,8 +64,8 @@ ImGuiWindowFlags flags = 0;
 void Game::Init()
 {
 	//load shaders
-	ResourceManager::LoadShader("shader/SpriteShader.vert", "shader/SpriteShader.frag", "sprite");
-
+	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
+	
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
@@ -77,10 +74,10 @@ void Game::Init()
 	ResourceManager::GetShader("sprite").SetInteger("image", 0);
 	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
 
-	ResourceManager::LoadTexture("textures/512X512.png", false, "background");
-	ResourceManager::LoadTexture("textures/pizza.png", true, "pizza");
-	ResourceManager::LoadTexture("textures/player.png", true, "player");
-	ResourceManager::LoadTexture("textures/knife.png", true, "knife");
+	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
+	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
+	ResourceManager::LoadTexture("src/Textures/player.png", true, "player");
+	ResourceManager::LoadTexture("src/Textures/knife.png", true, "knife");
 
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
@@ -90,7 +87,7 @@ void Game::Init()
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);
 
-	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*PlayerSize, PlayerSprite,&PlayerProjectiles);
+	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, PlayerSprite,&PlayerProjectiles);
 	
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
@@ -249,6 +246,8 @@ void Game::Update(float dt)
 			this->State = GAME_ACTIVE;
 	}
 
+	player->UpdateCooldowns(dt);
+
 	debuginfo.Enemies = enemies.size();
 	debuginfo.Projectiles = PlayerProjectiles.size();
 	debuginfo.PlayerHealth = player->Health;
@@ -298,12 +297,12 @@ void Game::Collisions()
 			}
 		}
 		debuginfo.CollisionChecks++;
-		/* nie dodajemy player position w przypadku playera do naprawy
-		if (CheckCollision(*enemy, *player))
+		
+		if (CheckCollisionWithPlayer(*enemy))
 		{
 			enemy->TakeDamage(1.0f);
 			player->TakeDamage(1.0f);
-		}*/
+		}
 		for (int j = 0; j < enemies.size(); j++)
 		{
 			debuginfo.CollisionChecks++;
@@ -339,5 +338,15 @@ bool CheckCollision(GameObject& one, GameObject& two)
 	bool axisX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
 	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
 	
+	return axisX && axisY;
+}
+
+bool CheckCollisionWithPlayer(GameObject& one)
+{
+	GameObject two = *player;
+	two.Position += PlayerPosition;
+	bool axisX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
+	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
+
 	return axisX && axisY;
 }

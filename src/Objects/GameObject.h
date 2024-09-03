@@ -3,8 +3,8 @@
 #include <GL/glew.h>
 #include <glm.hpp>
 
-#include "Texture.h"
-#include "SpriteRenderer.h"
+#include "../ResourceHandlers/Texture.h"
+#include "../Renderers/SpriteRenderer.h"
 
 class GameObject
 {

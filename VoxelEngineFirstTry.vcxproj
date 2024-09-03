@@ -144,62 +144,58 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="EnemyRenderer.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="imgui\imgui.cpp" />
-    <ClCompile Include="imgui\imgui_demo.cpp" />
-    <ClCompile Include="imgui\imgui_draw.cpp" />
-    <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="imgui\imgui_tables.cpp" />
-    <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayerRenderer.cpp" />
-    <ClCompile Include="Projectile.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="ShaderLoader.cpp" />
-    <ClCompile Include="SpriteRenderer.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Weapon.cpp" />
+    <ClCompile Include="src\Objects\Enemy.cpp" />
+    <ClCompile Include="src\Renderers\EnemyRenderer.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\Objects\GameObject.cpp" />
+    <ClCompile Include="src\imgui\imgui.cpp" />
+    <ClCompile Include="src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Objects\Player.cpp" />
+    <ClCompile Include="src\Renderers\PlayerRenderer.cpp" />
+    <ClCompile Include="src\Objects\Projectile.cpp" />
+    <ClCompile Include="src\ResourceHandlers\ResourceManager.cpp" />
+    <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp" />
+    <ClCompile Include="src\Renderers\SpriteRenderer.cpp" />
+    <ClCompile Include="src\ResourceHandlers\Texture.cpp" />
+    <ClCompile Include="src\Weapons\Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EnemyRenderer.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="imgui\imconfig.h" />
-    <ClInclude Include="imgui\imgui.h" />
-    <ClInclude Include="imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="imgui\imgui_internal.h" />
-    <ClInclude Include="imgui\imstb_rectpack.h" />
-    <ClInclude Include="imgui\imstb_textedit.h" />
-    <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="PlayerRenderer.h" />
-    <ClInclude Include="Projectile.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ShaderLoader.h" />
-    <ClInclude Include="SpriteRenderer.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Weapon.h" />
+    <ClInclude Include="src\Objects\Enemy.h" />
+    <ClInclude Include="src\Renderers\EnemyRenderer.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\Objects\GameObject.h" />
+    <ClInclude Include="src\imgui\imconfig.h" />
+    <ClInclude Include="src\imgui\imgui.h" />
+    <ClInclude Include="src\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\imgui\imgui_internal.h" />
+    <ClInclude Include="src\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Objects\Player.h" />
+    <ClInclude Include="src\Renderers\PlayerRenderer.h" />
+    <ClInclude Include="src\Objects\Projectile.h" />
+    <ClInclude Include="src\ResourceHandlers\ResourceManager.h" />
+    <ClInclude Include="src\ResourceHandlers\ShaderLoader.h" />
+    <ClInclude Include="src\Renderers\SpriteRenderer.h" />
+    <ClInclude Include="src\ResourceHandlers\stb_image.h" />
+    <ClInclude Include="src\ResourceHandlers\Texture.h" />
+    <ClInclude Include="src\Weapons\Weapon.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EnemyShader.frag" />
-    <None Include="EnemyShader.vert" />
-    <None Include="shader\SpriteShader.frag" />
-    <None Include="shader\SpriteShader.vert" />
+    <None Include="src\Shaders\EnemyShader.frag" />
+    <None Include="src\Shaders\EnemyShader.vert" />
+    <None Include="src\Shaders\SpriteShader.frag" />
+    <None Include="src\Shaders\SpriteShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="512X512.png" />
-    <Image Include="pizza.png" />
-    <Image Include="player.png" />
     <Image Include="textures\Knife-temp.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

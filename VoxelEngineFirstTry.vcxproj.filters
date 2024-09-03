@@ -44,162 +44,150 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
+    <ClCompile Include="src\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyRenderer.cpp">
+    <ClCompile Include="src\Renderers\EnemyRenderer.cpp">
       <Filter>Source Files\Rendereres</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerRenderer.cpp">
+    <ClCompile Include="src\Renderers\PlayerRenderer.cpp">
       <Filter>Source Files\Rendereres</Filter>
     </ClCompile>
-    <ClCompile Include="SpriteRenderer.cpp">
+    <ClCompile Include="src\Renderers\SpriteRenderer.cpp">
       <Filter>Source Files\Rendereres</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
+    <ClCompile Include="src\Objects\GameObject.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="src\ResourceHandlers\Texture.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderLoader.cpp">
+    <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
+    <ClCompile Include="src\ResourceHandlers\ResourceManager.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Projectile.cpp">
+    <ClCompile Include="src\Objects\Projectile.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
+    <ClCompile Include="src\Objects\Player.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
+    <ClCompile Include="src\Objects\Enemy.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Weapon.cpp">
+    <ClCompile Include="src\Weapons\Weapon.cpp">
       <Filter>Source Files\Weapons</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui.cpp">
+    <ClCompile Include="src\imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_demo.cpp">
+    <ClCompile Include="src\imgui\imgui_demo.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_draw.cpp">
+    <ClCompile Include="src\imgui\imgui_draw.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_tables.cpp">
+    <ClCompile Include="src\imgui\imgui_tables.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_widgets.cpp">
+    <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
+    <ClCompile Include="src\imgui\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_glfw.cpp">
+    <ClCompile Include="src\imgui\imgui_impl_glfw.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.h">
+    <ClInclude Include="src\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
+    <ClInclude Include="src\Objects\GameObject.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="src\ResourceHandlers\stb_image.h">
       <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="src\ResourceHandlers\Texture.h">
       <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderLoader.h">
+    <ClInclude Include="src\ResourceHandlers\ShaderLoader.h">
       <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceManager.h">
+    <ClInclude Include="src\ResourceHandlers\ResourceManager.h">
       <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerRenderer.h">
+    <ClInclude Include="src\Renderers\PlayerRenderer.h">
       <Filter>Header Files\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteRenderer.h">
+    <ClInclude Include="src\Renderers\SpriteRenderer.h">
       <Filter>Header Files\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyRenderer.h">
+    <ClInclude Include="src\Renderers\EnemyRenderer.h">
       <Filter>Header Files\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="src\Objects\Player.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Projectile.h">
+    <ClInclude Include="src\Objects\Projectile.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
+    <ClInclude Include="src\Objects\Enemy.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Weapon.h">
+    <ClInclude Include="src\Weapons\Weapon.h">
       <Filter>Header Files\Weapons</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imconfig.h">
+    <ClInclude Include="src\imgui\imconfig.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui.h">
+    <ClInclude Include="src\imgui\imgui.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_internal.h">
+    <ClInclude Include="src\imgui\imgui_internal.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imstb_rectpack.h">
+    <ClInclude Include="src\imgui\imstb_rectpack.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imstb_textedit.h">
+    <ClInclude Include="src\imgui\imstb_textedit.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imstb_truetype.h">
+    <ClInclude Include="src\imgui\imstb_truetype.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_opengl3.h">
+    <ClInclude Include="src\imgui\imgui_impl_opengl3.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h">
+    <ClInclude Include="src\imgui\imgui_impl_opengl3_loader.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_glfw.h">
+    <ClInclude Include="src\imgui\imgui_impl_glfw.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\SpriteShader.frag">
+    <None Include="src\Shaders\SpriteShader.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="shader\SpriteShader.vert">
+    <None Include="src\Shaders\SpriteShader.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="EnemyShader.vert">
+    <None Include="src\Shaders\EnemyShader.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="EnemyShader.frag">
+    <None Include="src\Shaders\EnemyShader.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="512X512.png">
-      <Filter>Source Files\textures</Filter>
-    </Image>
-    <Image Include="pizza.png">
-      <Filter>Source Files\textures</Filter>
-    </Image>
-    <Image Include="player.png">
-      <Filter>Source Files\textures</Filter>
-    </Image>
     <Image Include="textures\Knife-temp.png">
       <Filter>Source Files\textures</Filter>
     </Image>

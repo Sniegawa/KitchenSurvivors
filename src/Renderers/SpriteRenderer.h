@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ResourceManager.h"
+#include "../ResourceHandlers/ResourceManager.h"
 
 class SpriteRenderer
 {
