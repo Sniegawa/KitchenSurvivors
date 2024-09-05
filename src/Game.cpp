@@ -16,13 +16,14 @@
 #include "Objects/Projectile.h"
 
 #include "Weapons/Weapon.h"
+#include "Weapons/Knife.h"
 
 #include "Renderers/PlayerRenderer.h"
 #include "Renderers/EnemyRenderer.h"
 #include "Renderers/SpriteRenderer.h"
 #include "ResourceHandlers/ResourceManager.h"
 
-glm::vec2 ScreenCenter;
+extern glm::vec2 ScreenCenter;
 
 bool CheckCollision(GameObject& one, GameObject& two);
 bool CheckCollisionWithPlayer(GameObject& one);
@@ -36,20 +37,18 @@ PlayerRenderer* playerRenderer;
 
 EnemyRenderer* enemyRenderer;
 
-Player* player;
+extern float MousePlayerAngle;
+
 
 std::vector<std::shared_ptr<Enemy>> enemies;
 
-std::shared_ptr<Enemy> pizza;
+Player* player;
 
-glm::vec2 PlayerPosition;
+extern glm::vec2 PlayerPosition;
 
-std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
-
-glm::vec2 mouseDir;
+extern std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
 
 DebugInfo debuginfo;
-
 
 Game::~Game()
 {
@@ -78,12 +77,14 @@ void Game::Init()
 	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
 	ResourceManager::LoadTexture("src/Textures/player.png", true, "player");
 	ResourceManager::LoadTexture("src/Textures/knife.png", true, "knife");
+	ResourceManager::LoadTexture("src/Textures/WIDELEC.png", true, "fork");
+	ResourceManager::LoadTexture("src/Textures/TASAK.png", true, "butcher");
 
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
 	enemyRenderer = new EnemyRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")), &PlayerPosition);
 
-	auto PlayerSprite = ResourceManager::GetTexture("pizza");
+	Texture2D PlayerSprite = ResourceManager::GetTexture("pizza");
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);
 
@@ -91,12 +92,12 @@ void Game::Init()
 	
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
-	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates, glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
-	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates + glm::vec2(100.0f,0.0f), glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
-	enemies.push_back(std::make_shared<Enemy>(Enemy(pizzaCoordinates + glm::vec2(200.0f, 0.0f), glm::vec2(64.0f), ResourceManager::GetTexture("pizza"))));
-
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
+
+	
+
+	player->weapons[0] = new KnifeWeapon("knife","knife",&player->stats);
 }
 
 void Game::Render()
@@ -138,71 +139,12 @@ void Game::Update(float dt)
 	WeaponTimer += dt;
 	if (WeaponTimer >= 1.0f / player->stats.AttackSpeed)
 	{
-		float angle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
-
-		Texture2D knifetex = ResourceManager::GetTexture("knife");
-
-		int projectileCount = player->stats.projectileCount;
-	
-		if (projectileCount > 1) {
-
-			if (projectileCount % 2 == 0 && projectileCount < 25)
-			{
-				for (int i = -projectileCount/2; i < projectileCount/2 + 1; i++)
-				{
-					if (i == 0)
-						continue;
-					float angleoffset = (glm::pi<float>() / 12) * i;
-					PlayerProjectiles.push_back(
-						std::make_unique<Projectile>(Projectile(
-							PlayerPosition + ScreenCenter,
-							glm::vec2(knifetex.Width, knifetex.Height),
-							knifetex,
-							25.0f,
-							glm::vec3(1.0f),
-							angle + glm::pi<float>() / 2.0f + angleoffset,
-							500,
-							glm::vec2(-sin(angle + angleoffset), cos(angle + angleoffset))
-						))
-					);
-				}
-			}
-			else
-			{
-				for (int i = -projectileCount / 2; i < projectileCount / 2 + 1; i++)
-				{
-					float angleoffset = (glm::pi<float>() / 12) * i;
-					PlayerProjectiles.push_back(
-						std::make_unique<Projectile>(Projectile(
-							PlayerPosition + ScreenCenter,
-							glm::vec2(knifetex.Width, knifetex.Height),
-							knifetex,
-							25.0f,
-							glm::vec3(1.0f),
-							angle + glm::pi<float>() / 2.0f + angleoffset,
-							500,
-							glm::vec2(-sin(angle + angleoffset), cos(angle + angleoffset))
-						))
-					);
-				}
-			}
-		}
-		else 
+		for (auto weapon : player->weapons)
 		{
-			PlayerProjectiles.push_back(
-				std::make_unique<Projectile>(Projectile(
-					PlayerPosition + ScreenCenter,
-					glm::vec2(knifetex.Width, knifetex.Height),
-					knifetex,
-					25.0f,
-					glm::vec3(1.0f),
-					angle + glm::pi<float>() / 2.0f,
-					500,
-					glm::vec2(-sin(angle), cos(angle))
-				))
-			);
+			if(weapon != nullptr)
+				weapon->Shoot();
 		}
-		WeaponTimer = 0.0f;
+		WeaponTimer = 0;
 	}
 
 
@@ -276,6 +218,7 @@ void Game::ProcessInput(float dt)
 			PlayerPosition.y += velocity;
 		}
 	}
+	MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 
 void Game::Collisions()
@@ -326,10 +269,18 @@ void Game::RenderDebug()
 	ImGui::Text("Enemies : %i", debuginfo.Enemies);
 	ImGui::Text("CollisionChecks : %i", debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
+	ImGui::Text("Weapons : ");
+	for (int i = 0; i < 6; i++)
+	{
+
+		ImGui::Text(player->weapons[i]->name.c_str());
+	}
+
 	ImGui::End();
 	ImGui::Begin("Stat tweaker", (bool*)0, flags);
 	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 5.0f);
 	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 150.0f);
+	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 5);
 	ImGui::End();
 }
 

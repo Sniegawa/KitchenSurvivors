@@ -5,13 +5,8 @@
 #include <vector>
 #include "Projectile.h"
 #include "../Weapons/Weapon.h"
+#include "../Common.h"
 #include <memory>
-struct PlayerStats {
-	float AttackSpeed = 1.0f;
-	int MaxHealth = 100;
-	int projectileCount = 1;
-	float PlayerSpeed = 75.0f;
-};
 
 class Player : public GameObject
 {
@@ -27,8 +22,8 @@ public:
 	bool Alive = true;
 	unsigned int Kills;
 	
+	Weapon *weapons[6];
 private:
-	Weapon weapons[6];
 
 	float InvulnerabilityCD;
 	std::vector<std::unique_ptr<Projectile>>* PlayerProjectilesPtr;

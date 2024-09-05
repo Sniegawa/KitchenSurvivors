@@ -11,6 +11,12 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std:
 	this->Level = 1;
 	this->stats.projectileCount = 1;
 	this->PlayerProjectilesPtr = pprojptr;
+
+	for (int i = 0; i < 6; i++)
+	{
+		this->weapons[i] = new Weapon();
+	}
+
 }
 
 

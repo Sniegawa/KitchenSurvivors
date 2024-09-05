@@ -163,9 +163,11 @@
     <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp" />
     <ClCompile Include="src\Renderers\SpriteRenderer.cpp" />
     <ClCompile Include="src\ResourceHandlers\Texture.cpp" />
+    <ClCompile Include="src\Weapons\Knife.cpp" />
     <ClCompile Include="src\Weapons\Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Common.h" />
     <ClInclude Include="src\Objects\Enemy.h" />
     <ClInclude Include="src\Renderers\EnemyRenderer.h" />
     <ClInclude Include="src\Game.h" />
@@ -187,6 +189,7 @@
     <ClInclude Include="src\Renderers\SpriteRenderer.h" />
     <ClInclude Include="src\ResourceHandlers\stb_image.h" />
     <ClInclude Include="src\ResourceHandlers\Texture.h" />
+    <ClInclude Include="src\Weapons\Knife.h" />
     <ClInclude Include="src\Weapons\Weapon.h" />
   </ItemGroup>
   <ItemGroup>
