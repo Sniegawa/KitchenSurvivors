@@ -1,6 +1,6 @@
 #include "Projectile.h"
 
-Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float dmg, glm::vec3 color, float rotation, float speed, glm::vec2 velocity)
+Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float dmg, glm::vec3 color, float rotation, float speed, glm::vec2 velocity, float _lifetime)
 {
 	this->Position = pos;
 	this->Size = size;
@@ -10,7 +10,7 @@ Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float dm
 	this->Speed = speed;
 	this->Velocity = velocity;
 	this->DamageDealt = dmg;
-	this->lifetime = 2;
+	this->lifetime = _lifetime;
 }
 
 void Projectile::Update(float dt)
@@ -20,7 +20,7 @@ void Projectile::Update(float dt)
 }
 void Projectile::Hit()
 {
-	lifetime = 0.0f;
+	lifetime -= 0.1f;
 }
 
 bool Projectile::IsDead()

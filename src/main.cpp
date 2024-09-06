@@ -8,6 +8,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "Common.h"
 
 using namespace glm;
 
@@ -15,12 +16,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 glm::vec2 GetMousePos(GLFWwindow* window);
 
-const unsigned int SCREEN_WIDTH = 1280;
-const unsigned int SCREEN_HEIGHT = 720;
-
 bool showdemo = true;
 
-Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
+Game* game = new Game(ScreenSize.x, ScreenSize.y);
 
 GLFWwindow* window;
 
@@ -39,14 +37,14 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kitchen Survivors", NULL, NULL);
+	window = glfwCreateWindow(ScreenSize.x, ScreenSize.y, "Kitchen Survivors", NULL, NULL);
 	if (window == NULL)
 	{
 		fprintf(stderr, "Failed to create window");
 		glfwTerminate();
 		return -1;
 	}
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glViewport(0, 0, ScreenSize.x, ScreenSize.y);
 	glfwMakeContextCurrent(window);
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK) 

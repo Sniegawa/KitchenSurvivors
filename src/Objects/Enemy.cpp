@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float health, float dmg, glm::vec3 color, float rotation)
+Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float health, glm::vec3 color, float rotation)
 {
 	this->Position = pos;
 	this->Size = size;
@@ -8,7 +8,6 @@ Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float health, floa
 	this->Color = color;
 	this->Rotation = rotation;
 	this->Health = health;
-	this->DamageDealt = dmg;
 	this->isDead = false;
 	this->HurtTiming = 0.0f;
 }

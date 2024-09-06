@@ -17,13 +17,14 @@
 
 #include "Weapons/Weapon.h"
 #include "Weapons/Knife.h"
+#include "Weapons/OrbitWeapon.h"
 
 #include "Renderers/PlayerRenderer.h"
 #include "Renderers/EnemyRenderer.h"
 #include "Renderers/SpriteRenderer.h"
 #include "ResourceHandlers/ResourceManager.h"
 
-extern glm::vec2 ScreenCenter;
+glm::vec2 ScreenCenter;
 
 bool CheckCollision(GameObject& one, GameObject& two);
 bool CheckCollisionWithPlayer(GameObject& one);
@@ -44,9 +45,9 @@ std::vector<std::shared_ptr<Enemy>> enemies;
 
 Player* player;
 
-extern glm::vec2 PlayerPosition;
+extern glm::vec2 PlayerPosition = glm::vec2(0);
 
-extern std::vector<std::unique_ptr<Projectile>> PlayerProjectiles;
+extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
 DebugInfo debuginfo;
 
@@ -86,7 +87,7 @@ void Game::Init()
 
 	Texture2D PlayerSprite = ResourceManager::GetTexture("pizza");
 	
-	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);
+	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
 
 	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, PlayerSprite,&PlayerProjectiles);
 	
@@ -97,7 +98,10 @@ void Game::Init()
 
 	
 
-	player->weapons[0] = new KnifeWeapon("knife","knife",&player->stats);
+	player->weapons[0] = new KnifeWeapon("fork","knife",&player->stats,&PlayerPosition);
+	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition);
+
+
 }
 
 void Game::Render()
@@ -147,6 +151,7 @@ void Game::Update(float dt)
 		WeaponTimer = 0;
 	}
 
+	player->weapons[1]->Update(dt);
 
 	for (int i = 0; i < PlayerProjectiles.size();i++)
 	{
@@ -221,6 +226,7 @@ void Game::ProcessInput(float dt)
 	MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 
+//Projectile deaths are framerate dependent FIX
 void Game::Collisions()
 {
 	debuginfo.CollisionChecks = 0;
@@ -243,7 +249,7 @@ void Game::Collisions()
 		
 		if (CheckCollisionWithPlayer(*enemy))
 		{
-			enemy->TakeDamage(1.0f);
+			enemy->TakeDamage(2.0f);
 			player->TakeDamage(1.0f);
 		}
 		for (int j = 0; j < enemies.size(); j++)

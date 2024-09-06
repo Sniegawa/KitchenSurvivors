@@ -5,3 +5,5 @@ struct PlayerStats {
 	int projectileCount = 1;
 	float PlayerSpeed = 75.0f;
 };
+
+static glm::vec2 ScreenSize = glm::vec2(1280, 720);
