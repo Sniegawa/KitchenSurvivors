@@ -8,6 +8,6 @@ public:
 	void Shoot() override;
 	void Update(float dt) override;
 private:
-	std::vector<std::shared_ptr<Projectile>> activeProjectiles;
+	std::vector<std::vector<std::shared_ptr<Projectile>>> activeProjectiles;
 	float pos;
 };

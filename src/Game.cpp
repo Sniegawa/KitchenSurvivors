@@ -147,6 +147,7 @@ void Game::Update(float dt)
 		{
 			if(weapon != nullptr)
 				weapon->Shoot();
+			
 		}
 		WeaponTimer = 0;
 	}
