@@ -89,7 +89,7 @@ void Game::Init()
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
 
-	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, PlayerSprite,&PlayerProjectiles);
+	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, PlayerSprite,&PlayerProjectiles,&PlayerPosition);
 	
 	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
@@ -163,7 +163,8 @@ void Game::Update(float dt)
 			Enemy(
 				glm::vec2(rand()%500,rand()%500),
 				glm::vec2(64.0f),
-				ResourceManager::GetTexture("pizza")
+				ResourceManager::GetTexture("pizza"),
+				player
 			)));
 		spawnerTime = 0.0f;
 		
@@ -266,6 +267,9 @@ void Game::RenderDebug()
 	ImGui::Text("Enemies : %i", debuginfo.Enemies);
 	ImGui::Text("CollisionChecks : %i", debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
+
+	ImGui::Text("Position : %f %f", PlayerPosition.x, PlayerPosition.y);
+
 	ImGui::Text("Weapons : ");
 	for (int i = 0; i < 6; i++)
 	{
