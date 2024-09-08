@@ -15,18 +15,23 @@ public:
 	glm::vec2* _pos;
 	void TakeDamage(float amount);
 	void UpdateCooldowns(float dt);
+	void GetXp(int type);
 	PlayerStats stats;
 	unsigned int Level = 0;
 	float LvlProgress = 0;
 	float Health = stats.MaxHealth;
 	bool Alive = true;
 	unsigned int Kills;
-	
 	Weapon *weapons[6];
+
+	float xp;
+	float xpToLvl;
 private:
 
 	float InvulnerabilityCD;
 	std::vector<std::shared_ptr<Projectile>>* PlayerProjectilesPtr;
+
+	
 };
 
 #endif // !PLAYER_HPP

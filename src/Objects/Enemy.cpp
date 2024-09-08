@@ -15,6 +15,7 @@ Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D sprite,Player* _player, fl
 
 void Enemy::TakeDamage(float amount)
 {
+	//Change so it can't take damage from same source but it can from multiple
 	if (this->HurtTiming > 0.0f)
 		return;
 	this->Health -= amount;

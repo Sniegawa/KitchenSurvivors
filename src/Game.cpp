@@ -28,6 +28,7 @@ glm::vec2 ScreenCenter;
 
 bool CheckCollision(GameObject& one, GameObject& two);
 bool CheckCollisionWithPlayer(GameObject& one);
+void Spawnxp(GameObject* enemy);
 
 Game::Game(unsigned int width, unsigned int height)
 	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
@@ -48,6 +49,8 @@ Player* player;
 extern glm::vec2 PlayerPosition = glm::vec2(0);
 
 extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
+
+std::vector<std::shared_ptr<GameObject>> expShards;
 
 DebugInfo debuginfo;
 
@@ -80,6 +83,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("src/Textures/knife.png", true, "knife");
 	ResourceManager::LoadTexture("src/Textures/WIDELEC.png", true, "fork");
 	ResourceManager::LoadTexture("src/Textures/TASAK.png", true, "butcher");
+	ResourceManager::LoadTexture("src/Textures/Tomato.png", true, "tomato");
 
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
@@ -96,8 +100,6 @@ void Game::Init()
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
 
-	
-
 	player->weapons[0] = new KnifeWeapon("fork","knife",&player->stats,&PlayerPosition,1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 
@@ -108,6 +110,11 @@ void Game::Render()
 {
 	renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width, this->Height), 0.0f);
 	
+	for (auto xp : expShards)
+	{
+		xp->Draw(*enemyRenderer);
+	}
+
 	for (int i = 0; i < enemies.size(); i++)
 	{
 		if (enemies[i]->isDead)
@@ -154,7 +161,7 @@ void Game::Update(float dt)
 		}
 		obj->Update(dt);
 	}
-	
+
 	spawnerTime += dt;
 
 	if (spawnerTime >= 0.5f)
@@ -221,6 +228,7 @@ void Game::ProcessInput(float dt)
 //Projectile deaths are framerate dependent FIX
 void Game::Collisions()
 {
+	
 	debuginfo.CollisionChecks = 0;
 	for (int i = 0; i < enemies.size();i++)
 	{
@@ -234,7 +242,11 @@ void Game::Collisions()
 				enemy->TakeDamage(projectile->DamageDealt);
 				projectile->Hit();
 				if (enemy->Health <= 0.0f)
+				{
 					player->Kills++;
+					Spawnxp(enemy.get());
+
+				}
 			}
 		}
 		debuginfo.CollisionChecks++;
@@ -256,6 +268,18 @@ void Game::Collisions()
 			}
 		}
 	}
+
+	for (int i = 0; i < expShards.size();i++)
+	{
+		auto xp = expShards[i];
+		debuginfo.CollisionChecks++;
+		if (CheckCollisionWithPlayer(*xp))
+		{
+			player->GetXp(rand()%2+5);
+			expShards.erase(expShards.begin() + i);
+			
+		}
+	}
 	
 }
 
@@ -267,9 +291,13 @@ void Game::RenderDebug()
 	ImGui::Text("Enemies : %i", debuginfo.Enemies);
 	ImGui::Text("CollisionChecks : %i", debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
-
 	ImGui::Text("Position : %f %f", PlayerPosition.x, PlayerPosition.y);
 
+	ImGui::Spacing();
+	ImGui::Text("Level %i", player->Level);
+	ImGui::Text("xp %f/%f",player->xp,player->xpToLvl);
+
+	ImGui::Spacing();
 	ImGui::Text("Weapons : ");
 	for (int i = 0; i < 6; i++)
 	{
@@ -301,4 +329,20 @@ bool CheckCollisionWithPlayer(GameObject& one)
 	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
 
 	return axisX && axisY;
+}
+
+void Spawnxp(GameObject* enemy)
+{
+	if ((rand() % 2))
+	{
+		expShards.push_back
+		(
+			std::make_shared<GameObject>(GameObject(
+				enemy->Position,
+				glm::vec2(32.0f, 32.0f),
+				ResourceManager::GetTexture("tomato")
+
+			))
+		);
+	}
 }
