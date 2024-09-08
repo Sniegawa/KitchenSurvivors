@@ -3,7 +3,7 @@
 extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
 
-OrbitWeapon::OrbitWeapon(std::string _sprite, std::string _name, PlayerStats* _stats, glm::vec2* _pos)
+OrbitWeapon::OrbitWeapon(std::string _sprite, std::string _name, PlayerStats* _stats, glm::vec2* _pos,float _cooldown)
 {
 	this->sprite = _sprite;
 	this->id = 1;
@@ -11,10 +11,13 @@ OrbitWeapon::OrbitWeapon(std::string _sprite, std::string _name, PlayerStats* _s
 	this->level = 1;
 	this->p_Stats = _stats;
 	this->p_PlayerPosition = _pos;
+	this->cooldown = _cooldown;
 }
 
 void OrbitWeapon::Shoot()
-{
+{	
+	if (this->activeProjectiles.size() > 0)
+		return;
 
 	Texture2D tex = ResourceManager::GetTexture(this->sprite);
 	
@@ -40,7 +43,8 @@ void OrbitWeapon::Shoot()
 			rotation,
 			0.0f,
 			glm::vec2(0.0f),
-			10
+			10,
+			true
 		));
 		batch.push_back(PlayerProjectiles.back());
 	}
@@ -49,13 +53,21 @@ void OrbitWeapon::Shoot()
 }
 
 void OrbitWeapon::Update(float dt)
-{
-	
+{	
+	//Calling base class Update method
+	Weapon::Update(dt);
+
 	for (int i = 0; i < this->activeProjectiles.size();i++)
 	{
 		std::vector<std::shared_ptr<Projectile>> pl = this->activeProjectiles[i];
-		int k = 0;
 		int n = pl.size();
+		if (pl[0]->IsDead())
+		{
+			this->activeProjectiles.clear();
+			return;
+		}
+
+		int k = 0;
 		int r = 100;
 		
 		for (auto p : pl)

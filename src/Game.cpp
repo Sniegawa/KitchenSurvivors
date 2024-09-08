@@ -98,8 +98,8 @@ void Game::Init()
 
 	
 
-	player->weapons[0] = new KnifeWeapon("fork","knife",&player->stats,&PlayerPosition);
-	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition);
+	player->weapons[0] = new KnifeWeapon("fork","knife",&player->stats,&PlayerPosition,1.0f);
+	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 
 
 }
@@ -130,9 +130,6 @@ void Game::Render()
 
 float spawnerTime;
 
-float WeaponTimer = 0.0f;
-
-
 void Game::Update(float dt)
 {	
 	
@@ -140,19 +137,12 @@ void Game::Update(float dt)
 		this->State = GAME_LOSE;
 
 
-	WeaponTimer += dt;
-	if (WeaponTimer >= 1.0f / player->stats.AttackSpeed)
+	for (auto weapon : player->weapons)
 	{
-		for (auto weapon : player->weapons)
-		{
-			if(weapon != nullptr)
-				weapon->Shoot();
-			
-		}
-		WeaponTimer = 0;
+		weapon->Update(dt);
 	}
+	
 
-	player->weapons[1]->Update(dt);
 
 	for (int i = 0; i < PlayerProjectiles.size();i++)
 	{

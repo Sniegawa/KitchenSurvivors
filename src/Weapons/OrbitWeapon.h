@@ -4,7 +4,7 @@
 class OrbitWeapon : public Weapon
 {
 public:
-	OrbitWeapon(std::string _sprite, std::string _name, PlayerStats* _stats, glm::vec2* _pos);
+	OrbitWeapon(std::string _sprite, std::string _name, PlayerStats* _stats, glm::vec2* _pos,float _cooldown);
 	void Shoot() override;
 	void Update(float dt) override;
 private:
