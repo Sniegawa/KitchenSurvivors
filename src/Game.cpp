@@ -63,6 +63,7 @@ Game::~Game()
 
 ImGuiWindowFlags flags = 0;
 
+int lastlvl;
 
 void Game::Init()
 {
@@ -85,6 +86,8 @@ void Game::Init()
 	ResourceManager::LoadTexture("src/Textures/TASAK.png", true, "butcher");
 	ResourceManager::LoadTexture("src/Textures/Tomato.png", true, "tomato");
 
+	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
+
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
 	enemyRenderer = new EnemyRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")), &PlayerPosition);
@@ -94,16 +97,13 @@ void Game::Init()
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
 
 	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, PlayerSprite,&PlayerProjectiles,&PlayerPosition);
-	
-	glm::vec2 pizzaCoordinates = glm::vec2(10.0f, 10.0f);
 
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
 
 	player->weapons[0] = new KnifeWeapon("fork","knife",&player->stats,&PlayerPosition,1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
-
-
+	lastlvl = player->Level;
 }
 
 void Game::Render()
@@ -137,19 +137,34 @@ void Game::Render()
 
 float spawnerTime;
 
+
 void Game::Update(float dt)
 {	
-	
+	//Menu
+	if (this->Keys[GLFW_KEY_TAB])
+	{
+		if (this->State == GAME_ACTIVE)
+			this->State = GAME_MENU;
+		else
+			this->State = GAME_ACTIVE;
+	}
+	if (!this->State == GAME_ACTIVE)
+		return;
 	if (!player->Alive)
 		this->State = GAME_LOSE;
 
+	if (player->Level > lastlvl)
+	{
+		this->State = GAME_LVLUP;
+		lastlvl = player->Level;
+		return;
+	}
 
 	for (auto weapon : player->weapons)
 	{
 		weapon->Update(dt);
 	}
 	
-
 
 	for (int i = 0; i < PlayerProjectiles.size();i++)
 	{
@@ -183,14 +198,6 @@ void Game::Update(float dt)
 		enemy->Update(dt);
 	}
 
-	//Menu
-	if (this->Keys[GLFW_KEY_TAB])
-	{
-		if (this->State == GAME_ACTIVE)
-			this->State = GAME_MENU;
-		else
-			this->State = GAME_ACTIVE;
-	}
 
 	player->UpdateCooldowns(dt);
 
@@ -228,7 +235,8 @@ void Game::ProcessInput(float dt)
 //Projectile deaths are framerate dependent FIX
 void Game::Collisions()
 {
-	
+	if (this->State != GAME_ACTIVE)
+		return;
 	debuginfo.CollisionChecks = 0;
 	for (int i = 0; i < enemies.size();i++)
 	{
@@ -307,10 +315,23 @@ void Game::RenderDebug()
 
 	ImGui::End();
 	ImGui::Begin("Stat tweaker", (bool*)0, flags);
-	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 5.0f);
+	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 25.0f);
 	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 150.0f);
-	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 5);
+	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 100);
 	ImGui::End();
+}
+
+void Game::RenderLevelUp()
+{
+	Texture2D hudtxt = ResourceManager::GetTexture("lvluphud");
+	glm::vec2 hudorigin = ScreenCenter - glm::vec2(hudtxt.Width, hudtxt.Height) * 0.5f;
+	renderer->DrawSprite(hudtxt, hudorigin, glm::vec2(hudtxt.Width, hudtxt.Height));
+
+	renderer->DrawSprite(ResourceManager::GetTexture("knife"), hudorigin + glm::vec2(197, 120), glm::vec2(64.0f, 64.0f));
+
+	//Debug exit
+	if (this->Keys[GLFW_KEY_SPACE])
+		this->State = GAME_ACTIVE;
 }
 
 bool CheckCollision(GameObject& one, GameObject& two)

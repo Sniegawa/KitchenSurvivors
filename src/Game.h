@@ -4,7 +4,8 @@ enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
 	GAME_WIN,
-	GAME_LOSE
+	GAME_LOSE,
+	GAME_LVLUP
 };
 struct DebugInfo
 {
@@ -29,4 +30,5 @@ public:
 	void Render();
 	void Collisions();
 	void RenderDebug();
+	void RenderLevelUp();
 };

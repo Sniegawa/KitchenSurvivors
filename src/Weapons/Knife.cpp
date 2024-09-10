@@ -13,7 +13,7 @@ void KnifeWeapon::Shoot()
 
 	if (projectileCount > 1) {
 
-		if (projectileCount % 2 == 0 && projectileCount < 25)
+		if (projectileCount % 2 == 0 /*&& projectileCount < 25*/)
 		{
 			for (int i = -projectileCount / 2; i < projectileCount / 2 + 1; i++)
 			{

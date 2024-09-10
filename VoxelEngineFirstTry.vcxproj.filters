@@ -207,4 +207,7 @@
       <Filter>Source Files\textures</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="D:\Pobrane\Arial.ttf" />
+  </ItemGroup>
 </Project>
