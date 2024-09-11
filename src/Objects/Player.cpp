@@ -13,7 +13,7 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std:
 	this->PlayerProjectilesPtr = pprojptr;
 	this->_pos = _pos;
 	this->xp = 0;
-	this->xpToLvl = lvlmap[this->Level];
+	this->xpToLvl = Common::lvlmap[this->Level];
 	for (int i = 0; i < 6; i++)
 	{
 		this->weapons[i] = new Weapon();
@@ -49,9 +49,9 @@ void Player::GetXp(int type)
 		this->Level++;
 		this->xp -= this->xpToLvl;
 		
-		if (this->Level > lvlmap.size())
-			this->xpToLvl = lvlmap[lvlmap.size()];
+		if (this->Level > Common::lvlmap.size())
+			this->xpToLvl = Common::lvlmap[Common::lvlmap.size()];
 		else
-			this->xpToLvl = lvlmap[this->Level];
+			this->xpToLvl = Common::lvlmap[this->Level];
 	}
 }

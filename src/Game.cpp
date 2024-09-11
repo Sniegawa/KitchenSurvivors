@@ -22,6 +22,7 @@
 #include "Renderers/PlayerRenderer.h"
 #include "Renderers/EnemyRenderer.h"
 #include "Renderers/SpriteRenderer.h"
+#include "Renderers/TextRenderer.h"
 #include "ResourceHandlers/ResourceManager.h"
 
 glm::vec2 ScreenCenter;
@@ -38,6 +39,8 @@ SpriteRenderer* renderer;
 PlayerRenderer* playerRenderer;
 
 EnemyRenderer* enemyRenderer;
+
+TextRenderer* textRenderer;
 
 extern float MousePlayerAngle;
 
@@ -69,7 +72,7 @@ void Game::Init()
 {
 	//load shaders
 	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
-	
+	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
@@ -77,6 +80,9 @@ void Game::Init()
 	ResourceManager::GetShader("sprite").Use();
 	ResourceManager::GetShader("sprite").SetInteger("image", 0);
 	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
+
+	ResourceManager::GetShader("text").Use();
+	ResourceManager::GetShader("text").SetMatrix4("projection", projection);
 
 	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
 	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
@@ -91,7 +97,7 @@ void Game::Init()
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
 	enemyRenderer = new EnemyRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")), &PlayerPosition);
-
+	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 	Texture2D PlayerSprite = ResourceManager::GetTexture("pizza");
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
@@ -132,11 +138,12 @@ void Game::Render()
 		obj->Draw(*enemyRenderer);
 	}
 
+
+	//textRenderer->RenderText("kkkk",  Common::ScreenSize.x / 2+20, Common::ScreenSize.y / 2, 1, glm::vec3(1.0f));
 	player->Draw(*playerRenderer);
 }
 
 float spawnerTime;
-
 
 void Game::Update(float dt)
 {	
@@ -206,6 +213,7 @@ void Game::Update(float dt)
 	debuginfo.PlayerHealth = player->Health;
 	//Lvl up
 }
+
 void Game::ProcessInput(float dt)
 {
 	if (this->State == GAME_ACTIVE)
@@ -329,6 +337,7 @@ void Game::RenderLevelUp()
 
 	renderer->DrawSprite(ResourceManager::GetTexture("knife"), hudorigin + glm::vec2(197, 120), glm::vec2(64.0f, 64.0f));
 
+	textRenderer->RenderText("knife", hudorigin.x + 280 ,hudorigin.y + 132, 1, glm::vec3(1.0f));
 	//Debug exit
 	if (this->Keys[GLFW_KEY_SPACE])
 		this->State = GAME_ACTIVE;

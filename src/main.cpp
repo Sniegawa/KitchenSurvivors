@@ -10,6 +10,8 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "Common.h"
 #include <ft2build.h>
+#include <iostream>
+#include <iomanip>
 #include FT_FREETYPE_H
 using namespace glm;
 
@@ -20,7 +22,7 @@ void PrepareFreeType();
 
 bool showdemo = true;
 
-Game* game = new Game(ScreenSize.x, ScreenSize.y);
+Game* game = new Game(Common::ScreenSize.x, Common::ScreenSize.y);
 
 GLFWwindow* window;
 
@@ -39,14 +41,14 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(ScreenSize.x, ScreenSize.y, "Kitchen Survivors", NULL, NULL);
+	window = glfwCreateWindow(Common::ScreenSize.x, Common::ScreenSize.y, "Kitchen Survivors", NULL, NULL);
 	if (window == NULL)
 	{
 		fprintf(stderr, "Failed to create window");
 		glfwTerminate();
 		return -1;
 	}
-	glViewport(0, 0, ScreenSize.x, ScreenSize.y);
+	glViewport(0, 0, Common::ScreenSize.x, Common::ScreenSize.y);
 	glfwMakeContextCurrent(window);
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK) 
@@ -79,7 +81,7 @@ int main()
 	fpsFlag |= ImGuiWindowFlags_AlwaysAutoResize;
 	fpsFlag |= ImGuiWindowFlags_NoCollapse;
 
-	//PrepareFreeType();
+	PrepareFreeType();
 
 	game->Init();
 
@@ -178,65 +180,81 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int heigth)
 	glViewport(0, 0, width, heigth);
 }
 
-//void PrepareFreeType()
-//{
-//	FT_Library ft;
-//	if (FT_Init_FreeType(&ft))
-//	{
-//		printf("ERROR::FREETYPE: Could not init FreeType Library\n");
-//	}
-//
-//	FT_Face face;
-//	if (FT_New_Face(ft, "arial.ttf", 0, &face))
-//	{
-//		printf("ERROR::FREETYPE: Failed to load font\n");
-//	}
-//
-//	FT_Set_Pixel_Sizes(face, 0, 48);
-//
-//	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-//
-//	for (unsigned char c = 0; c < 128; c++)
-//	{
-//		// load character glyph 
-//		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-//		{
-//			printf("ERROR::FREETYTPE: Failed to load Glyph\n");
-//			continue;
-//		}
-//		// generate texture
-//		unsigned int texture;
-//		glGenTextures(1, &texture);
-//		glBindTexture(GL_TEXTURE_2D, texture);
-//		glTexImage2D(
-//			GL_TEXTURE_2D,
-//			0,
-//			GL_RED,
-//			face->glyph->bitmap.width,
-//			face->glyph->bitmap.rows,
-//			0,
-//			GL_RED,
-//			GL_UNSIGNED_BYTE,
-//			face->glyph->bitmap.buffer
-//		);
-//		// set texture options
-//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//		// now store character for later use
-//		Character character = {
-//			texture,
-//			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-//			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-//			face->glyph->advance.x
-//		};
-//		Characters.insert(std::pair<char, Character>(c, character));
-//	}
-//
-//	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-//
-//	FT_Done_Face(face);
-//	FT_Done_FreeType(ft);
-//
-//}
+void PrepareFreeType()
+{
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		printf("ERROR::FREETYPE: Could not init FreeType Library\n");
+	}
+
+	FT_Face face;
+	FT_Error err = FT_New_Face(ft, "./src/fonts/PublicPixel-rv0pA.ttf", 0, &face);
+
+	if(err)
+		printf("ERROR::FREETYPE: Failed to load font %i\n", err);
+	
+	err = FT_Set_Pixel_Sizes(face, 0, 48);
+
+	if(err)
+		printf("ERROR::FREETYPE: Failed to load font %i\n", err);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	for (unsigned char c = 0; c < 128; c++)
+	{
+
+		//if (c == *"W"+1) {
+		//	int r = face->glyph->bitmap.rows;
+		//	int w = face->glyph->bitmap.width;
+
+		//	for (int i = 0; i < r * w; i++) {
+		//		std::cout << std::setw(2) << std::setfill('0') << std::hex << int(face->glyph->bitmap.buffer[i]);
+
+		//		if (i != 0 && (i + 1) % w == 0) {
+		//			std::cout << "\n";
+		//		}
+		//	}
+		//}
+
+		// load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			printf("ERROR::FREETYTPE: Failed to load Glyph\n");
+			continue;
+		}
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			face->glyph->advance.x
+		};
+		Common::AddCharacter(c, character);
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+}

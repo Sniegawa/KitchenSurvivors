@@ -25,7 +25,7 @@ public:
 	Weapon();
 
 protected:
-	const glm::vec2 center = glm::vec2(ScreenSize.x / 2, ScreenSize.y / 2);
+	const glm::vec2 center = glm::vec2(Common::ScreenSize.x / 2, Common::ScreenSize.y / 2);
 
 	float cooldown;
 	float remainingcd;

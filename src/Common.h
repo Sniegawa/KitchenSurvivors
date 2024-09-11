@@ -1,5 +1,7 @@
 #pragma once
 #include <unordered_map>
+#include <glm.hpp>
+#include <map>
 struct PlayerStats {
 	float AttackSpeed = 1.0f;
 	int MaxHealth = 100;
@@ -7,16 +9,6 @@ struct PlayerStats {
 	float PlayerSpeed = 75.0f;
 	float ExpirienceMultiplier = 1.0f;
 };
-
-static glm::vec2 ScreenSize = glm::vec2(1280, 720);
-
-static std::unordered_map<int, int> lvlmap
-{
-	{1,10},
-	{2,20},
-	{3,25}
-};
-
 //LearonOpenGL.com tutorials
 struct Character {
 	unsigned int TextureID;  // ID handle of the glyph texture
@@ -25,5 +17,18 @@ struct Character {
 	unsigned int Advance;    // Offset to advance to next glyph
 };
 
-static std::map<char, Character> Characters;
+class Common
+{
+public:
+	static glm::vec2 ScreenSize;
+
+	static std::unordered_map<int, int> lvlmap;
+
+	static std::map<char, Character> Characters;
+
+	static void AddCharacter(char _c, Character _char);
+private:
+	Common() { this->ScreenSize = glm::vec2(1280, 720); };
+};
+
 

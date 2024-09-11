@@ -110,6 +110,12 @@
     <ClCompile Include="src\Weapons\OrbitWeapon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderers\TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -187,6 +193,9 @@
     <ClInclude Include="src\Weapons\OrbitWeapon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderers\TextRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\SpriteShader.frag">
@@ -201,13 +210,12 @@
     <None Include="src\Shaders\EnemyShader.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="src\Shaders\TextShader.vert" />
+    <None Include="src\Shaders\TextShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\Knife-temp.png">
       <Filter>Source Files\textures</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="D:\Pobrane\Arial.ttf" />
   </ItemGroup>
 </Project>

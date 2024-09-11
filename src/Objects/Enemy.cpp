@@ -36,7 +36,7 @@ void Enemy::Update(float dt)
 		this->Color = glm::vec3(1.0f);
 	}
 
-	glm::vec2 DirectionToPlayer = glm::normalize(this->Position - *p_player->_pos - (ScreenSize*0.5f));
+	glm::vec2 DirectionToPlayer = glm::normalize(this->Position - *p_player->_pos - (Common::ScreenSize*0.5f));
 
 	this->Position -= DirectionToPlayer * 25.0f * dt;
 
