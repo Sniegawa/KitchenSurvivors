@@ -20,6 +20,8 @@ class Game
 public:
 	GameState State;
 	bool Keys[1024];
+	bool Mouse[2];
+
 	glm::vec2 MousePos;
 	unsigned int Width, Height;
 	Game(unsigned int width, unsigned int height);

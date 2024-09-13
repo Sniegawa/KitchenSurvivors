@@ -71,7 +71,7 @@ void KnifeWeapon::Shoot()
 	}
 }
 
-KnifeWeapon::KnifeWeapon(std::string _sprite, std::string _name, PlayerStats* _stats, glm::vec2* _pos,float _cooldown)
+KnifeWeapon::KnifeWeapon(std::string _sprite, std::string _name, std::string _desc, PlayerStats* _stats, glm::vec2* _pos,float _cooldown)
 {
 	this->sprite = _sprite;
 	this->id = 1;
@@ -80,4 +80,5 @@ KnifeWeapon::KnifeWeapon(std::string _sprite, std::string _name, PlayerStats* _s
 	this->p_Stats = _stats;
 	this->p_PlayerPosition = _pos;
 	this->cooldown = _cooldown;
+	this->description = _desc;
 }

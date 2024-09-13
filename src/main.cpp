@@ -17,6 +17,7 @@ using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void Mouse_callback(GLFWwindow* window, int button, int action, int mods);
 glm::vec2 GetMousePos(GLFWwindow* window);
 void PrepareFreeType();
 
@@ -57,6 +58,7 @@ int main()
 		return -1;
 	}
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, Mouse_callback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
@@ -204,19 +206,6 @@ void PrepareFreeType()
 	for (unsigned char c = 0; c < 128; c++)
 	{
 
-		//if (c == *"W"+1) {
-		//	int r = face->glyph->bitmap.rows;
-		//	int w = face->glyph->bitmap.width;
-
-		//	for (int i = 0; i < r * w; i++) {
-		//		std::cout << std::setw(2) << std::setfill('0') << std::hex << int(face->glyph->bitmap.buffer[i]);
-
-		//		if (i != 0 && (i + 1) % w == 0) {
-		//			std::cout << "\n";
-		//		}
-		//	}
-		//}
-
 		// load character glyph 
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
@@ -257,4 +246,19 @@ void PrepareFreeType()
 	FT_Done_FreeType(ft);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+}
+
+void Mouse_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button < 2)
+	{
+		if (action == GLFW_PRESS)
+		{
+			game->Mouse[button] = true;
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			game->Mouse[button] = false;
+		}
+	}
 }

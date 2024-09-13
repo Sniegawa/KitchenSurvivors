@@ -30,6 +30,7 @@ glm::vec2 ScreenCenter;
 bool CheckCollision(GameObject& one, GameObject& two);
 bool CheckCollisionWithPlayer(GameObject& one);
 void Spawnxp(GameObject* enemy);
+bool MouseInRange(glm::vec2 MousePos, glm::vec2 start, glm::vec2 end);
 
 Game::Game(unsigned int width, unsigned int height)
 	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
@@ -107,7 +108,7 @@ void Game::Init()
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
 
-	player->weapons[0] = new KnifeWeapon("fork","knife",&player->stats,&PlayerPosition,1.0f);
+	player->weapons[0] = new KnifeWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 	lastlvl = player->Level;
 }
@@ -331,13 +332,32 @@ void Game::RenderDebug()
 
 void Game::RenderLevelUp()
 {
+	//This should be randomized so each slot has it's own weapon,
+	//that is either an weapon from inventory or a new one
+	Weapon* weapon = player->weapons[0];
+
 	Texture2D hudtxt = ResourceManager::GetTexture("lvluphud");
 	glm::vec2 hudorigin = ScreenCenter - glm::vec2(hudtxt.Width, hudtxt.Height) * 0.5f;
 	renderer->DrawSprite(hudtxt, hudorigin, glm::vec2(hudtxt.Width, hudtxt.Height));
 
-	renderer->DrawSprite(ResourceManager::GetTexture("knife"), hudorigin + glm::vec2(197, 120), glm::vec2(64.0f, 64.0f));
+	Texture2D knifetex = ResourceManager::GetTexture(weapon->sprite);
 
-	textRenderer->RenderText("knife", hudorigin.x + 280 ,hudorigin.y + 132, 1, glm::vec3(1.0f));
+	renderer->DrawSprite(knifetex, hudorigin + glm::vec2(197, 145) + glm::vec2(knifetex.Width, knifetex.Height)*0.5f, glm::vec2(knifetex.Width, knifetex.Height) * 1.25f);
+
+	textRenderer->RenderText(weapon->name, hudorigin.x + 280 ,hudorigin.y + 132, .25f, glm::vec3(1.0f));
+	textRenderer->RenderText(weapon->description, hudorigin.x + 280, hudorigin.y + 160, .2f, glm::vec3(1.0f));
+
+	//Debug MousePos check according to the hud
+	if (this->Keys[GLFW_KEY_L])
+		printf("%f,%f\n", this->MousePos.x - hudorigin.x, this->MousePos.y - hudorigin.y);
+	
+	//Click
+	if (this->Mouse[0]) {
+		if (MouseInRange(this->MousePos, hudorigin + glm::vec2(166, 100), hudorigin + glm::vec2(619, 206)))
+		{
+			printf("in range\n");
+		}
+	}
 	//Debug exit
 	if (this->Keys[GLFW_KEY_SPACE])
 		this->State = GAME_ACTIVE;
@@ -375,4 +395,14 @@ void Spawnxp(GameObject* enemy)
 			))
 		);
 	}
+}
+
+bool MouseInRange(glm::vec2 MousePos,glm::vec2 start, glm::vec2 end)
+{
+	return 
+		start.x <= MousePos.x &&
+		MousePos.x <= end.x && 
+		start.y <= MousePos.y &&
+		MousePos.y <= end.y;
+
 }
