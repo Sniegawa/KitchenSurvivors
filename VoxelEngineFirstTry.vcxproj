@@ -169,7 +169,7 @@
     <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp" />
     <ClCompile Include="src\Renderers\SpriteRenderer.cpp" />
     <ClCompile Include="src\ResourceHandlers\Texture.cpp" />
-    <ClCompile Include="src\Weapons\Knife.cpp" />
+    <ClCompile Include="src\Weapons\ThrownWeapon.cpp" />
     <ClCompile Include="src\Weapons\OrbitWeapon.cpp" />
     <ClCompile Include="src\Weapons\Weapon.cpp" />
   </ItemGroup>
@@ -197,7 +197,7 @@
     <ClInclude Include="src\Renderers\SpriteRenderer.h" />
     <ClInclude Include="src\ResourceHandlers\stb_image.h" />
     <ClInclude Include="src\ResourceHandlers\Texture.h" />
-    <ClInclude Include="src\Weapons\Knife.h" />
+    <ClInclude Include="src\Weapons\ThrownWeapon.h" />
     <ClInclude Include="src\Weapons\OrbitWeapon.h" />
     <ClInclude Include="src\Weapons\Weapon.h" />
   </ItemGroup>

@@ -16,7 +16,7 @@
 #include "Objects/Projectile.h"
 
 #include "Weapons/Weapon.h"
-#include "Weapons/Knife.h"
+#include "Weapons/ThrownWeapon.h"
 #include "Weapons/OrbitWeapon.h"
 
 #include "Renderers/PlayerRenderer.h"
@@ -108,7 +108,7 @@ void Game::Init()
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
 
-	player->weapons[0] = new KnifeWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
+	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 	lastlvl = player->Level;
 }
@@ -352,11 +352,17 @@ void Game::RenderLevelUp()
 		printf("%f,%f\n", this->MousePos.x - hudorigin.x, this->MousePos.y - hudorigin.y);
 	
 	//Click
-	if (this->Mouse[0]) {
-		if (MouseInRange(this->MousePos, hudorigin + glm::vec2(166, 100), hudorigin + glm::vec2(619, 206)))
-		{
-			printf("in range\n");
-		}
+	if (this->Keys[GLFW_KEY_1]) {
+		weapon->LvlUp();
+		this->State = GAME_ACTIVE;
+	}
+	else if (this->Keys[GLFW_KEY_2])
+	{
+
+	}
+	else if (this->Keys[GLFW_KEY_3])
+	{
+
 	}
 	//Debug exit
 	if (this->Keys[GLFW_KEY_SPACE])

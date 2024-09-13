@@ -104,7 +104,7 @@
     <ClCompile Include="src\imgui\imgui_impl_glfw.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\Weapons\Knife.cpp">
+    <ClCompile Include="src\Weapons\ThrownWeapon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Weapons\OrbitWeapon.cpp">
@@ -184,7 +184,7 @@
     <ClInclude Include="src\imgui\imgui_impl_glfw.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Weapons\Knife.h">
+    <ClInclude Include="src\Weapons\ThrownWeapon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Common.h">

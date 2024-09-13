@@ -28,5 +28,5 @@ void Weapon::Update(float dt)
 
 void Weapon::LvlUp()
 {
-	this->Shoot();
+	Shoot();
 }

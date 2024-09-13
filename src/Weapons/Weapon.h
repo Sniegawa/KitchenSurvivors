@@ -21,7 +21,6 @@ public:
 	virtual void Shoot();
 	virtual void LvlUp();
 	virtual void Update(float dt);
-	//virtual void HandleLvlUp();
 	virtual ~Weapon();
 	Weapon(std::string _sprite,std::string _name, PlayerStats* _stats, glm::vec2* _pos,float _cooldown);
 	Weapon();
