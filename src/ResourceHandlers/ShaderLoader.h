@@ -24,7 +24,12 @@ public:
     void    SetVector4f(const char* name, const glm::vec4& value, bool useShader = false);
     void    SetMatrix4(const char* name, const glm::mat4& matrix, bool useShader = false);
 
+    GLuint  CreateUBO(size_t _size);
+
     void checkCompileErrors(unsigned int object, std::string type);
+
+private:
+
 };
 
 #endif

@@ -12,3 +12,4 @@ void Common::AddCharacter(char _c, Character _char)
 {
 	Characters.insert(std::pair<char, Character>(_c, _char));
 }
+

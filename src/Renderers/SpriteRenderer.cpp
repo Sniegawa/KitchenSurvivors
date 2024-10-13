@@ -37,12 +37,7 @@ void SpriteRenderer::initRenderData()
     glBindVertexArray(0);
 }
 
-/*
-this is not very efficient method to render lots of text. 
-Usually its done by packing all the characters into one buffer and also collect the glyphs into one texture atlas. 
-So there's only one draw call and one texture bound and UVs are then used to map specific glyph to the triangles.
-~Stack overflow
-*/
+
 void SpriteRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     this->shader.Use();
@@ -57,6 +52,7 @@ void SpriteRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
     this->shader.SetMatrix4("model", model);
+    this->shader.SetMatrix4("InverseModel", glm::inverse(model));
     this->shader.SetVector3f("spriteColor", color);
 
     glActiveTexture(GL_TEXTURE0);

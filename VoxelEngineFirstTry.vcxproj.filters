@@ -212,10 +212,17 @@
     </None>
     <None Include="src\Shaders\TextShader.vert" />
     <None Include="src\Shaders\TextShader.frag" />
+    <None Include="src\Shaders\UIShader.vert" />
+    <None Include="src\Shaders\UIShader.frag" />
+    <None Include="imgui.ini" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\Knife-temp.png">
       <Filter>Source Files\textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="src\fonts\Arial.ttf" />
+    <Font Include="src\fonts\PublicPixel-rv0pA.ttf" />
   </ItemGroup>
 </Project>

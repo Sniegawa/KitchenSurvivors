@@ -6,6 +6,21 @@
 #include <vector>
 #include <memory>
 
+enum UpgradeType
+{
+	WEAPON_UPGRADE_DAMAGE = 0,
+	WEAPON_UPGRADE_PROJECTILES,
+	WEAPON_UPGRADE_DURATION,
+	WEAPON_UPGRADE_PENETRATION
+};
+
+struct Upgrade {
+	UpgradeType Type;
+	int Amount;
+	Upgrade(UpgradeType _type, int _amount) : Type(_type), Amount(_amount) {};
+	Upgrade() {};
+};
+
 class Weapon
 {
 public:

@@ -35,6 +35,19 @@ bool MouseInRange(glm::vec2 MousePos, glm::vec2 start, glm::vec2 end);
 Game::Game(unsigned int width, unsigned int height)
 	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
 
+//DEBUG
+static glm::vec4 randColor()
+{
+	glm::vec4 c;
+	c = glm::vec4(glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), 0.1f), glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), 0.1f), glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), 0.1f), 1.0f);
+	return c;
+}
+
+static float randFloat(float min = 0.0f, float max = 1.0f)
+{
+	return min + static_cast<float> (rand()) / static_cast<float> (RAND_MAX/(max-min));
+}
+
 SpriteRenderer* renderer;
 
 PlayerRenderer* playerRenderer;
@@ -43,12 +56,24 @@ EnemyRenderer* enemyRenderer;
 
 TextRenderer* textRenderer;
 
+SpriteRenderer* UIRenderer;
+
 extern float MousePlayerAngle;
+
+Player* player;
+
+
+struct Light
+{
+	glm::vec4 coords;// vec2 pos, float radius, float ??
+	glm::vec4 color;
+	Light(glm::vec4 _coords , glm::vec4 _color) : coords(_coords),color(_color)  {};
+};
+
+std::vector<Light> lights;
 
 
 std::vector<std::shared_ptr<Enemy>> enemies;
-
-Player* player;
 
 extern glm::vec2 PlayerPosition = glm::vec2(0);
 
@@ -61,6 +86,7 @@ DebugInfo debuginfo;
 Game::~Game()
 {
 	delete renderer;
+	delete UIRenderer;
 	delete playerRenderer;
 	delete player;
 }
@@ -74,16 +100,22 @@ void Game::Init()
 	//load shaders
 	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
 	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
+	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag","UI");
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
-
+	
 	ResourceManager::GetShader("sprite").Use();
 	ResourceManager::GetShader("sprite").SetInteger("image", 0);
 	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
 
 	ResourceManager::GetShader("text").Use();
 	ResourceManager::GetShader("text").SetMatrix4("projection", projection);
+
+	ResourceManager::GetShader("UI").Use();
+	ResourceManager::GetShader("UI").SetInteger("image", 0);
+	ResourceManager::GetShader("UI").SetMatrix4("projection", projection);
+
 
 	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
 	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
@@ -96,6 +128,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
 
 	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
+	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
 	enemyRenderer = new EnemyRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")), &PlayerPosition);
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
@@ -108,14 +141,39 @@ void Game::Init()
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
 
+
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 	lastlvl = player->Level;
+	
+	for (int i = 0; i < 100; i++)
+	{
+		glm:: vec4 pos,col;
+		pos = glm::vec4(randFloat(-2000,2000), randFloat(-2000,2000), randFloat(0.0001f,0.001f),randFloat(0.0001f,0.001f));
+		col = randColor();
+		col.w = randFloat(0.0f,4.0f); // ??
+		lights.emplace_back(pos, col);
+	}
+
+	ResourceManager::GetShader("sprite").Use();
+
+	unsigned int SSBOLights;
+	glGenBuffers(1, &SSBOLights);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBOLights);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Light) * lights.size() , &lights[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(Light) * lights.size());
+
+
+	glBindBufferBase(ResourceManager::GetShader("sprite").ID,1 , SSBOLights);
 }
+
 
 void Game::Render()
 {
-	renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width, this->Height), 0.0f);
+	ResourceManager::GetShader("sprite").SetVector2f("PlayerPos", PlayerPosition);
+	renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width*10.0f, this->Height*10.0f), 0.0f);
 	
 	for (auto xp : expShards)
 	{
@@ -139,15 +197,15 @@ void Game::Render()
 		obj->Draw(*enemyRenderer);
 	}
 
-
-	//textRenderer->RenderText("kkkk",  Common::ScreenSize.x / 2+20, Common::ScreenSize.y / 2, 1, glm::vec3(1.0f));
 	player->Draw(*playerRenderer);
+	
 }
 
 float spawnerTime;
 
 void Game::Update(float dt)
 {	
+
 	//Menu
 	if (this->Keys[GLFW_KEY_TAB])
 	{
@@ -212,11 +270,17 @@ void Game::Update(float dt)
 	debuginfo.Enemies = enemies.size();
 	debuginfo.Projectiles = PlayerProjectiles.size();
 	debuginfo.PlayerHealth = player->Health;
-	//Lvl up
+	
 }
 
 void Game::ProcessInput(float dt)
 {
+	if (this->Keys[GLFW_KEY_R])
+	{
+		player->Health = 100;
+		player->Alive = true;
+		this->State = GAME_ACTIVE;
+	}
 	if (this->State == GAME_ACTIVE)
 	{
 		float velocity = player->stats.PlayerSpeed * dt;
@@ -237,6 +301,7 @@ void Game::ProcessInput(float dt)
 		{
 			PlayerPosition.y += velocity;
 		}
+
 	}
 	MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
@@ -318,15 +383,15 @@ void Game::RenderDebug()
 	ImGui::Text("Weapons : ");
 	for (int i = 0; i < 6; i++)
 	{
-
-		ImGui::Text(player->weapons[i]->name.c_str());
+		std::string weapontxt = player->weapons[i]->name + " " + std::to_string(player->weapons[i]->level);
+		ImGui::Text(weapontxt.c_str());
 	}
 
 	ImGui::End();
 	ImGui::Begin("Stat tweaker", (bool*)0, flags);
-	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 25.0f);
-	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 150.0f);
-	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 100);
+	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 3.0f);
+	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 250.0f);
+	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 10);
 	ImGui::End();
 }
 
@@ -338,11 +403,11 @@ void Game::RenderLevelUp()
 
 	Texture2D hudtxt = ResourceManager::GetTexture("lvluphud");
 	glm::vec2 hudorigin = ScreenCenter - glm::vec2(hudtxt.Width, hudtxt.Height) * 0.5f;
-	renderer->DrawSprite(hudtxt, hudorigin, glm::vec2(hudtxt.Width, hudtxt.Height));
+	UIRenderer->DrawSprite(hudtxt, hudorigin, glm::vec2(hudtxt.Width, hudtxt.Height));
 
 	Texture2D knifetex = ResourceManager::GetTexture(weapon->sprite);
 
-	renderer->DrawSprite(knifetex, hudorigin + glm::vec2(197, 145) + glm::vec2(knifetex.Width, knifetex.Height)*0.5f, glm::vec2(knifetex.Width, knifetex.Height) * 1.25f);
+	UIRenderer->DrawSprite(knifetex, hudorigin + glm::vec2(197, 145) + glm::vec2(knifetex.Width, knifetex.Height)*0.5f, glm::vec2(knifetex.Width, knifetex.Height) * 1.25f);
 
 	textRenderer->RenderText(weapon->name, hudorigin.x + 280 ,hudorigin.y + 132, .25f, glm::vec3(1.0f));
 	textRenderer->RenderText(weapon->description, hudorigin.x + 280, hudorigin.y + 160, .2f, glm::vec3(1.0f));

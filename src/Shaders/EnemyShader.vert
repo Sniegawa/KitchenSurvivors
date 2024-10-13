@@ -2,6 +2,8 @@
 
 layout (location = 0) in vec4 vertex;
 
+out vec2 TexCoords;
+
 uniform mat4 instanceModel;
 uniform mat4 projection; 
 

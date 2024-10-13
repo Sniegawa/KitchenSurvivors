@@ -25,7 +25,7 @@ void ThrownWeapon::Shoot()
 {
 
 	
-	int projectileCount = this->p_Stats->projectileCount;
+	int projectileCount = this->p_Stats->projectileCount + this->AdditionalProjectiles;
 
 	if (projectileCount > 1) {
 
@@ -65,9 +65,25 @@ ThrownWeapon::ThrownWeapon(std::string _sprite, std::string _name, std::string _
 	this->p_PlayerPosition = _pos;
 	this->cooldown = _cooldown;
 	this->description = _desc;
+	lvlupScheme.insert(std::pair<int, Upgrade>(2, Upgrade(WEAPON_UPGRADE_PROJECTILES, 1)));
+	lvlupScheme.insert(std::pair<int, Upgrade>(3, Upgrade(WEAPON_UPGRADE_PROJECTILES, 1)));
+	lvlupScheme.insert(std::pair<int, Upgrade>(4, Upgrade(WEAPON_UPGRADE_PROJECTILES, 1)));
 }
 
 void ThrownWeapon::LvlUp()
 {
 	Weapon::LvlUp();
+	Upgrade up = this->lvlupScheme[this->level];
+
+	switch (up.Type)
+	{
+	case WEAPON_UPGRADE_DAMAGE:
+	case WEAPON_UPGRADE_DURATION:
+	case WEAPON_UPGRADE_PENETRATION:
+		break;
+	case WEAPON_UPGRADE_PROJECTILES:
+		this->AdditionalProjectiles += up.Amount;
+	default:
+		break;
+	}
 }

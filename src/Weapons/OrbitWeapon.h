@@ -10,4 +10,5 @@ public:
 private:
 	std::vector<std::vector<std::shared_ptr<Projectile>>> activeProjectiles;
 	float pos;
+	int AdditionalProjectiles = 0;
 };

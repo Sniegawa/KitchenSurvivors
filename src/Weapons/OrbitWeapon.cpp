@@ -24,7 +24,7 @@ void OrbitWeapon::Shoot()
 	std::vector<std::shared_ptr<Projectile>> batch;
 
 	int k = 0;
-	int n = this->p_Stats->projectileCount;
+	int n = this->p_Stats->projectileCount + this->AdditionalProjectiles;
 	int r = 100;
 	glm::vec2 playerpos = *p_PlayerPosition;
 	for (; k < n; k++)

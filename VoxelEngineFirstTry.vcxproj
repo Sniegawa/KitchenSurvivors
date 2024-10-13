@@ -202,15 +202,22 @@
     <ClInclude Include="src\Weapons\Weapon.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="imgui.ini" />
     <None Include="src\Shaders\EnemyShader.frag" />
     <None Include="src\Shaders\EnemyShader.vert" />
     <None Include="src\Shaders\SpriteShader.frag" />
     <None Include="src\Shaders\SpriteShader.vert" />
     <None Include="src\Shaders\TextShader.frag" />
     <None Include="src\Shaders\TextShader.vert" />
+    <None Include="src\Shaders\UIShader.frag" />
+    <None Include="src\Shaders\UIShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\Knife-temp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="src\fonts\Arial.ttf" />
+    <Font Include="src\fonts\PublicPixel-rv0pA.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
