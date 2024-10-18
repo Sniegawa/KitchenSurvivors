@@ -27,18 +27,21 @@ void Shader::Compile(const char* vertex_source, const char* fragment_source)
 	sVertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(sVertex, 1, &vertex_source, NULL);
 	glCompileShader(sVertex);
-	checkCompileErrors(sVertex, "VERTEX");
+	if(checkCompileErrors(sVertex, "VERTEX"))
+		std::cout << "Succesfully compiled vertex shader " << std::endl;
 
 	sFragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(sFragment, 1, &fragment_source, NULL);
 	glCompileShader(sFragment);
-	checkCompileErrors(sFragment, "FRAGMENT");
+	if(checkCompileErrors(sFragment, "FRAGMENT"))
+		std::cout << "Succesfully compiled fragment shader " << std::endl;
 
 	this->ID = glCreateProgram();
 	glAttachShader(this->ID, sVertex);
 	glAttachShader(this->ID, sFragment);
 	glLinkProgram(this->ID);
-	checkCompileErrors(this->ID, "PROGRAM");
+	if (checkCompileErrors(this->ID, "PROGRAM"))
+		std::cout << "Succesfully compiled shader" << std::endl;
 	glDeleteShader(sVertex);
 	glDeleteShader(sFragment);
 	
@@ -101,7 +104,7 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool useShade
 
 
 
-void Shader::checkCompileErrors(unsigned int object, std::string type)
+bool Shader::checkCompileErrors(unsigned int object, std::string type)
 {
 	int success;
 	char infoLog[1024];
@@ -115,6 +118,7 @@ void Shader::checkCompileErrors(unsigned int object, std::string type)
 				<< infoLog << "\n -- --------------------------------------------------- -- "
 				<< std::endl;
 		}
+
 	}
 	else
 	{
@@ -127,4 +131,5 @@ void Shader::checkCompileErrors(unsigned int object, std::string type)
 				<< std::endl;
 		}
 	}
+	return success;
 }

@@ -203,6 +203,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
+    <None Include="src\Shaders\DefferedLight.frag" />
+    <None Include="src\Shaders\DefferedLight.vert" />
     <None Include="src\Shaders\EnemyShader.frag" />
     <None Include="src\Shaders\EnemyShader.vert" />
     <None Include="src\Shaders\SpriteShader.frag" />

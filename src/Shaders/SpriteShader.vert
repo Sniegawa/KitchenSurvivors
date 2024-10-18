@@ -1,9 +1,11 @@
 #version 460 core
 
-layout(location = 0) in vec4 vertex;
+layout(location = 0) in vec4 aVertex; //xy - position , zw - uv
+layout(location = 1) in vec2 aNormal;
 
-out vec2 UV;
-out vec4 FragPos;
+out vec2 UV; 
+out vec2 normal;
+out vec2 fragPos;
 
 uniform mat4 model;
 uniform mat4 InverseModel;
@@ -18,9 +20,8 @@ struct Light
 
 
 void main() {
-	UV = vertex.zw;
-	FragPos =  model * vec4(vertex.xy,0.0,1.0);
-	gl_Position = projection * model * vec4(vertex.xy,0.0,1.0);
-
-
+	gl_Position = projection * model * vec4(aVertex.xy,0.0,1.0);
+	normal = aNormal;
+	UV = aVertex.zw;
+	fragPos = aVertex.xy;
 }

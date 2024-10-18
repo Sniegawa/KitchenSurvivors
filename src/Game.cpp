@@ -63,14 +63,14 @@ extern float MousePlayerAngle;
 Player* player;
 
 
-struct Light
+struct pointLight
 {
-	glm::vec4 coords;// vec2 pos, float radius, float ??
-	glm::vec4 color;
-	Light(glm::vec4 _coords , glm::vec4 _color) : coords(_coords),color(_color)  {};
+	glm::vec2 coords;// vec2 pos, float radius, float ??
+	glm::vec3 color;
+	pointLight(glm::vec2 _coords , glm::vec3 _color) : coords(_coords),color(_color)  {};
 };
 
-std::vector<Light> lights;
+std::vector<pointLight> lights;
 
 
 std::vector<std::shared_ptr<Enemy>> enemies;
@@ -101,6 +101,7 @@ void Game::Init()
 	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
 	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
 	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag","UI");
+	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
@@ -145,30 +146,62 @@ void Game::Init()
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 	lastlvl = player->Level;
-	
-	for (int i = 0; i < 100; i++)
+	srand(time(0));
+	for (int i = 0; i < 25; i++)
 	{
-		glm:: vec4 pos,col;
-		pos = glm::vec4(randFloat(-2000,2000), randFloat(-2000,2000), randFloat(0.0001f,0.001f),randFloat(0.0001f,0.001f));
+		glm::vec2 pos;
+		glm::vec3 col;
+		pos = glm::vec2(randFloat(0,2000), randFloat(0,2000));
 		col = randColor();
-		col.w = randFloat(0.0f,4.0f); // ??
 		lights.emplace_back(pos, col);
 	}
 
-	ResourceManager::GetShader("sprite").Use();
+	ResourceManager::GetShader("light").Use();
 
 	unsigned int SSBOLights;
 	glGenBuffers(1, &SSBOLights);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBOLights);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Light) * lights.size() , &lights[0], GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(pointLight) * lights.size() , &lights[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(Light) * lights.size());
+	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(pointLight) * lights.size());
 
 
-	glBindBufferBase(ResourceManager::GetShader("sprite").ID,1 , SSBOLights);
+	glBindBufferBase(ResourceManager::GetShader("light").ID,1 , SSBOLights);
 }
 
+//-------------------
+//|LIGHT RENDER PASS|
+//-------------------
+void Game::RenderLight()
+{
+	ResourceManager::GetShader("light").Use();
+	float vertices[] = {
+		// Positions      // UV coordinates
+		-1.0f, -1.0f,    0.0f, 0.0f,  // Bottom left
+		 1.0f, -1.0f,    1.0f, 0.0f,  // Bottom right
+		-1.0f,  1.0f,    0.0f, 1.0f,  // Top left
+
+		-1.0f,  1.0f,    0.0f, 1.0f,  // Top left
+		 1.0f, -1.0f,    1.0f, 0.0f,  // Bottom right
+		 1.0f,  1.0f,    1.0f, 1.0f   // Top right
+	};
+
+	GLuint VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
 
 void Game::Render()
 {

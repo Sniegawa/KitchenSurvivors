@@ -14,6 +14,7 @@ std::map<std::string, Shader>  ResourceManager::Shaders;
 Shader ResourceManager::LoadShader(const char* vertexShaderFile, const char* fragmentShaderFile, std::string name)
 {
 	Shaders[name] = loadShaderFromFile(vertexShaderFile, fragmentShaderFile);
+	std::cout << "Compiling shader " << name << std::endl;
 	return Shaders[name];
 }
 

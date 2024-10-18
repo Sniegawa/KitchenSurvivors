@@ -33,4 +33,5 @@ public:
 	void Collisions();
 	void RenderDebug();
 	void RenderLevelUp();
+	void RenderLight();
 };

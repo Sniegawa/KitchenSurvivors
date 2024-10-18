@@ -215,6 +215,8 @@
     <None Include="src\Shaders\UIShader.vert" />
     <None Include="src\Shaders\UIShader.frag" />
     <None Include="imgui.ini" />
+    <None Include="src\Shaders\DefferedLight.vert" />
+    <None Include="src\Shaders\DefferedLight.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\Knife-temp.png">
