@@ -17,9 +17,19 @@ struct Character {
 	unsigned int Advance;    // Offset to advance to next glyph
 };
 
+struct DebugInfo
+{
+	int CollisionChecks;
+	int Enemies;
+	int Projectiles;
+	int PlayerHealth;
+	int DrawCalls;
+};
+
 class Common
 {
 public:
+	static DebugInfo debuginfo;
 	static glm::vec2 ScreenSize;
 
 	static std::unordered_map<int, int> lvlmap;
@@ -28,7 +38,7 @@ public:
 
 	static void AddCharacter(char _c, Character _char);
 private:
-	Common() { this->ScreenSize = glm::vec2(1280, 720); };
+	Common() { this->ScreenSize = glm::vec2(1280, 720); this->debuginfo = DebugInfo(); };
 };
 
 

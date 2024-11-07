@@ -173,21 +173,6 @@ void Game::Init()
 
 	//glBindBufferBase(ResourceManager::GetShader("light").ID,1 , SSBOLights);
 
-
-	//Debug xp shards spawn
-
-	for(int x = 0; x < 40; x++)
-		for(int y = 0; y < 40; y++)
-			expShards.push_back
-			(
-				std::make_shared<GameObject>(GameObject(
-					glm::vec2(x,y)*10.0f,
-					glm::vec2(32.0f, 32.0f),
-					&ResourceManager::GetTexture("tomato")
-
-				))
-			);
-
 }
 
 //---------------------
@@ -231,42 +216,26 @@ void Game::RenderLight()
 
 void Game::Render()
 {
-	debuginfo.DrawCalls = 0;
+	Common::debuginfo.DrawCalls = 0;
+
 
 
 	//ResourceManager::GetShader("sprite").SetVector2f("PlayerPos", PlayerPosition);
 	//TEMP BACKGROUND
 	drenderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width*10.0f, this->Height*10.0f), 0.0f);
-	debuginfo.DrawCalls++;
+	Common::debuginfo.DrawCalls++;
 	
+	std::vector<std::shared_ptr<GameObject>> RenderData;
+	//Data at top is rendered first
+	RenderData.insert(RenderData.end(), expShards.begin(), expShards.end());
+	RenderData.insert(RenderData.end(), enemies.begin(), enemies.end());
+	RenderData.insert(RenderData.end(), PlayerProjectiles.begin(), PlayerProjectiles.end());
 
-	this->renderer.Render(expShards);
-	debuginfo.DrawCalls++;
-
-	//DRAW ENEMIES
-	for (int i = 0; i < enemies.size(); i++)
-	{
-		if (enemies[i]->isDead)
-		{
-			
-			enemies.erase(enemies.begin() + i);
-			continue;
-		}
-		enemies[i]->Draw(*enemyRenderer);
-		debuginfo.DrawCalls++;
-	}
-
-	//DRAW PROJECTILES
-	for(auto const& obj : PlayerProjectiles)
-	{
-		obj->Draw(*enemyRenderer);
-		debuginfo.DrawCalls++;
-	}
-
+	this->renderer.Render(RenderData);
 
 	//FINALLY DRAW PLAYER
 	player->Draw(*playerRenderer);
-	debuginfo.DrawCalls++;
+	Common::debuginfo.DrawCalls++;
 
 
 
@@ -334,15 +303,25 @@ void Game::Update(float dt)
 	{
 		enemy->Update(dt);
 	}
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		if (enemies[i]->isDead)
+		{
 
+			enemies.erase(enemies.begin() + i);
+			continue;
+		}
+	}
 
 	player->UpdateCooldowns(dt);
 
+
+
 	renderer.UpdatePlayerPos(PlayerPosition);
 
-	debuginfo.Enemies = enemies.size();
-	debuginfo.Projectiles = PlayerProjectiles.size();
-	debuginfo.PlayerHealth = player->Health;
+	Common::debuginfo.Enemies = enemies.size();
+	Common::debuginfo.Projectiles = PlayerProjectiles.size();
+	Common::debuginfo.PlayerHealth = player->Health;
 	
 }
 
@@ -384,14 +363,14 @@ void Game::Collisions()
 {
 	if (this->State != GAME_ACTIVE)
 		return;
-	debuginfo.CollisionChecks = 0;
+	Common::debuginfo.CollisionChecks = 0;
 	for (int i = 0; i < enemies.size();i++)
 	{
 		auto enemy = enemies[i];
 
 		for (auto const& projectile : PlayerProjectiles)
 		{
-			debuginfo.CollisionChecks++;
+			Common::debuginfo.CollisionChecks++;
 			if (CheckCollision(*projectile, *enemy))
 			{
 				enemy->TakeDamage(projectile->DamageDealt);
@@ -404,7 +383,7 @@ void Game::Collisions()
 				}
 			}
 		}
-		debuginfo.CollisionChecks++;
+		Common::debuginfo.CollisionChecks++;
 		
 		if (CheckCollisionWithPlayer(*enemy))
 		{
@@ -413,7 +392,7 @@ void Game::Collisions()
 		}
 		for (int j = 0; j < enemies.size(); j++)
 		{
-			debuginfo.CollisionChecks++;
+			Common::debuginfo.CollisionChecks++;
 			if (i == j)
 				continue;
 			if (CheckCollision(*enemies[i], *enemies[j]))
@@ -423,11 +402,11 @@ void Game::Collisions()
 			}
 		}
 	}
-
+	
 	for (int i = 0; i < expShards.size();i++)
 	{
 		auto xp = expShards[i];
-		debuginfo.CollisionChecks++;
+		Common::debuginfo.CollisionChecks++;
 		if (CheckCollisionWithPlayer(*xp))
 		{
 			player->GetXp(rand()%2+5);
@@ -441,10 +420,10 @@ void Game::Collisions()
 void Game::RenderDebug()
 {
 	ImGui::Begin("Debug info",(bool*)0,flags);
-	ImGui::Text("HP : %i", debuginfo.PlayerHealth);
-	ImGui::Text("Projectiles : %i", debuginfo.Projectiles);
-	ImGui::Text("Enemies : %i", debuginfo.Enemies);
-	ImGui::Text("CollisionChecks : %i", debuginfo.CollisionChecks);
+	ImGui::Text("HP : %i", Common::debuginfo.PlayerHealth);
+	ImGui::Text("Projectiles : %i", Common::debuginfo.Projectiles);
+	ImGui::Text("Enemies : %i", Common::debuginfo.Enemies);
+	ImGui::Text("CollisionChecks : %i", Common::debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
 	ImGui::Text("Position : %f %f", PlayerPosition.x, PlayerPosition.y);
 
@@ -534,6 +513,7 @@ void Spawnxp(GameObject* enemy)
 			std::make_shared<GameObject>(GameObject(
 				enemy->Position,
 				glm::vec2(32.0f, 32.0f),
+				0.0f,
 				&ResourceManager::GetTexture("tomato")
 
 			))

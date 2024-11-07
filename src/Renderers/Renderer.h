@@ -8,7 +8,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
-
+#include "../Common.h"
 class Renderer {
 public:
 	void Render(const std::vector<std::shared_ptr<GameObject>>& gameObjects);

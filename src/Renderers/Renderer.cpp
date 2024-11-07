@@ -49,15 +49,14 @@ void Renderer::Render(const std::vector<std::shared_ptr<GameObject>>& gameObject
     for (const auto& obj : gameObjects) {
 
         glm::mat4 model = glm::mat4(1.0f);
-
+        if (obj->Rotation != 0.0f)
+            printf("Rotation : %f\n", obj->Rotation);
         model = glm::translate(model, glm::vec3(obj->Position - this->PlayerPos, 0.0f));
         //Rotation
         model = glm::translate(model, glm::vec3(0.5f * obj->Size.x, 0.5f * obj->Size.y, 0.0f)); //We transform model to be centered at center of object
-        model = glm::rotate(model, glm::radians(obj->Rotation), glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
+        model = glm::rotate(model, obj->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
         model = glm::translate(model, glm::vec3(-0.5f * obj->Size.x, -0.5f * obj->Size.y, 0.0f)); //transform model so it's center is back at top left corner
         model = glm::scale(model, glm::vec3(obj->Size, 1.0f));
-
-       //std::cout << "Object ID: " << obj.get() << ", Texture ID: " << obj->Sprite->ID << std::endl;
 
         RenderBatches[obj->Sprite].push_back(model); //Wyszukujemy vector macierzy po kluczu i przypisujemy do niego now¹ macierz (NIE DZIA£A)
 
@@ -85,36 +84,9 @@ void Renderer::UpdateInstanceData(const std::vector<glm::mat4>& modelMatrices)
 
 void Renderer::DrawInstances(GLsizei instanceCount)
 {
-
     glBindVertexArray(this->VAO);
-
-    if (!glIsVertexArray(VAO)) {
-        std::cerr << "Error: VAO is not valid.\n";
-    }
-    if (!glIsBuffer(VBO)) {
-        std::cerr << "Error: VBO is not valid.\n";
-    }
-    if (!glIsBuffer(InstanceVBO)) {
-        std::cerr << "Error: instanceVBO is not valid.\n";
-    }
-
-    // Validate that the shader program is bound
-    GLint currentProgram = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
-    if (currentProgram == 0) {
-        std::cerr << "Warning: No shader program is currently bound.\n";
-    }
-
-
-    //std::cout << "Instance count: " << instanceCount << std::endl;
-
-    GLenum error;
-
+    Common::debuginfo.DrawCalls++;
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instanceCount);
- 
-    while ((error = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error after glDrawArraysInstanced: " << error << std::endl;
-    }
 
     glBindVertexArray(0);
 }

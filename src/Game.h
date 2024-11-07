@@ -8,14 +8,7 @@ enum GameState {
 	GAME_LOSE,
 	GAME_LVLUP
 };
-struct DebugInfo
-{
-	int CollisionChecks;
-	int Enemies;
-	int Projectiles;
-	int PlayerHealth;
-	int DrawCalls;
-};
+
 
 class Game
 {
@@ -23,8 +16,6 @@ public:
 	GameState State;
 	bool Keys[1024];
 	bool Mouse[2];
-
-	DebugInfo debuginfo;
 
 	glm::vec2 MousePos;
 	unsigned int Width, Height;

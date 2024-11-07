@@ -238,7 +238,7 @@ int main()
 		ImGui::Begin("stats",(bool *)0, fpsFlag);
 		ImGui::Text("fps : %.2f",fps);
 		ImGui::Text("ms : %.4f", 1000.0f / fps);
-		ImGui::Text("Draw calls : %i", game->debuginfo.DrawCalls);
+		ImGui::Text("Draw calls : %i", Common::debuginfo.DrawCalls);
 		ImGui::SetNextWindowPos(ImVec2(500,100),ImGuiCond_FirstUseEver);
 		ImGui::End();
 		frames = 0;
