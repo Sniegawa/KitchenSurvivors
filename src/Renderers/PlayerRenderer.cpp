@@ -22,7 +22,8 @@ void PlayerRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2
     this->shader.SetMatrix4("model", model);
     this->shader.SetVector3f("spriteColor", color);
 
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE3);
+    shader.SetInteger("image", 3);
     texture.Bind();
 
     glBindVertexArray(this->quadVAO);

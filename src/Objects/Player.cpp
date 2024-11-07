@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std::shared_ptr<Projectile>>* pprojptr,glm::vec2* _pos, glm::vec3 color, float rotation)
+Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, std::vector<std::shared_ptr<Projectile>>* pprojptr,glm::vec2* _pos, glm::vec3 color, float rotation)
 {
 	this->Position = pos;
 	this->Size = size;

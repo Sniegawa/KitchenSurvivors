@@ -1,11 +1,10 @@
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#pragma once
 
 
 #include<GL/glew.h>
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
-
+#include<string>
 class Shader{
 
 public:
@@ -24,10 +23,17 @@ public:
     void    SetVector4f(const char* name, const glm::vec4& value, bool useShader = false);
     void    SetMatrix4(const char* name, const glm::mat4& matrix, bool useShader = false);
 
+    void    SetModel(const glm::mat4& model, bool useShader = false);
+    void    SetInvModel(const glm::mat4& invmodel, bool useShader = false);
+
     bool checkCompileErrors(unsigned int object, std::string type);
 
+    bool operator<(const Shader& shader) const noexcept
+    {
+        return this->ID < shader.ID;
+    }
+
 private:
-
+    GLint modelLocation;
+    GLint invmodelLocation;
 };
-
-#endif

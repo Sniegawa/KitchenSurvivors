@@ -164,6 +164,7 @@
     <ClCompile Include="src\Objects\Player.cpp" />
     <ClCompile Include="src\Renderers\PlayerRenderer.cpp" />
     <ClCompile Include="src\Objects\Projectile.cpp" />
+    <ClCompile Include="src\Renderers\Renderer.cpp" />
     <ClCompile Include="src\Renderers\TextRenderer.cpp" />
     <ClCompile Include="src\ResourceHandlers\ResourceManager.cpp" />
     <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="src\Objects\Player.h" />
     <ClInclude Include="src\Renderers\PlayerRenderer.h" />
     <ClInclude Include="src\Objects\Projectile.h" />
+    <ClInclude Include="src\Renderers\Renderer.h" />
     <ClInclude Include="src\Renderers\TextRenderer.h" />
     <ClInclude Include="src\ResourceHandlers\ResourceManager.h" />
     <ClInclude Include="src\ResourceHandlers\ShaderLoader.h" />
@@ -207,6 +209,8 @@
     <None Include="src\Shaders\DefferedLight.vert" />
     <None Include="src\Shaders\EnemyShader.frag" />
     <None Include="src\Shaders\EnemyShader.vert" />
+    <None Include="src\Shaders\InstancedSpriteShader.frag" />
+    <None Include="src\Shaders\InstancedSpriteShader.vert" />
     <None Include="src\Shaders\SpriteShader.frag" />
     <None Include="src\Shaders\SpriteShader.vert" />
     <None Include="src\Shaders\TextShader.frag" />

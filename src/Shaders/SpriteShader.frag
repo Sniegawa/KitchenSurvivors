@@ -1,8 +1,9 @@
 #version 460 core
 
-layout (location = 0) out vec2 FragPos;
-layout (location = 1) out vec2 Normal;
-layout (location = 2) out vec3 Albedo;
+out vec4 color;
+//layout (location = 0) out vec2 gPosition; 
+//layout (location = 1) out vec3 gNormal;   
+// (location = 2) out vec3 gAlbedo;  
 
 in vec2 UV;
 in vec2 normal;
@@ -16,11 +17,8 @@ void main()
 {
 
 	vec4 diffuse = vec4(spriteColor,1.0) * texture(image,UV);
-	
-	if(diffuse.w <= 0.05)
-		discard;
-	Albedo = diffuse.xyz;
-	Normal = normal;
-	FragPos = fragPos;
-
+	//gAlbedo = vec3(0,1,0);
+	//gNormal = vec3(1,0,0);
+	//gPosition = fragPos;
+	color = diffuse;
 }

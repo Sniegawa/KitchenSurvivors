@@ -11,7 +11,7 @@
 class Player : public GameObject
 {
 public:
-	Player(glm::vec2 pos, glm::vec2 size, Texture2D sprite, std::vector<std::shared_ptr<Projectile>>* pprojptr,glm::vec2* _pos, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
+	Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, std::vector<std::shared_ptr<Projectile>>* pprojptr,glm::vec2* _pos, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
 	glm::vec2* _pos;
 	void TakeDamage(float amount);
 	void UpdateCooldowns(float dt);

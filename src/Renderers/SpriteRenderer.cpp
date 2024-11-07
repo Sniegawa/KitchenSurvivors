@@ -56,6 +56,7 @@ void SpriteRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2
     this->shader.SetVector3f("spriteColor", color);
 
     glActiveTexture(GL_TEXTURE0);
+    shader.SetInteger("image", 0);
     texture.Bind();
 
     glBindVertexArray(this->quadVAO);

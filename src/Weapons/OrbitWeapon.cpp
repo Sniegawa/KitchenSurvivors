@@ -37,7 +37,7 @@ void OrbitWeapon::Shoot()
 		PlayerProjectiles.push_back(std::make_unique<Projectile>(
 			temppos,
 			glm::vec2(tex.Width,tex.Height),
-			tex,
+			&ResourceManager::GetTexture(this->sprite),
 			1,
 			glm::vec3(1.0f),
 			rotation,

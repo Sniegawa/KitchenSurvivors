@@ -68,50 +68,61 @@ int main()
 #pragma endregion
 
 
-#pragma region FRAMEBUFFERS
+#pragma region FRAMEBUFFER
 
-	GLuint gBuffer; //GeometryBuffer
+	int SCR_WIDTH = Common::ScreenSize.x;
+	int SCR_HEIGHT = Common::ScreenSize.y;
+
+	unsigned int gBuffer;
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
-	GLuint gPosition; //position buffer with 2d coordinates
+	// Position buffer (vec2)
+	unsigned int gPosition;
 	glGenTextures(1, &gPosition);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Common::ScreenSize.x, Common::ScreenSize.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
 
-	GLuint gNormal;
+	// Normal buffer (vec2)
+	unsigned int gNormal;
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Common::ScreenSize.x, Common::ScreenSize.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
 
-	GLuint gAlbedo;
+	// Color + specular buffer (vec4)
+	unsigned int gAlbedo;
 	glGenTextures(1, &gAlbedo);
 	glBindTexture(GL_TEXTURE_2D, gAlbedo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Common::ScreenSize.x, Common::ScreenSize.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedo, 0);
-
 	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
-
-	GLuint rboDepth;
+	// Attach depth buffer
+	unsigned int rboDepth;
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Common::ScreenSize.x, Common::ScreenSize.y);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 
-	if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "(ERROR) FRAMEBUFFER IS NOT COMPLETE" << std::endl;
+	// Check if framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
 #pragma endregion
+
+
+#pragma region ImGUI
+
 
 	IMGUI_CHECKVERSION();
 
@@ -131,8 +142,14 @@ int main()
 
 	PrepareFreeType();
 
+#pragma endregion
+
 	game->Init();
 
+	ResourceManager::GetShader("light").Use();
+	ResourceManager::GetShader("light").SetInteger("gPosition", 0);
+	ResourceManager::GetShader("light").SetInteger("gNormal", 1);
+	ResourceManager::GetShader("light").SetInteger("gAlbedo", 2);
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 	int frames = 0;
@@ -164,24 +181,40 @@ int main()
 		game->Update(deltaTime);
 		game->Collisions();
 
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR) {
+			std::cout << "OpenGL Error: " << error << std::endl;
+		}
 		glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-//------------------------------
-//|       RENDER PASSES        |
-//------------------------------
-
+		//------------------------------
+		//|       RENDER PASSES        |
+		//------------------------------
 		
 		//Gemoetry pass
-		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//ResourceManager::GetShader("sprite").Use();
 		
 		game->Render(); // TODO: CLEANUP THE CODE FOR BETTER CLARITY
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//LIGHT PASS
 
-		//light pass
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		game->RenderLight();
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//ResourceManager::GetShader("light").Use();
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, gPosition);
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, gNormal);
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, gAlbedo);
+		//ResourceManager::GetShader("light").SetInteger("gPosition", 0);
+		//ResourceManager::GetShader("light").SetInteger("gNormal", 1);
+		//ResourceManager::GetShader("light").SetInteger("gAlbedo", 2);
+		//game->RenderLight();
 
 
 		//UI RENDER PASS
@@ -205,6 +238,7 @@ int main()
 		ImGui::Begin("stats",(bool *)0, fpsFlag);
 		ImGui::Text("fps : %.2f",fps);
 		ImGui::Text("ms : %.4f", 1000.0f / fps);
+		ImGui::Text("Draw calls : %i", game->debuginfo.DrawCalls);
 		ImGui::SetNextWindowPos(ImVec2(500,100),ImGuiCond_FirstUseEver);
 		ImGui::End();
 		frames = 0;

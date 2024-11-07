@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D sprite,Player* _player, float health, glm::vec3 color, float rotation)
+Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D* sprite,Player* _player, float health, glm::vec3 color, float rotation)
 {
 	this->Position = pos;
 	this->Size = size;

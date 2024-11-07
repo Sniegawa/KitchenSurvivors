@@ -1,5 +1,6 @@
 #pragma once
 #include <glm.hpp>
+#include"../src/Renderers/Renderer.h"
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
@@ -13,6 +14,7 @@ struct DebugInfo
 	int Enemies;
 	int Projectiles;
 	int PlayerHealth;
+	int DrawCalls;
 };
 
 class Game
@@ -21,6 +23,8 @@ public:
 	GameState State;
 	bool Keys[1024];
 	bool Mouse[2];
+
+	DebugInfo debuginfo;
 
 	glm::vec2 MousePos;
 	unsigned int Width, Height;
@@ -34,4 +38,6 @@ public:
 	void RenderDebug();
 	void RenderLevelUp();
 	void RenderLight();
+private:
+	Renderer renderer;
 };

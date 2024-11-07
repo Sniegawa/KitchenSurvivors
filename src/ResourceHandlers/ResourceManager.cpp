@@ -13,8 +13,8 @@ std::map<std::string, Shader>  ResourceManager::Shaders;
 
 Shader ResourceManager::LoadShader(const char* vertexShaderFile, const char* fragmentShaderFile, std::string name)
 {
+	std::cout << "\n" << "Compiling shader " << name << std::endl;
 	Shaders[name] = loadShaderFromFile(vertexShaderFile, fragmentShaderFile);
-	std::cout << "Compiling shader " << name << std::endl;
 	return Shaders[name];
 }
 
@@ -25,8 +25,8 @@ Shader& ResourceManager::GetShader(std::string name)
 
 Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
 {
+	std::cout << "\n" << "Texture " << name << " loaded succesfully" << std::endl;
 	Textures[name] = loadTextureFromFile(file, alpha);
-	std::cout<< "Texture " << name << " loaded succesfully" << std::endl;
 	return Textures[name];
 }
 

@@ -11,7 +11,7 @@ void CreateProjectile(std::string sprite,glm::vec2 *player_pos, glm::vec2 center
 		std::make_shared<Projectile>(Projectile(
 			*player_pos + center,
 			glm::vec2(knifetex.Width, knifetex.Height),
-			knifetex,
+			&ResourceManager::GetTexture(sprite),
 			25.0f,
 			glm::vec3(1.0f),
 			MousePlayerAngle + angleoffset + glm::pi<float>(),

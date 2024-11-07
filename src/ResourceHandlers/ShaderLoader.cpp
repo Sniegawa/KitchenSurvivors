@@ -45,6 +45,9 @@ void Shader::Compile(const char* vertex_source, const char* fragment_source)
 	glDeleteShader(sVertex);
 	glDeleteShader(sFragment);
 	
+	this->modelLocation = glGetUniformLocation(this->ID, "matrix");
+	this->invmodelLocation = glGetUniformLocation(this->ID, "InverseModel");
+
 }
 
 void Shader::SetFloat(const char* name, float value, bool useShader)
@@ -101,6 +104,18 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool useShade
 		this->Use();
 	glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(matrix));
 }
+void Shader::SetModel(const glm::mat4& model, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniformMatrix4fv(this->modelLocation, 1, false, glm::value_ptr(model));
+}
+void Shader::SetInvModel(const glm::mat4& invmodel, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniformMatrix4fv(this->invmodelLocation, 1, false, glm::value_ptr(invmodel));
+}
 
 
 
@@ -133,3 +148,4 @@ bool Shader::checkCompileErrors(unsigned int object, std::string type)
 	}
 	return success;
 }
+

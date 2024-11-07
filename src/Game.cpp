@@ -19,6 +19,7 @@
 #include "Weapons/ThrownWeapon.h"
 #include "Weapons/OrbitWeapon.h"
 
+#include "Renderers/Renderer.h"
 #include "Renderers/PlayerRenderer.h"
 #include "Renderers/EnemyRenderer.h"
 #include "Renderers/SpriteRenderer.h"
@@ -48,7 +49,7 @@ static float randFloat(float min = 0.0f, float max = 1.0f)
 	return min + static_cast<float> (rand()) / static_cast<float> (RAND_MAX/(max-min));
 }
 
-SpriteRenderer* renderer;
+SpriteRenderer* drenderer;
 
 PlayerRenderer* playerRenderer;
 
@@ -81,11 +82,9 @@ extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
 std::vector<std::shared_ptr<GameObject>> expShards;
 
-DebugInfo debuginfo;
-
 Game::~Game()
 {
-	delete renderer;
+	delete drenderer;
 	delete UIRenderer;
 	delete playerRenderer;
 	delete player;
@@ -97,8 +96,11 @@ int lastlvl;
 
 void Game::Init()
 {
+	this->renderer = Renderer();
+	this->renderer.Innit();
 	//load shaders
 	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
+	ResourceManager::LoadShader("src/Shaders/InstancedSpriteShader.vert", "src/Shaders/InstancedSpriteShader.frag", "instancedSprite");
 	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
 	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag","UI");
 	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
@@ -106,17 +108,18 @@ void Game::Init()
 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
 	
+	ResourceManager::GetShader("instancedSprite").Use();
+	ResourceManager::GetShader("instancedSprite").SetMatrix4("projection", projection);
+
 	ResourceManager::GetShader("sprite").Use();
-	ResourceManager::GetShader("sprite").SetInteger("image", 0);
 	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
+	//ResourceManager::GetShader("sprite").SetInteger("image", 0);
 
 	ResourceManager::GetShader("text").Use();
 	ResourceManager::GetShader("text").SetMatrix4("projection", projection);
 
 	ResourceManager::GetShader("UI").Use();
-	ResourceManager::GetShader("UI").SetInteger("image", 0);
 	ResourceManager::GetShader("UI").SetMatrix4("projection", projection);
-
 
 	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
 	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
@@ -128,24 +131,25 @@ void Game::Init()
 
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
 
-	renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
+	drenderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
 	playerRenderer = new PlayerRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")));
 	enemyRenderer = new EnemyRenderer(SpriteRenderer(ResourceManager::GetShader("sprite")), &PlayerPosition);
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
+	
 	Texture2D PlayerSprite = ResourceManager::GetTexture("pizza");
 	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
 
-	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, PlayerSprite,&PlayerProjectiles,&PlayerPosition);
+	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, &ResourceManager::GetTexture("pizza"),&PlayerProjectiles,&PlayerPosition);
 
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	flags |= ImGuiWindowFlags_NoCollapse;
 
-
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
 	lastlvl = player->Level;
+
 	srand(time(0));
 	for (int i = 0; i < 25; i++)
 	{
@@ -156,35 +160,52 @@ void Game::Init()
 		lights.emplace_back(pos, col);
 	}
 
-	ResourceManager::GetShader("light").Use();
+	//ResourceManager::GetShader("light").Use();
 
-	unsigned int SSBOLights;
-	glGenBuffers(1, &SSBOLights);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBOLights);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(pointLight) * lights.size() , &lights[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	//unsigned int SSBOLights;
+	//glGenBuffers(1, &SSBOLights);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBOLights);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(pointLight) * lights.size() , &lights[0], GL_STATIC_DRAW);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(pointLight) * lights.size());
+	//glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(pointLight) * lights.size());
 
 
-	glBindBufferBase(ResourceManager::GetShader("light").ID,1 , SSBOLights);
+	//glBindBufferBase(ResourceManager::GetShader("light").ID,1 , SSBOLights);
+
+
+	//Debug xp shards spawn
+
+	for(int x = 0; x < 40; x++)
+		for(int y = 0; y < 40; y++)
+			expShards.push_back
+			(
+				std::make_shared<GameObject>(GameObject(
+					glm::vec2(x,y)*10.0f,
+					glm::vec2(32.0f, 32.0f),
+					&ResourceManager::GetTexture("tomato")
+
+				))
+			);
+
 }
 
-//-------------------
-//|LIGHT RENDER PASS|
-//-------------------
+//---------------------
+//| LIGHT RENDER PASS |
+//---------------------
+
 void Game::RenderLight()
 {
 	ResourceManager::GetShader("light").Use();
-	float vertices[] = {
-		// Positions      // UV coordinates
-		-1.0f, -1.0f,    0.0f, 0.0f,  // Bottom left
-		 1.0f, -1.0f,    1.0f, 0.0f,  // Bottom right
-		-1.0f,  1.0f,    0.0f, 1.0f,  // Top left
+	float quadVertices[] = {
+		// positions   // texture coords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
 
-		-1.0f,  1.0f,    0.0f, 1.0f,  // Top left
-		 1.0f, -1.0f,    1.0f, 0.0f,  // Bottom right
-		 1.0f,  1.0f,    1.0f, 1.0f   // Top right
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f
 	};
 
 	GLuint VAO, VBO;
@@ -194,7 +215,7 @@ void Game::RenderLight()
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -203,16 +224,26 @@ void Game::RenderLight()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
+
+//------------------------
+//| GEOMETRY RENDER PASS |
+//------------------------
+
 void Game::Render()
 {
-	ResourceManager::GetShader("sprite").SetVector2f("PlayerPos", PlayerPosition);
-	renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width*10.0f, this->Height*10.0f), 0.0f);
-	
-	for (auto xp : expShards)
-	{
-		xp->Draw(*enemyRenderer);
-	}
+	debuginfo.DrawCalls = 0;
 
+
+	//ResourceManager::GetShader("sprite").SetVector2f("PlayerPos", PlayerPosition);
+	//TEMP BACKGROUND
+	drenderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f)-PlayerPosition, glm::vec2(this->Width*10.0f, this->Height*10.0f), 0.0f);
+	debuginfo.DrawCalls++;
+	
+
+	this->renderer.Render(expShards);
+	debuginfo.DrawCalls++;
+
+	//DRAW ENEMIES
 	for (int i = 0; i < enemies.size(); i++)
 	{
 		if (enemies[i]->isDead)
@@ -222,16 +253,23 @@ void Game::Render()
 			continue;
 		}
 		enemies[i]->Draw(*enemyRenderer);
+		debuginfo.DrawCalls++;
 	}
 
-	//TODO: gpu instancing
+	//DRAW PROJECTILES
 	for(auto const& obj : PlayerProjectiles)
 	{
 		obj->Draw(*enemyRenderer);
+		debuginfo.DrawCalls++;
 	}
 
+
+	//FINALLY DRAW PLAYER
 	player->Draw(*playerRenderer);
-	
+	debuginfo.DrawCalls++;
+
+
+
 }
 
 float spawnerTime;
@@ -284,7 +322,7 @@ void Game::Update(float dt)
 			Enemy(
 				glm::vec2(rand()%500,rand()%500),
 				glm::vec2(64.0f),
-				ResourceManager::GetTexture("pizza"),
+				&ResourceManager::GetTexture("pizza"),
 				player
 			)));
 		spawnerTime = 0.0f;
@@ -299,6 +337,8 @@ void Game::Update(float dt)
 
 
 	player->UpdateCooldowns(dt);
+
+	renderer.UpdatePlayerPos(PlayerPosition);
 
 	debuginfo.Enemies = enemies.size();
 	debuginfo.Projectiles = PlayerProjectiles.size();
@@ -494,7 +534,7 @@ void Spawnxp(GameObject* enemy)
 			std::make_shared<GameObject>(GameObject(
 				enemy->Position,
 				glm::vec2(32.0f, 32.0f),
-				ResourceManager::GetTexture("tomato")
+				&ResourceManager::GetTexture("tomato")
 
 			))
 		);

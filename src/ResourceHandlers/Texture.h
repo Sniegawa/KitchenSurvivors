@@ -21,6 +21,14 @@ public:
 	void Generate(unsigned int width, unsigned int height, unsigned char* data);
 	void Bind() const;
 
+	bool operator==(const Texture2D& other) const
+	{
+		return ID == other.ID;
+	}
+	bool operator<(const Texture2D& other) const
+	{
+		return ID < other.ID;
+	}
 };
 
 #endif // !TEXTURE_H
