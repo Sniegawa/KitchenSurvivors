@@ -5,6 +5,7 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <variant>
 #include "ShaderLoader.h"
 using namespace std;
 
@@ -18,7 +19,6 @@ Shader& Shader::Use()
 	glUseProgram(this->ID);
 	return *this;
 }
-
 
 void Shader::Compile(const char* vertex_source, const char* fragment_source) 
 {
@@ -44,10 +44,62 @@ void Shader::Compile(const char* vertex_source, const char* fragment_source)
 		std::cout << "Succesfully compiled shader" << std::endl;
 	glDeleteShader(sVertex);
 	glDeleteShader(sFragment);
-	
-	this->modelLocation = glGetUniformLocation(this->ID, "matrix");
-	this->invmodelLocation = glGetUniformLocation(this->ID, "InverseModel");
 
+}
+
+void Shader::SetUniform(const char* name, float value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform1f(glGetUniformLocation(this->ID, name), value);
+}
+void Shader::SetUniform(const char* name, int value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform1i(glGetUniformLocation(this->ID, name), value);
+}
+void Shader::SetUniform(const char* name, float x, float y, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform2f(glGetUniformLocation(this->ID, name), x, y);
+}
+void Shader::SetUniform(const char* name, const glm::vec2& value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform2f(glGetUniformLocation(this->ID, name), value.x, value.y);
+}
+void Shader::SetUniform(const char* name, float x, float y, float z, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform3f(glGetUniformLocation(this->ID, name), x, y, z);
+}
+void Shader::SetUniform(const char* name, const glm::vec3& value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform3f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z);
+}
+void Shader::SetUniform(const char* name, float x, float y, float z, float w, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform4f(glGetUniformLocation(this->ID, name), x, y, z, w);
+}
+void Shader::SetUniform(const char* name, const glm::vec4& value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform4f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z, value.w);
+}
+void Shader::SetUniform(const char* name, const glm::mat4& matrix, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(matrix));
 }
 
 void Shader::SetFloat(const char* name, float value, bool useShader)
@@ -104,18 +156,6 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool useShade
 		this->Use();
 	glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(matrix));
 }
-void Shader::SetModel(const glm::mat4& model, bool useShader)
-{
-	if (useShader)
-		this->Use();
-	glUniformMatrix4fv(this->modelLocation, 1, false, glm::value_ptr(model));
-}
-void Shader::SetInvModel(const glm::mat4& invmodel, bool useShader)
-{
-	if (useShader)
-		this->Use();
-	glUniformMatrix4fv(this->invmodelLocation, 1, false, glm::value_ptr(invmodel));
-}
 
 
 
@@ -149,3 +189,39 @@ bool Shader::checkCompileErrors(unsigned int object, std::string type)
 	return success;
 }
 
+template<typename T>
+void Shader::UpdateSSBO(const std::string& bufferName, const T& data, GLuint bindingPoint) 
+{
+	GLuint ssbo = GetSSBO(bufferName);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(data), &data, GL_DYNAMIC_DRAW);
+}
+
+void Shader::CreateSSBO(GLuint& ssbo, const std::string& name, GLuint bindingPoint)
+{
+	glGenBuffers(1, &ssbo);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, ssbo);
+
+	m_SSBOLocations[name] = ssbo;
+}
+
+GLuint Shader::GetSSBO(const std::string& name)
+{
+	auto it = m_SSBOLocations.find(name);
+	//Szukamy ssbo w liscie
+	if (it != m_SSBOLocations.end())
+	{
+		//Je¿eli istnieje, zwracamy ID
+		return it->second;
+	}
+	else 
+	{
+		//Je¿eli nie, tworzymy
+		GLuint newSSBO;
+		GLuint bindingPoint = static_cast<GLuint>(m_SSBOLocations.size());
+		CreateSSBO(newSSBO, name, bindingPoint);
+		return newSSBO;
+	}
+}

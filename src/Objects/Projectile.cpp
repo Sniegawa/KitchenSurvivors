@@ -1,10 +1,12 @@
 #include "Projectile.h"
 
-Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, float dmg, glm::vec3 color, float rotation, float speed, glm::vec2 velocity, float _lifetime, bool _indestructible)
+Projectile::Projectile(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader, RenderLayer layer, float dmg, glm::vec3 color, float rotation, float speed, glm::vec2 velocity, float _lifetime, bool _indestructible)
 {
 	this->Position = pos;
 	this->Size = size;
 	this->Sprite = sprite;
+	this->SetRenderLayer(layer);
+	this->shader = shader;
 	this->Color = color;
 	this->Rotation = rotation;
 	this->Speed = speed;

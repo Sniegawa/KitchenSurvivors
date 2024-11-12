@@ -12,6 +12,7 @@
 #include <ft2build.h>
 #include <iostream>
 #include <iomanip>
+
 #include FT_FREETYPE_H
 using namespace glm;
 
@@ -64,7 +65,6 @@ int main()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 #pragma endregion
 
 
@@ -72,7 +72,7 @@ int main()
 
 	int SCR_WIDTH = Common::ScreenSize.x;
 	int SCR_HEIGHT = Common::ScreenSize.y;
-
+	/*
 	unsigned int gBuffer;
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -117,7 +117,7 @@ int main()
 		std::cout << "Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
+	*/
 #pragma endregion
 
 
@@ -145,11 +145,6 @@ int main()
 #pragma endregion
 
 	game->Init();
-
-	ResourceManager::GetShader("light").Use();
-	ResourceManager::GetShader("light").SetInteger("gPosition", 0);
-	ResourceManager::GetShader("light").SetInteger("gNormal", 1);
-	ResourceManager::GetShader("light").SetInteger("gAlbedo", 2);
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 	int frames = 0;
@@ -250,6 +245,7 @@ int main()
 	}
 	
 	ResourceManager::Clear();
+	delete game;
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();

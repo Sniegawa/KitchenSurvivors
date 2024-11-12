@@ -23,6 +23,11 @@ Shader& ResourceManager::GetShader(std::string name)
 	return Shaders[name];
 }
 
+Shader* ResourceManager::GetShaderPtr(std::string name)
+{
+	return &Shaders[name];
+}
+
 Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
 {
 	std::cout << "\n" << "Texture " << name << " loaded succesfully" << std::endl;

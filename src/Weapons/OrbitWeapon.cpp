@@ -34,11 +34,15 @@ void OrbitWeapon::Shoot()
 		
 		float rotation = -atan2(cos(tk), sin(tk)) + glm::pi<float>()/2;
 		
+		float Damage = 10.0f;
+
 		PlayerProjectiles.push_back(std::make_unique<Projectile>(
 			temppos,
 			glm::vec2(tex.Width,tex.Height),
 			&ResourceManager::GetTexture(this->sprite),
-			1,
+			ResourceManager::GetShaderPtr("instancedSprite"),
+			PROJECTILES,
+			Damage,
 			glm::vec3(1.0f),
 			rotation,
 			0.0f,
