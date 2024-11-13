@@ -174,6 +174,7 @@ int main()
 		game->ProcessInput(deltaTime);
 
 		game->Update(deltaTime);
+
 		game->Collisions();
 
 		GLenum error = glGetError();

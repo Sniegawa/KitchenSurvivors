@@ -55,8 +55,6 @@ SpriteRenderer* UIRenderer;
 
 extern float MousePlayerAngle;
 
-Player* player;
-
 GameObject* background;
 
 struct pointLight
@@ -86,32 +84,8 @@ ImGuiWindowFlags flags = 0;
 
 int lastlvl;
 
-void Game::Init()
+void Game::LoadTextures()
 {
-	this->renderer.RendererSetup();
-	//load shaders
-	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
-	ResourceManager::LoadShader("src/Shaders/InstancedSpriteShader.vert", "src/Shaders/InstancedSpriteShader.frag", "instancedSprite");
-	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
-	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag","UI");
-	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
-	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
-
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
-	
-	ResourceManager::GetShader("instancedSprite").Use();
-	ResourceManager::GetShader("instancedSprite").SetMatrix4("projection", projection);
-
-	ResourceManager::GetShader("sprite").Use();
-	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
-	//ResourceManager::GetShader("sprite").SetInteger("image", 0);
-
-	ResourceManager::GetShader("text").Use();
-	ResourceManager::GetShader("text").SetMatrix4("projection", projection);
-
-	ResourceManager::GetShader("UI").Use();
-	ResourceManager::GetShader("UI").SetMatrix4("projection", projection);
-
 	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
 	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
 	ResourceManager::LoadTexture("src/Textures/player.png", true, "player");
@@ -121,20 +95,46 @@ void Game::Init()
 	ResourceManager::LoadTexture("src/Textures/Tomato.png", true, "tomato");
 
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
+}
+void Game::LoadShaders()
+{
+	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
+	ResourceManager::LoadShader("src/Shaders/InstancedSpriteShader.vert", "src/Shaders/InstancedSpriteShader.frag", "instancedSprite");
+	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
+	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag", "UI");
+	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
+}
+
+void Game::Init()
+{
+	this->LoadShaders();
+	this->LoadTextures();
+	this->renderer.RendererSetup();
+
+	//Debug UI flags
+	flags |= ImGuiWindowFlags_AlwaysAutoResize;
+	flags |= ImGuiWindowFlags_NoCollapse;
+
+	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
+
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
+	
+	ResourceManager::GetShader("instancedSprite").SetUniform("projection", projection, true);
+
+	ResourceManager::GetShader("sprite").SetUniform("projection", projection, true);
+
+	ResourceManager::GetShader("text").SetUniform("projection", projection, true);
+
+	ResourceManager::GetShader("UI").SetUniform("projection", projection,true);
 
 	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 	
 	Texture2D& PlayerSprite = ResourceManager::GetTexture("pizza");
-	
 	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
-
 	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"),PLAYER,&PlayerProjectiles,&PlayerPosition);
 
 	background = new GameObject(glm::vec2(0.0), glm::vec2(this->Width * 10.0f, this->Height * 10.0f), 0.0f, &ResourceManager::GetTexture("background"), ResourceManager::GetShaderPtr("sprite"), BACKGROUND);
-
-	flags |= ImGuiWindowFlags_AlwaysAutoResize;
-	flags |= ImGuiWindowFlags_NoCollapse;
 
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
@@ -210,13 +210,34 @@ void Game::Render()
 	
 	this->renderer.RenderBackground(background);
 
-	std::vector<std::shared_ptr<GameObject>> RenderData;
-	RenderData.insert(RenderData.end(), expShards.begin(), expShards.end());
-	RenderData.insert(RenderData.end(), enemies.begin(), enemies.end());
-	RenderData.insert(RenderData.end(), PlayerProjectiles.begin(), PlayerProjectiles.end());
+	std::vector<GameObject*> RenderData;
+	//U¿y³bym std::vector.resize ale wywala b³¹d glm vec2, coœ musi byæ skopane w klasach ale idk co xD
+	RenderData.reserve(sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()));
+	for (const auto& enemy : enemies)
+	{
+		//Na razie jest testowo, muszê to opracowaæ, dzia³a tylko z lewej strony
+		if (PlayerPosition.x - enemy->Position.x > 100)
+			continue;
+
+		RenderData.push_back(enemy.get());
+		
+		
+	}
+
+	for (const auto& expShard : expShards)
+	{
+		RenderData.push_back(expShard.get());
+	}
+
+	for (const auto& projectile : PlayerProjectiles)
+	{
+		RenderData.push_back(projectile.get());
+	}
+
 	this->renderer.Render(RenderData);
 	this->renderer.RenderPlayer(player);
-
+	std::cout << sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()) << " : " << sizeof(GameObject*) * RenderData.size() << " : " << (enemies.size() + expShards.size() + PlayerProjectiles.size()) << std::endl;
+	//std::cout << sizeof(GameObject*) * RenderData.size() << std::endl;
 	//FINALLY DRAW PLAYER
 	//player->Draw(*playerRenderer);
 	//Common::debuginfo.DrawCalls++;
@@ -269,7 +290,7 @@ void Game::Update(float dt)
 
 	spawnerTime += dt;
 
-	if (spawnerTime >= 0.01f)
+	if (spawnerTime >= 0.05f)
 	{
 		float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.5f);
 		enemies.push_back(std::make_shared<Enemy>(
@@ -482,7 +503,7 @@ bool CheckCollision(GameObject& one, GameObject& two)
 	return axisX && axisY;
 }
 
-bool CheckCollisionWithPlayer(GameObject& one)
+bool Game::CheckCollisionWithPlayer(GameObject& one)
 {
 	GameObject two = *player;
 	two.Position += PlayerPosition;
@@ -510,7 +531,7 @@ void Spawnxp(GameObject* enemy)
 		);
 	}
 }
-
+//Deprecated
 bool MouseInRange(glm::vec2 MousePos,glm::vec2 start, glm::vec2 end)
 {
 	return 

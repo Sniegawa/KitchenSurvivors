@@ -54,7 +54,7 @@ void Renderer::Innit()
     glBindVertexArray(0);
 }
 
-void Renderer::Render(const std::vector<std::shared_ptr<GameObject>>& gameObjects)
+void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 {
     std::map<RenderLayer,std::map<Shader* ,std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
     for (const auto& obj : gameObjects) {

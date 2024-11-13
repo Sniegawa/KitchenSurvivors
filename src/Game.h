@@ -17,6 +17,8 @@ public:
 	bool Keys[1024];
 	bool Mouse[2];
 
+	Player* player;
+
 	glm::vec2 MousePos;
 	unsigned int Width, Height;
 	Game(unsigned int width, unsigned int height);
@@ -31,4 +33,7 @@ public:
 	void RenderLight();
 private:
 	Renderer renderer;
+	void LoadTextures();
+	void LoadShaders();
+	bool CheckCollisionWithPlayer(GameObject& one);
 };

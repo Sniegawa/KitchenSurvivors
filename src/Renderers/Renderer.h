@@ -34,7 +34,7 @@ Aleto na póxniej najpierw trzeba przepisaæ ustawianie uniformów w klasie shader
 
 class Renderer {
 public:
-	void Render(const std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void Render(const std::vector<GameObject*>& gameObjects);
 	void RenderPlayer(Player* player);
 	void RenderBackground(GameObject* background);
 	Renderer();
