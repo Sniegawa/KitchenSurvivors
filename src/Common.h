@@ -24,6 +24,7 @@ struct DebugInfo
 	int Projectiles;
 	int PlayerHealth;
 	int DrawCalls;
+	float SpawnRate = 1.0f;
 };
 
 class Common

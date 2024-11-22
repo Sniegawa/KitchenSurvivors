@@ -162,6 +162,17 @@ void Game::Init()
 
 
 	//glBindBufferBase(ResourceManager::GetShader("light").ID,1 , SSBOLights);
+	float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.5f);
+	enemies.push_back(std::make_shared<Enemy>(
+		Enemy(
+			glm::vec2(rand() % 500, rand() % 500),
+			glm::vec2(64.0f) * enemy_size,
+			&ResourceManager::GetTexture("pizza"),
+			ResourceManager::GetShaderPtr("instancedSprite"),
+			ENEMY,
+			player,
+			25.0f * enemy_size
+		)));
 
 }
 
@@ -216,11 +227,11 @@ void Game::Render()
 	for (const auto& enemy : enemies)
 	{
 		//Na razie jest testowo, muszê to opracowaæ, dzia³a tylko z lewej strony
-		if (PlayerPosition.x - enemy->Position.x > 100)
+
+		if (glm::distance(PlayerPosition + player->Position, enemy->Position) > 800.0f)
 			continue;
 
 		RenderData.push_back(enemy.get());
-		
 		
 	}
 
@@ -237,10 +248,7 @@ void Game::Render()
 	this->renderer.Render(RenderData);
 	this->renderer.RenderPlayer(player);
 	std::cout << sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()) << " : " << sizeof(GameObject*) * RenderData.size() << " : " << (enemies.size() + expShards.size() + PlayerProjectiles.size()) << std::endl;
-	//std::cout << sizeof(GameObject*) * RenderData.size() << std::endl;
-	//FINALLY DRAW PLAYER
-	//player->Draw(*playerRenderer);
-	//Common::debuginfo.DrawCalls++;
+
 
 
 
@@ -290,8 +298,9 @@ void Game::Update(float dt)
 
 	spawnerTime += dt;
 
-	if (spawnerTime >= 0.05f)
+	if (spawnerTime >= 1.0f / Common::debuginfo.SpawnRate)
 	{
+		
 		float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.5f);
 		enemies.push_back(std::make_shared<Enemy>(
 			Enemy(
@@ -367,7 +376,7 @@ void Game::ProcessInput(float dt)
 	MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 
-//Projectile deaths are framerate dependent FIX
+//POCISKI S¥ ZALE¯NE OD KLATEK, ogl kolizje s¹ (mo¿e dodanie dt do kalkulacji nowych pozycji cos zmieni)
 void Game::Collisions()
 {
 	if (this->State != GAME_ACTIVE)
@@ -453,6 +462,7 @@ void Game::RenderDebug()
 	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 3.0f);
 	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 250.0f);
 	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 10);
+	ImGui::SliderFloat("Enemy Spawnrate [/s] ", &Common::debuginfo.SpawnRate, 1.0f, 20.0f);
 	ImGui::End();
 }
 
