@@ -116,12 +116,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\include;D:\Pobrane\glew-2.2.0-win32\glew-2.2.0\include;P:\CPP_Libraries\glm\glm;P:\CPP_Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\include;P:\CPP_Libraries\glew-2.2.0-win32\glew-2.2.0\include;P:\CPP_Libraries\glm\glm;P:\CPP_Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\release static\vs2015-2022\win64;D:\Pobrane\glew-2.2.0-win32\glew-2.2.0\lib\Release\x64;P:\CPP_Libraries\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\release static\vs2015-2022\win64;P:\CPP_Libraries\glew-2.2.0-win32\glew-2.2.0\lib\Release\x64;P:\CPP_Libraries\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/verbose:lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -135,14 +135,14 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\include;D:\Pobrane\glew-2.2.0-win32\glew-2.2.0\include;P:\CPP_Libraries\glm\glm;P:\CPP_Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\include;P:\CPP_Libraries\glew-2.2.0-win32\glew-2.2.0\include;P:\CPP_Libraries\glm\glm;P:\CPP_Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\release static\vs2015-2022\win64;D:\Pobrane\glew-2.2.0-win32\glew-2.2.0\lib\Release\x64;P:\CPP_Libraries\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>P:\CPP_Libraries\freetype-git\freetype-windows-binaries\release static\vs2015-2022\win64;P:\CPP_Libraries\glew-2.2.0-win32\glew-2.2.0\lib\Release\x64;P:\CPP_Libraries\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/verbose:lib %(AdditionalOptions)</AdditionalOptions>
     </Link>

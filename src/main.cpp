@@ -190,6 +190,7 @@ int main()
 		
 		//Gemoetry pass
 		//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//ResourceManager::GetShader("sprite").Use();
@@ -197,21 +198,6 @@ int main()
 		game->Render(); // TODO: CLEANUP THE CODE FOR BETTER CLARITY
 
 		//LIGHT PASS
-
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//ResourceManager::GetShader("light").Use();
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, gPosition);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, gNormal);
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, gAlbedo);
-		//ResourceManager::GetShader("light").SetInteger("gPosition", 0);
-		//ResourceManager::GetShader("light").SetInteger("gNormal", 1);
-		//ResourceManager::GetShader("light").SetInteger("gAlbedo", 2);
-		//game->RenderLight();
-
 
 		//UI RENDER PASS
 

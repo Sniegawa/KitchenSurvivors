@@ -14,6 +14,8 @@ void Renderer::RendererSetup()
     this->Innit();
     this->InnitPlayerData();
     this->InnitBackgroundData();
+    this->InnitScreenQuad();
+    this->InnitScreenBuffers();
 }
 
 void Renderer::Innit()
@@ -56,6 +58,7 @@ void Renderer::Innit()
 
 void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 {
+    glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
     std::map<RenderLayer,std::map<Shader* ,std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
     for (const auto& obj : gameObjects) {
 
@@ -75,7 +78,7 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
         
     }
 
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE3);
 
     for (auto& layer : { RenderLayer::BACKGROUND, RenderLayer::PICKUPS, RenderLayer::PROJECTILES, RenderLayer::ENEMY, RenderLayer::PLAYER })
     {
@@ -83,7 +86,7 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
         {
             Shader* shader = Shaderbatch.first;
             shader->Use();
-            shader->SetUniform("image", 0);
+            shader->SetUniform("image", 3);
             for (auto& renderBatch : Shaderbatch.second)
             {
                 Texture2D* texture = renderBatch.first;
@@ -153,8 +156,8 @@ void Renderer::RenderPlayer(Player* player)
 
     playershader->SetMatrix4("model", model);
     playershader->SetVector3f("spriteColor", player->Color);
-    glActiveTexture(GL_TEXTURE0);
-    playershader->SetInteger("image", 0);
+    glActiveTexture(GL_TEXTURE3);
+    playershader->SetInteger("image", 3);
     player->Sprite->Bind();
 
     glBindVertexArray(this->PlayerVAO);
@@ -190,6 +193,7 @@ void Renderer::InnitBackgroundData()
 
 void Renderer::RenderBackground(GameObject* background)
 {
+    glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
     Shader* backgroundShader = background->shader;
     backgroundShader->Use();
 
@@ -205,12 +209,105 @@ void Renderer::RenderBackground(GameObject* background)
 
     backgroundShader->SetMatrix4("model", model);
     backgroundShader->SetVector3f("spriteColor", background->Color);
-    glActiveTexture(GL_TEXTURE0);
-    backgroundShader->SetInteger("image", 0);
+    glActiveTexture(GL_TEXTURE3);
+    backgroundShader->SetInteger("image", 3);
     background->Sprite->Bind();
 
     glBindVertexArray(this->BackgroundVAO);
     Common::debuginfo.DrawCalls++;
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+}
+
+void Renderer::InnitScreenBuffers()
+{
+    int SCR_WIDTH = Common::ScreenSize.x;
+    int SCR_HEIGHT = Common::ScreenSize.y;
+
+    
+    glGenFramebuffers(1, &gBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
+    // Position buffer (vec2)
+    glGenTextures(1, &this->gPosition);
+    glBindTexture(GL_TEXTURE_2D, this->gPosition);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gPosition, 0);
+
+    // Normal buffer (vec2)
+    glGenTextures(1, &this->gNormal);
+    glBindTexture(GL_TEXTURE_2D, this->gNormal);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this->gNormal, 0);
+
+    // Color + specular buffer (vec4)
+    glGenTextures(1, &this->gAlbedo);
+    glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this->gAlbedo, 0);
+    GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
+
+    // Attach depth buffer
+    glGenRenderbuffers(1, &this->rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, this->rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->rboDepth);
+
+    // Check if framebuffer is complete
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::InnitScreenQuad()
+{
+    float quadVertices[] = {
+        // positions   // texture coords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+   
+    glGenVertexArrays(1, &ScreenQuadVAO);
+    glGenBuffers(1, &ScreenQuadVBO);
+
+    glBindVertexArray(ScreenQuadVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, ScreenQuadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+}
+
+void Renderer::RenderLight()
+{
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ResourceManager::GetShader("light").Use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->gPosition);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, this->gNormal);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
+    ResourceManager::GetShader("light").SetInteger("gPosition", 0);
+    ResourceManager::GetShader("light").SetInteger("gNormal", 1);
+    ResourceManager::GetShader("light").SetInteger("gAlbedo", 2);
+    glBindVertexArray(ScreenQuadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
 }

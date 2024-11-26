@@ -35,6 +35,7 @@ Aleto na póxniej najpierw trzeba przepisaæ ustawianie uniformów w klasie shader
 class Renderer {
 public:
 	void Render(const std::vector<GameObject*>& gameObjects);
+	void RenderLight();
 	void RenderPlayer(Player* player);
 	void RenderBackground(GameObject* background);
 	Renderer();
@@ -47,7 +48,24 @@ private:
 	void Innit();
 	void InnitPlayerData();
 	void InnitBackgroundData();
+	void InnitScreenQuad();
+	void InnitScreenBuffers();
+
+	unsigned int gBuffer;
+
+	unsigned int gPosition;
+	unsigned int gNormal;
+	unsigned int gAlbedo;
+	unsigned int rboDepth;
 
 
-	GLuint VAO = 0, VBO = 0, InstanceVBO = 0, PlayerVAO = 0, PlayerVBO = 0, BackgroundVAO = 0, BackgroundVBO = 0;
+	GLuint VAO = 0;
+	GLuint VBO = 0;
+	GLuint InstanceVBO = 0;
+	GLuint PlayerVAO = 0;
+	GLuint PlayerVBO = 0;
+	GLuint BackgroundVAO = 0;
+	GLuint BackgroundVBO = 0;
+	GLuint ScreenQuadVAO = 0;
+	GLuint ScreenQuadVBO = 0;
 };

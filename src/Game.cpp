@@ -59,9 +59,9 @@ GameObject* background;
 
 struct pointLight
 {
-	glm::vec2 coords;// vec2 pos, float radius, float ??
-	glm::vec3 color;
-	pointLight(glm::vec2 _coords , glm::vec3 _color) : coords(_coords),color(_color)  {};
+	glm::vec4 coords;// vec2 pos, float radius, float ??
+	glm::vec4 color;
+	pointLight(glm::vec2 _coords , glm::vec3 _color) : coords(glm::vec4(_coords,0.0f,0.0f)),color(glm::vec4(_color,0.0f))  {};
 };
 
 std::vector<pointLight> lights;
@@ -150,70 +150,26 @@ void Game::Init()
 		lights.emplace_back(pos, col);
 	}
 
-	//ResourceManager::GetShader("light").Use();
-
-	//unsigned int SSBOLights;
-	//glGenBuffers(1, &SSBOLights);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBOLights);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(pointLight) * lights.size() , &lights[0], GL_STATIC_DRAW);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-	//glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(pointLight) * lights.size());
-
-
-	//glBindBufferBase(ResourceManager::GetShader("light").ID,1 , SSBOLights);
-	float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.5f);
-	enemies.push_back(std::make_shared<Enemy>(
-		Enemy(
-			glm::vec2(rand() % 500, rand() % 500),
-			glm::vec2(64.0f) * enemy_size,
-			&ResourceManager::GetTexture("pizza"),
-			ResourceManager::GetShaderPtr("instancedSprite"),
-			ENEMY,
-			player,
-			25.0f * enemy_size
-		)));
-
-}
-
-//---------------------
-//| LIGHT RENDER PASS |
-//---------------------
-
-void Game::RenderLight()
-{
 	ResourceManager::GetShader("light").Use();
-	float quadVertices[] = {
-		// positions   // texture coords
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		-1.0f, -1.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
 
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f,  1.0f, 1.0f
-	};
+	unsigned int SSBOLights;
+	glGenBuffers(1, &SSBOLights);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBOLights);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(pointLight) * lights.size(), lights.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(pointLight) * lights.size());
 
-	glBindVertexArray(VAO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER,1 , SSBOLights);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 
 //------------------------
 //| GEOMETRY RENDER PASS |
 //------------------------
+
+std::vector<GameObject*> RenderData;
 
 void Game::Render()
 {
@@ -226,7 +182,7 @@ void Game::Render()
 	RenderData.reserve(sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()));
 	for (const auto& enemy : enemies)
 	{
-		//Na razie jest testowo, muszê to opracowaæ, dzia³a tylko z lewej strony
+
 
 		if (glm::distance(PlayerPosition + player->Position, enemy->Position) > 800.0f)
 			continue;
@@ -237,20 +193,24 @@ void Game::Render()
 
 	for (const auto& expShard : expShards)
 	{
+		if (glm::distance(PlayerPosition + player->Position, expShard->Position) > 800.0f)
+			continue;
 		RenderData.push_back(expShard.get());
 	}
 
 	for (const auto& projectile : PlayerProjectiles)
 	{
+		if (glm::distance(PlayerPosition + player->Position, projectile->Position) > 800.0f)
+			continue;
 		RenderData.push_back(projectile.get());
 	}
 
 	this->renderer.Render(RenderData);
 	this->renderer.RenderPlayer(player);
-	std::cout << sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()) << " : " << sizeof(GameObject*) * RenderData.size() << " : " << (enemies.size() + expShards.size() + PlayerProjectiles.size()) << std::endl;
+	//std::cout << "Data Size : " << sizeof(GameObject*) * RenderData.size() << "/" << sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()) << "  Data Count : " << RenderData.size() << "/" << (enemies.size() + expShards.size() + PlayerProjectiles.size()) << std::endl;
 
 
-
+	this->renderer.RenderLight();
 
 }
 
@@ -267,8 +227,10 @@ void Game::Update(float dt)
 		else
 			this->State = GAME_ACTIVE;
 	}
+
 	if (!this->State == GAME_ACTIVE)
 		return;
+
 	if (!player->Alive)
 		this->State = GAME_LOSE;
 
@@ -301,7 +263,7 @@ void Game::Update(float dt)
 	if (spawnerTime >= 1.0f / Common::debuginfo.SpawnRate)
 	{
 		
-		float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.5f);
+		float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.25f);
 		enemies.push_back(std::make_shared<Enemy>(
 			Enemy(
 				glm::vec2(rand()%500,rand()%500),
@@ -321,6 +283,7 @@ void Game::Update(float dt)
 	{
 		enemy->Update(dt);
 	}
+
 	for (int i = 0; i < enemies.size(); i++)
 	{
 		if (enemies[i]->isDead)
@@ -332,8 +295,6 @@ void Game::Update(float dt)
 	}
 
 	player->UpdateCooldowns(dt);
-
-
 
 	renderer.UpdatePlayerPos(PlayerPosition);
 
@@ -382,9 +343,13 @@ void Game::Collisions()
 	if (this->State != GAME_ACTIVE)
 		return;
 	Common::debuginfo.CollisionChecks = 0;
+
+	std::shared_ptr<Enemy> enemy;
+
 	for (int i = 0; i < enemies.size();i++)
 	{
-		auto enemy = enemies[i];
+
+		enemy = enemies[i];
 
 		for (auto const& projectile : PlayerProjectiles)
 		{

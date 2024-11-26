@@ -8,16 +8,16 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedo;
 
-/*struct pointLight
+struct pointLight
 {
-	vec2 position; // vec2 pos, float att1, float att2
-	vec3 color; // vec3 color, float ??
+	vec4 position; // vec2 pos, float att1, float att2
+	vec4 color; // vec3 color, float ??
 };
  
 layout(std430, binding = 1) buffer PointLights
 {
 	pointLight pointlights[];
-};*/
+};
 
 void main()
 {
