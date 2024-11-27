@@ -296,18 +296,22 @@ void Renderer::InnitScreenQuad()
 
 void Renderer::RenderLight()
 {
+    Shader& shader = ResourceManager::GetShader("light");
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ResourceManager::GetShader("light").Use();
+    shader.Use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->gPosition);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, this->gNormal);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
-    ResourceManager::GetShader("light").SetInteger("gPosition", 0);
-    ResourceManager::GetShader("light").SetInteger("gNormal", 1);
-    ResourceManager::GetShader("light").SetInteger("gAlbedo", 2);
+    shader.SetInteger("gPosition", 0);
+    shader.SetInteger("gNormal", 1);
+    shader.SetInteger("gAlbedo", 2);
+    shader.SetVector2f("ScreenSize", Common::ScreenSize);
+    shader.SetInteger("pixelSize", this->pixelSize);
+    shader.SetVector2f("PlayerPosition", this->PlayerPos);
     glBindVertexArray(ScreenQuadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 

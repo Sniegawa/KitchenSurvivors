@@ -19,5 +19,5 @@ void main() {
     gl_Position = transformedPos;
     
     TexCoord = aTexCoord;  // Pass texture coordinates to the fragment shader
-    fragPos = (projection * instanceModelMatrix * vec4(aPos, 0.0, 1.0)).xy;
+    fragPos = (instanceModelMatrix * vec4(aPos, 0.0, 1.0)).xy;
 }

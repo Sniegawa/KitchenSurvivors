@@ -9,12 +9,20 @@ struct PlayerStats {
 	float PlayerSpeed = 75.0f;
 	float ExpirienceMultiplier = 1.0f;
 };
+
 //LearonOpenGL.com tutorials
 struct Character {
 	unsigned int TextureID;  // ID handle of the glyph texture
 	glm::ivec2   Size;       // Size of glyph
 	glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
 	unsigned int Advance;    // Offset to advance to next glyph
+};
+
+struct pointLight
+{
+	glm::vec4 coords;// vec2 pos, float radius, float ??
+	glm::vec4 color;
+	pointLight(glm::vec2 _coords, glm::vec3 _color) : coords(glm::vec4(_coords, 0.0f, 0.0f)), color(glm::vec4(_color, 0.0f)) {};
 };
 
 struct DebugInfo

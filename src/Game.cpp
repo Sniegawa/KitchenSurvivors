@@ -57,15 +57,7 @@ extern float MousePlayerAngle;
 
 GameObject* background;
 
-struct pointLight
-{
-	glm::vec4 coords;// vec2 pos, float radius, float ??
-	glm::vec4 color;
-	pointLight(glm::vec2 _coords , glm::vec3 _color) : coords(glm::vec4(_coords,0.0f,0.0f)),color(glm::vec4(_color,0.0f))  {};
-};
-
 std::vector<pointLight> lights;
-
 
 std::vector<std::shared_ptr<Enemy>> enemies;
 
@@ -160,7 +152,7 @@ void Game::Init()
 
 	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights, 0, sizeof(pointLight) * lights.size());
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER,1 , SSBOLights);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights);
 
 }
 
@@ -302,6 +294,8 @@ void Game::Update(float dt)
 	Common::debuginfo.Projectiles = PlayerProjectiles.size();
 	Common::debuginfo.PlayerHealth = player->Health;
 	
+
+
 }
 
 void Game::ProcessInput(float dt)
@@ -423,11 +417,15 @@ void Game::RenderDebug()
 	}
 
 	ImGui::End();
-	ImGui::Begin("Stat tweaker", (bool*)0, flags);
+	ImGui::Begin("Settings tweaker", (bool*)0, flags);
+	ImGui::Text("Stats : ");
 	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 3.0f);
 	ImGui::SliderFloat("Movement speed", &player->stats.PlayerSpeed, 50.0f, 250.0f);
 	ImGui::SliderInt("Projectile count", &player->stats.projectileCount, 1, 10);
 	ImGui::SliderFloat("Enemy Spawnrate [/s] ", &Common::debuginfo.SpawnRate, 1.0f, 20.0f);
+	ImGui::Spacing();
+	ImGui::Text("Graphic Settings : ");
+	ImGui::SliderInt("PixelSize", &renderer.pixelSize, 1, 64);
 	ImGui::End();
 }
 

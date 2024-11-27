@@ -41,6 +41,9 @@ public:
 	Renderer();
 	void UpdatePlayerPos(glm::vec2 playerPos);
 	void RendererSetup();
+
+	int pixelSize = 1;
+
 private:
 	glm::vec2 PlayerPos;
 	void UpdateInstanceData(const std::vector<glm::mat4>& modelMatrices);

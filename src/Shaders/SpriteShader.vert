@@ -16,5 +16,5 @@ void main() {
 	gl_Position =  pos;
 	normal = aNormal;
 	UV = aVertex.zw;
-	fragPos =  (InverseModel * pos).xy;
+	fragPos =  (model * vec4(aVertex.xy,0.0,1.0)).xy;
 }
