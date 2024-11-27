@@ -58,13 +58,11 @@ void Renderer::Innit()
 
 void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
+   // glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
     std::map<RenderLayer,std::map<Shader* ,std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
     for (const auto& obj : gameObjects) {
 
         glm::mat4 model = glm::mat4(1.0f);
-
-        
 
         model = glm::translate(model, glm::vec3(obj->Position - this->PlayerPos, 0.0f));
 
@@ -74,11 +72,9 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
         model = glm::translate(model, glm::vec3(-0.5f * obj->Size.x, -0.5f * obj->Size.y, 0.0f)); //transform model so it's center is back at top left corner
         model = glm::scale(model, glm::vec3(obj->Size, 1.0f));
 
-        RenderBatches[obj->GetRenderLayer()][obj->shader][obj->Sprite].push_back(model); //Wyszukujemy vector macierzy po kluczu i przypisujemy do niego now¹ macierz (NIE DZIA£A)
+        RenderBatches[obj->GetRenderLayer()][obj->shader][obj->Sprite].push_back(model); //Wyszukujemy vector macierzy po kluczu i przypisujemy do niego nowï¿½ macierz (NIE DZIAï¿½A)
         
     }
-
-    glActiveTexture(GL_TEXTURE3);
 
     for (auto& layer : { RenderLayer::BACKGROUND, RenderLayer::PICKUPS, RenderLayer::PROJECTILES, RenderLayer::ENEMY, RenderLayer::PLAYER })
     {
@@ -91,6 +87,7 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
             {
                 Texture2D* texture = renderBatch.first;
                 const auto& modelMatrices = renderBatch.second;
+                glActiveTexture(GL_TEXTURE3);
                 texture->Bind();
                 this->UpdateInstanceData(modelMatrices);
                 this->DrawInstances(modelMatrices.size());
@@ -154,7 +151,12 @@ void Renderer::RenderPlayer(Player* player)
 
     model = glm::scale(model, glm::vec3(player->Size, 1.0f));
 
+    glm::mat4 invmodel = glm::mat4(1.0f);
+
+    invmodel = glm::inverse(model);
+
     playershader->SetMatrix4("model", model);
+    playershader->SetMatrix4("InverseModel", invmodel);
     playershader->SetVector3f("spriteColor", player->Color);
     glActiveTexture(GL_TEXTURE3);
     playershader->SetInteger("image", 3);
@@ -194,6 +196,7 @@ void Renderer::InnitBackgroundData()
 void Renderer::RenderBackground(GameObject* background)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Shader* backgroundShader = background->shader;
     backgroundShader->Use();
 
@@ -231,34 +234,33 @@ void Renderer::InnitScreenBuffers()
     // Position buffer (vec2)
     glGenTextures(1, &this->gPosition);
     glBindTexture(GL_TEXTURE_2D, this->gPosition);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gPosition, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gPosition, 0);
 
     // Normal buffer (vec2)
     glGenTextures(1, &this->gNormal);
     glBindTexture(GL_TEXTURE_2D, this->gNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this->gNormal, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this->gNormal, 0);
 
     // Color + specular buffer (vec4)
     glGenTextures(1, &this->gAlbedo);
     glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this->gAlbedo, 0);
-    GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(3, attachments);
-
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this->gAlbedo, 0);
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
     // Attach depth buffer
     glGenRenderbuffers(1, &this->rboDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, this->rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->rboDepth);
 
     // Check if framebuffer is complete
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -272,11 +274,11 @@ void Renderer::InnitScreenQuad()
         // positions   // texture coords
         -1.0f,  1.0f,  0.0f, 1.0f,
         -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+        1.0f, -1.0f,  1.0f, 0.0f,
 
         -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
+        1.0f, -1.0f,  1.0f, 0.0f,
+        1.0f,  1.0f,  1.0f, 1.0f
     };
 
    
@@ -294,7 +296,6 @@ void Renderer::InnitScreenQuad()
 
 void Renderer::RenderLight()
 {
-    
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ResourceManager::GetShader("light").Use();

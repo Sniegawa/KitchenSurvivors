@@ -13,7 +13,7 @@ struct pointLight
 	vec4 position; // vec2 pos, float att1, float att2
 	vec4 color; // vec3 color, float ??
 };
- 
+
 layout(std430, binding = 1) buffer PointLights
 {
 	pointLight pointlights[];
@@ -24,6 +24,5 @@ void main()
     vec2 FragPos = texture(gPosition, UV).xy;
     vec2 Normal = normalize(texture(gNormal, UV).xy);
     vec3 Albedo = texture(gAlbedo, UV).rgb;
-	FragColor = texture(gNormal,UV);
-	FragColor.xyz = Albedo;
+	FragColor = vec4(FragPos,1.0,1.0);
 }

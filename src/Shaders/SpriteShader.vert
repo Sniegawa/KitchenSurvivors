@@ -12,8 +12,9 @@ uniform mat4 InverseModel;
 uniform mat4 projection;
 
 void main() {
-	gl_Position = projection * model * vec4(aVertex.xy,0.0,1.0);
+	vec4 pos = projection * model * vec4(aVertex.xy,0.0,1.0);
+	gl_Position =  pos;
 	normal = aNormal;
 	UV = aVertex.zw;
-	fragPos = aVertex.xy;
+	fragPos =  (InverseModel * pos).xy;
 }
