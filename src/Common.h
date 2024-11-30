@@ -22,7 +22,7 @@ struct pointLight
 {
 	glm::vec4 coords;// vec2 pos, float radius, float ??
 	glm::vec4 color;
-	pointLight(glm::vec2 _coords, glm::vec3 _color) : coords(glm::vec4(_coords, 0.0f, 0.0f)), color(glm::vec4(_color, 0.0f)) {};
+	pointLight(glm::vec4 _coords, glm::vec4 _color) : coords(_coords), color(_color) {};
 };
 
 struct DebugInfo

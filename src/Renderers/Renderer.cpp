@@ -16,6 +16,7 @@ void Renderer::RendererSetup()
     this->InnitBackgroundData();
     this->InnitScreenQuad();
     this->InnitScreenBuffers();
+    this->PrepareLightmap();
 }
 
 void Renderer::Innit()
@@ -294,8 +295,20 @@ void Renderer::InnitScreenQuad()
     glEnableVertexAttribArray(0);
 }
 
+void Renderer::PrepareLightmap()
+{
+    glCreateTextures(GL_TEXTURE_2D, 1, &this->Lightmap);
+    glTextureParameteri(this->Lightmap, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(this->Lightmap, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(this->Lightmap, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(this->Lightmap, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureStorage2D(this->Lightmap, 1, GL_RGBA32F, Common::ScreenSize.x, Common::ScreenSize.y);
+    glBindImageTexture(0, this->Lightmap, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+}
+
 void Renderer::RenderLight()
 {
+    this->RenderLightmap();
     Shader& shader = ResourceManager::GetShader("light");
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -306,13 +319,29 @@ void Renderer::RenderLight()
     glBindTexture(GL_TEXTURE_2D, this->gNormal);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, this->Lightmap);
     shader.SetInteger("gPosition", 0);
     shader.SetInteger("gNormal", 1);
     shader.SetInteger("gAlbedo", 2);
+    shader.SetInteger("Lightmap", 3);
     shader.SetVector2f("ScreenSize", Common::ScreenSize);
     shader.SetInteger("pixelSize", this->pixelSize);
+    shader.SetInteger("LightPixelize", this->LightPixelize);
+    shader.SetInteger("RenderMode", this->RenderMode);
     shader.SetVector2f("PlayerPosition", this->PlayerPos);
     glBindVertexArray(ScreenQuadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+
+}
+
+void Renderer::RenderLightmap()
+{
+    ComputeShader& shader = ResourceManager::GetComputeShader("Lightmap");
+    shader.Use();
+    shader.SetUniform("ScreenSize", Common::ScreenSize);
+    shader.SetUniform("PlayerPosition", this->PlayerPos);
+    glDispatchCompute(Common::ScreenSize.x/16+1, Common::ScreenSize.y/16+1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 }

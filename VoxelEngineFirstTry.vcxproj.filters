@@ -225,6 +225,7 @@
     <None Include="src\Shaders\DefferedLight.frag" />
     <None Include="src\Shaders\InstancedSpriteShader.vert" />
     <None Include="src\Shaders\InstancedSpriteShader.frag" />
+    <None Include="src\Shaders\ComputeShaders\Lightmap.cmpt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\Knife-temp.png">

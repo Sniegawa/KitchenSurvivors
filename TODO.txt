@@ -1,7 +1,7 @@
-ADD COMPUTE SHADER FUNCTIONALITY TO SHADER CLASS
+ADD COMPUTE SHADER FUNCTIONALITY TO SHADER CLASS | DONE
 
 COMPUTE SHADER FOR LIGHTMAP CALCULATION
--Compute lightmap shader, that writes to textures
+-Compute lightmap shader, that writes to texture
 -Configurable pixel grid size for downscaling
 
 THEN JUST SAMPLE LIGHTMAP AND MULTIPLY BY ALBEDO IN LIGHTING PASS SHADER

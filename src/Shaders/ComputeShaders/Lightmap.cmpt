@@ -1,0 +1,39 @@
+#version 430 core 
+
+layout (local_size_x = 32, local_size_y = 32) in;
+
+layout (rgba32f, binding = 0) writeonly uniform image2D Lightmap;
+
+struct pointLight
+{
+	vec4 position; // vec2 pos, float att1, float att2
+	vec4 color; // vec3 color, float intensity
+};
+
+layout(std430, binding = 1) buffer PointLights
+{
+	pointLight pointlights[];
+};
+
+uniform vec2 ScreenSize;
+uniform vec2 PlayerPosition;
+
+const int MaxLightDist = 1000;
+
+void main()
+{
+    ivec2 PixelPos = ivec2(gl_GlobalInvocationID.xy);
+    vec2 UV = vec2(PixelPos.x/ScreenSize.x,1 - PixelPos.y/ScreenSize.y);
+    vec3 color = vec3(0.0);
+
+    ivec2 iPlayerPos = ivec2(floor(PlayerPosition.x),-floor(PlayerPosition.y));
+    for(int i = 0; i < pointlights.length(); i++)
+    {
+        float dist = distance(PixelPos + iPlayerPos,pointlights[i].position.xy);
+        if (dist >= MaxLightDist) continue;
+        float att = pointlights[i].color.a / (1.0 + pointlights[i].position.z * dist + pointlights[i].position.a * dist * dist);
+        color += pointlights[i].color.xyz * att;
+    }
+
+    imageStore(Lightmap,PixelPos,vec4(color,1.0));
+}

@@ -43,7 +43,8 @@ public:
 	void RendererSetup();
 
 	int pixelSize = 1;
-
+	int LightPixelize = 1;
+	int RenderMode = 0;
 private:
 	glm::vec2 PlayerPos;
 	void UpdateInstanceData(const std::vector<glm::mat4>& modelMatrices);
@@ -53,6 +54,8 @@ private:
 	void InnitBackgroundData();
 	void InnitScreenQuad();
 	void InnitScreenBuffers();
+	void RenderLightmap();
+	void PrepareLightmap();
 
 	unsigned int gBuffer;
 
@@ -71,4 +74,5 @@ private:
 	GLuint BackgroundVBO = 0;
 	GLuint ScreenQuadVAO = 0;
 	GLuint ScreenQuadVBO = 0;
+	GLuint Lightmap = 0;
 };

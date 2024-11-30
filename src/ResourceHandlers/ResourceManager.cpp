@@ -9,7 +9,7 @@
 
 std::map<std::string, Texture2D> ResourceManager::Textures;
 std::map<std::string, Shader>  ResourceManager::Shaders;
-
+std::map<std::string, ComputeShader> ResourceManager::ComputeShaders;
 
 Shader ResourceManager::LoadShader(const char* vertexShaderFile, const char* fragmentShaderFile, std::string name)
 {
@@ -26,6 +26,18 @@ Shader& ResourceManager::GetShader(std::string name)
 Shader* ResourceManager::GetShaderPtr(std::string name)
 {
 	return &Shaders[name];
+}
+
+ComputeShader ResourceManager::LoadComputeShader(const char* computeFile, std::string name)
+{
+	std::cout << "\n" << "Compiling compute shader" << name << std::endl;
+	ComputeShaders[name] = loadComputeShaderFromFile(computeFile);
+	return ComputeShaders[name];
+}
+
+ComputeShader& ResourceManager::GetComputeShader(std::string name)
+{
+	return ComputeShaders[name];
 }
 
 Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
@@ -81,6 +93,30 @@ Shader ResourceManager::loadShaderFromFile(const char* vShaderFile, const char* 
 	shader.Compile(vShaderCode, fShaderCode);
 	return shader;
 
+}
+
+ComputeShader ResourceManager::loadComputeShaderFromFile(const char* computeFile)
+{
+	std::string ComputeCode;
+
+	try
+	{
+		std::ifstream computeShaderFile(computeFile);
+		std::stringstream cShaderStream;
+
+		cShaderStream << computeShaderFile.rdbuf();
+		computeShaderFile.close();
+
+		ComputeCode = cShaderStream.str();
+	}
+	catch (std::exception e)
+	{
+		std::cout << "ERROR::SHADER: Failed to read compute shader file" << std::endl;
+	}
+	const char* cShaderCode = ComputeCode.c_str();
+	ComputeShader shader;
+	shader.Compile(cShaderCode);
+	return shader;
 }
 
 Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)

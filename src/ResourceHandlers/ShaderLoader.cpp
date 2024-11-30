@@ -46,6 +46,9 @@ void Shader::Compile(const char* vertex_source, const char* fragment_source)
 	glDeleteShader(sFragment);
 
 }
+#pragma region Uniforms
+
+
 
 void Shader::SetUniform(const char* name, float value, bool useShader)
 {
@@ -157,7 +160,7 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool useShade
 	glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(matrix));
 }
 
-
+#pragma endregion
 
 bool Shader::checkCompileErrors(unsigned int object, std::string type)
 {
@@ -224,4 +227,116 @@ GLuint Shader::GetSSBO(const std::string& name)
 		CreateSSBO(newSSBO, name, bindingPoint);
 		return newSSBO;
 	}
+}
+
+
+ComputeShader& ComputeShader::Use()
+{
+	glUseProgram(this->ID);
+	return *this;
+}
+
+void ComputeShader::SetUniform(const char* name, float value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform1f(glGetUniformLocation(this->ID, name), value);
+}
+void ComputeShader::SetUniform(const char* name, int value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform1i(glGetUniformLocation(this->ID, name), value);
+}
+void ComputeShader::SetUniform(const char* name, float x, float y, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform2f(glGetUniformLocation(this->ID, name), x, y);
+}
+void ComputeShader::SetUniform(const char* name, const glm::vec2& value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform2f(glGetUniformLocation(this->ID, name), value.x, value.y);
+}
+void ComputeShader::SetUniform(const char* name, float x, float y, float z, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform3f(glGetUniformLocation(this->ID, name), x, y, z);
+}
+void ComputeShader::SetUniform(const char* name, const glm::vec3& value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform3f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z);
+}
+void ComputeShader::SetUniform(const char* name, float x, float y, float z, float w, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform4f(glGetUniformLocation(this->ID, name), x, y, z, w);
+}
+void ComputeShader::SetUniform(const char* name, const glm::vec4& value, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniform4f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z, value.w);
+}
+void ComputeShader::SetUniform(const char* name, const glm::mat4& matrix, bool useShader)
+{
+	if (useShader)
+		this->Use();
+	glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(matrix));
+}
+
+
+bool ComputeShader::checkCompileErrors(unsigned int object, std::string type)
+{
+	int success;
+	char infoLog[1024];
+	if (type != "PROGRAM")
+	{
+		glGetShaderiv(object, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(object, 1024, NULL, infoLog);
+			std::cout << "| ERROR::SHADER: Compile-time error: Type: " << type << "\n"
+				<< infoLog << "\n -- --------------------------------------------------- -- "
+				<< std::endl;
+		}
+
+	}
+	else
+	{
+		glGetProgramiv(object, GL_LINK_STATUS, &success);
+		if (!success)
+		{
+			glGetProgramInfoLog(object, 1024, NULL, infoLog);
+			std::cout << "| ERROR::Shader: Link-time error: Type: " << type << "\n"
+				<< infoLog << "\n -- --------------------------------------------------- -- "
+				<< std::endl;
+		}
+	}
+	return success;
+}
+
+void ComputeShader::Compile(const char* compute_source)
+{
+	unsigned int sCompute;
+
+	sCompute = glCreateShader(GL_COMPUTE_SHADER);
+	glShaderSource(sCompute, 1, &compute_source, NULL);
+	glCompileShader(sCompute);
+	if (checkCompileErrors(sCompute, "VERTEX"))
+		std::cout << "Succesfully compiled vertex shader " << std::endl;
+
+	this->ID = glCreateProgram();
+	glAttachShader(this->ID, sCompute);
+	glLinkProgram(this->ID);
+	if (checkCompileErrors(this->ID, "PROGRAM"))
+		std::cout << "Succesfully compiled shader" << std::endl;
+	glDeleteShader(sCompute);
+
 }

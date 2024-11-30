@@ -76,6 +76,8 @@ ImGuiWindowFlags flags = 0;
 
 int lastlvl;
 
+float k1, k2;
+
 void Game::LoadTextures()
 {
 	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
@@ -95,6 +97,7 @@ void Game::LoadShaders()
 	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
 	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag", "UI");
 	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
+	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Lightmap.cmpt", "Lightmap");
 }
 
 void Game::Init()
@@ -135,11 +138,30 @@ void Game::Init()
 	srand(time(0));
 	for (int i = 0; i < 25; i++)
 	{
-		glm::vec2 pos;
+		glm::vec4 pos;
 		glm::vec3 col;
-		pos = glm::vec2(randFloat(0,2000), randFloat(0,2000));
-		col = randColor();
-		lights.emplace_back(pos, col);
+		float k1, k2, intensity;
+		int random = rand() % 3;
+		if (random == 0)
+		{
+			k1 = 0.01;
+			k2 = 0.001;
+			intensity = 2.0;
+		}
+		else if( random == 1)
+		{
+			k1 = 0.3;
+			k2 = 0.1;
+			intensity = 1.0;
+		}
+		else {
+			k1 = 0.1;
+			k2 = 0.01;
+			intensity = 1.5;
+		}
+		pos = glm::vec4(randFloat(0,2000), randFloat(0,2000),k1, k2);
+		col = glm::vec3(randColor());
+		lights.emplace_back(pos, glm::vec4(col.x,col.y,col.z, intensity));
 	}
 
 	ResourceManager::GetShader("light").Use();
@@ -426,6 +448,8 @@ void Game::RenderDebug()
 	ImGui::Spacing();
 	ImGui::Text("Graphic Settings : ");
 	ImGui::SliderInt("PixelSize", &renderer.pixelSize, 1, 64);
+	ImGui::SliderInt("LightPixelize", &renderer.LightPixelize, 0, 8);
+	ImGui::SliderInt("RenderMode", &renderer.RenderMode, 0, 8);
 	ImGui::End();
 }
 
