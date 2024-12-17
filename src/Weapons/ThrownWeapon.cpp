@@ -1,31 +1,28 @@
 #include "ThrownWeapon.h"
 
-float MousePlayerAngle;
-
 std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
-void CreateProjectile(std::string sprite,glm::vec2 *player_pos, glm::vec2 center,float angleoffset = 0.0f)
+void CreateProjectile(std::string sprite,Player* p_player,float angleoffset = 0.0f)
 {
 	Texture2D knifetex = ResourceManager::GetTexture(sprite);
 	PlayerProjectiles.push_back(
 		std::make_shared<Projectile>(Projectile(
-			*player_pos + center,
+			p_player->Position + p_player->Size * 0.5f ,
 			glm::vec2(knifetex.Width, knifetex.Height),
 			&ResourceManager::GetTexture(sprite),
 			ResourceManager::GetShaderPtr("instancedSprite"),
 			PROJECTILES,
 			25.0f,
 			glm::vec3(1.0f),
-			MousePlayerAngle + angleoffset + glm::pi<float>(),
+			Common::MousePlayerAngle + angleoffset + glm::pi<float>(),
 			500,
-			glm::vec2(-sin(MousePlayerAngle + angleoffset), cos(MousePlayerAngle + angleoffset))
+			glm::vec2(-sin(Common::MousePlayerAngle + angleoffset), cos(Common::MousePlayerAngle + angleoffset))
 		))
 	);
 }
 
 void ThrownWeapon::Shoot()
 {
-
 	
 	int projectileCount = this->p_Stats->projectileCount + this->AdditionalProjectiles;
 
@@ -39,7 +36,7 @@ void ThrownWeapon::Shoot()
 					continue;
 
 				float angleoffset = (glm::pi<float>() / 12) * i;
-				CreateProjectile(this->sprite, p_PlayerPosition, center, angleoffset);
+				CreateProjectile(this->sprite, p_Player, angleoffset);
 			}
 		}
 		else
@@ -47,24 +44,24 @@ void ThrownWeapon::Shoot()
 			for (int i = -projectileCount / 2; i < projectileCount / 2 + 1; i++)
 			{
 				float angleoffset = (glm::pi<float>() / 12) * i;
-				CreateProjectile(this->sprite, p_PlayerPosition, center, angleoffset);
+				CreateProjectile(this->sprite, p_Player, angleoffset);
 			}
 		}
 	}
 	else
 	{
-		CreateProjectile(this->sprite, p_PlayerPosition, center);
+		CreateProjectile(this->sprite, p_Player);
 	}
 }
 
-ThrownWeapon::ThrownWeapon(std::string _sprite, std::string _name, std::string _desc, PlayerStats* _stats, glm::vec2* _pos,float _cooldown)
+ThrownWeapon::ThrownWeapon(std::string _sprite, std::string _name, std::string _desc, PlayerStats* _stats, Player* _player,float _cooldown)
 {
 	this->sprite = _sprite;
 	this->id = 1;
 	this->name = _name;
 	this->level = 1;
 	this->p_Stats = _stats;
-	this->p_PlayerPosition = _pos;
+	this->p_Player = _player;
 	this->cooldown = _cooldown;
 	this->description = _desc;
 	lvlupScheme.insert(std::pair<int, Upgrade>(2, Upgrade(WEAPON_UPGRADE_PROJECTILES, 1)));

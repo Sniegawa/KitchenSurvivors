@@ -53,17 +53,19 @@ private:
 	void InnitPlayerData();
 	void InnitBackgroundData();
 	void InnitScreenQuad();
-	void InnitScreenBuffers();
+	void InnitScreenGBuffer();
 	void RenderLightmap();
 	void PrepareLightmap();
+	void DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor);
 
-	unsigned int gBuffer;
+	unsigned int gBuffer = 0;
 
-	unsigned int gPosition;
-	unsigned int gNormal;
-	unsigned int gAlbedo;
-	unsigned int rboDepth;
+	unsigned int gPosition = 0;
+	unsigned int gNormal = 0;
+	unsigned int gAlbedo = 0;
+	unsigned int rboDepth = 0;
 
+	int lastPixelSize = 0;
 
 	GLuint VAO = 0;
 	GLuint VBO = 0;
@@ -75,4 +77,5 @@ private:
 	GLuint ScreenQuadVAO = 0;
 	GLuint ScreenQuadVBO = 0;
 	GLuint Lightmap = 0;
+	GLuint DownscaledLightmap = -1;
 };

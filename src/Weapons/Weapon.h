@@ -1,7 +1,8 @@
 #pragma once
 #include "string"
 #include "../ResourceHandlers/Texture.h"
-#include "../Objects/Projectile.h"
+#include "../Objects/Player.h"
+//#include "../Objects/Projectile.h"
 #include "../Common.h"
 #include <vector>
 #include <memory>
@@ -32,16 +33,15 @@ public:
 	int level;
 
 	PlayerStats* p_Stats;
-	glm::vec2* p_PlayerPosition;
+	Player* p_Player;
 	virtual void Shoot();
 	virtual void LvlUp();
 	virtual void Update(float dt);
 	virtual ~Weapon();
-	Weapon(std::string _sprite,std::string _name, PlayerStats* _stats, glm::vec2* _pos,float _cooldown);
+	Weapon(std::string _sprite,std::string _name, PlayerStats* _stats, Player* _player,float _cooldown);
 	Weapon();
 
 protected:
-	const glm::vec2 center = glm::vec2(Common::ScreenSize.x / 2, Common::ScreenSize.y / 2);
 
 	float cooldown;
 	float remainingcd;

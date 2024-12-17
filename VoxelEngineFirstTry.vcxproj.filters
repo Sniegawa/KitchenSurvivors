@@ -50,12 +50,6 @@
     <ClCompile Include="src\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderers\EnemyRenderer.cpp">
-      <Filter>Source Files\Rendereres</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderers\PlayerRenderer.cpp">
-      <Filter>Source Files\Rendereres</Filter>
-    </ClCompile>
     <ClCompile Include="src\Renderers\SpriteRenderer.cpp">
       <Filter>Source Files\Rendereres</Filter>
     </ClCompile>
@@ -139,13 +133,7 @@
     <ClInclude Include="src\ResourceHandlers\ResourceManager.h">
       <Filter>Header Files\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderers\PlayerRenderer.h">
-      <Filter>Header Files\Renderers</Filter>
-    </ClInclude>
     <ClInclude Include="src\Renderers\SpriteRenderer.h">
-      <Filter>Header Files\Renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderers\EnemyRenderer.h">
       <Filter>Header Files\Renderers</Filter>
     </ClInclude>
     <ClInclude Include="src\Objects\Player.h">
@@ -226,6 +214,8 @@
     <None Include="src\Shaders\InstancedSpriteShader.vert" />
     <None Include="src\Shaders\InstancedSpriteShader.frag" />
     <None Include="src\Shaders\ComputeShaders\Lightmap.cmpt" />
+    <None Include="src\Shaders\ComputeShaders\Downscaling.cmpt" />
+    <None Include="src\Shaders\ComputeShaders\NormalCalculation.cmpt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\Knife-temp.png">

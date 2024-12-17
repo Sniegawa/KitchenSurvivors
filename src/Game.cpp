@@ -15,13 +15,11 @@
 #include "Objects/Enemy.h"
 #include "Objects/Projectile.h"
 
-#include "Weapons/Weapon.h"
+//#include "Weapons/Weapon.h"
 #include "Weapons/ThrownWeapon.h"
 #include "Weapons/OrbitWeapon.h"
 
 #include "Renderers/Renderer.h"
-#include "Renderers/PlayerRenderer.h"
-#include "Renderers/EnemyRenderer.h"
 #include "Renderers/SpriteRenderer.h"
 #include "Renderers/TextRenderer.h"
 #include "ResourceHandlers/ResourceManager.h"
@@ -49,11 +47,10 @@ static float randFloat(float min = 0.0f, float max = 1.0f)
 	return min + static_cast<float> (rand()) / static_cast<float> (RAND_MAX/(max-min));
 }
 
+
+//TODO: Implement in renderer
 TextRenderer* textRenderer;
-
 SpriteRenderer* UIRenderer;
-
-extern float MousePlayerAngle;
 
 GameObject* background;
 
@@ -78,10 +75,17 @@ int lastlvl;
 
 float k1, k2;
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+glm::mat4 view;
+
 void Game::LoadTextures()
 {
 	ResourceManager::LoadTexture("src/Textures/512X512.png", false, "background");
 	ResourceManager::LoadTexture("src/Textures/pizza.png", true, "pizza");
+	ResourceManager::LoadTexture("src/Textures/pizza_n.png", false, "pizza_n");
 	ResourceManager::LoadTexture("src/Textures/player.png", true, "player");
 	ResourceManager::LoadTexture("src/Textures/knife.png", true, "knife");
 	ResourceManager::LoadTexture("src/Textures/WIDELEC.png", true, "fork");
@@ -98,8 +102,10 @@ void Game::LoadShaders()
 	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag", "UI");
 	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Lightmap.cmpt", "Lightmap");
+	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Downscaling.cmpt", "Downscaling");
+	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/NormalCalculation.cmpt", "Normals");
 }
-
+glm::vec2 playerCenter; 
 void Game::Init()
 {
 	this->LoadShaders();
@@ -112,7 +118,7 @@ void Game::Init()
 
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 10.0f);
 	
 	ResourceManager::GetShader("instancedSprite").SetUniform("projection", projection, true);
 
@@ -126,17 +132,28 @@ void Game::Init()
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 	
 	Texture2D& PlayerSprite = ResourceManager::GetTexture("pizza");
-	glm::vec2 StartingPlayerPosition = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height) + glm::vec2(30.0f,16.0f);
-	player = new Player(StartingPlayerPosition, glm::vec2(PlayerSprite.Width, PlayerSprite.Height)*1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"),PLAYER,&PlayerProjectiles,&PlayerPosition);
+	playerCenter = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);// +glm::vec2(30.0f, 16.0f);
+	player = new Player(playerCenter, glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"), PLAYER, &PlayerProjectiles, &PlayerPosition);
+
+	cameraPos = glm::vec3(0,0, 3);
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront ,cameraUp);
+
+	ResourceManager::GetShader("instancedSprite").SetUniform("view", view, true);
+	ResourceManager::GetShader("sprite").SetUniform("view", view, true);
 
 	background = new GameObject(glm::vec2(0.0), glm::vec2(this->Width * 10.0f, this->Height * 10.0f), 0.0f, &ResourceManager::GetTexture("background"), ResourceManager::GetShaderPtr("sprite"), BACKGROUND);
 
-	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, &PlayerPosition, 1.0f);
-	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, &PlayerPosition,5.0f);
-	lastlvl = player->Level;
+	for (int i = 0; i < 6; i++)
+	{
+		player->weapons[i] = new Weapon();
+	}
 
+	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, player, 1.0f);
+	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, player,5.0f);
+	lastlvl = player->Level;
+	
 	srand(time(0));
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		glm::vec4 pos;
 		glm::vec3 col;
@@ -159,10 +176,24 @@ void Game::Init()
 			k2 = 0.01;
 			intensity = 1.5;
 		}
-		pos = glm::vec4(randFloat(0,2000), randFloat(0,2000),k1, k2);
+		pos = glm::vec4(randFloat(0,2000), randFloat(0,2000),k1*8, k2*8);
 		col = glm::vec3(randColor());
 		lights.emplace_back(pos, glm::vec4(col.x,col.y,col.z, intensity));
 	}
+	lights[0].coords.x = 4;
+	lights[0].coords.y = 4;
+	expShards.push_back
+	(
+		std::make_shared<GameObject>(GameObject(
+			glm::vec2(2.0f,2.0f),
+			glm::vec2(32.0f, 32.0f),
+			0.0f,
+			&ResourceManager::GetTexture("tomato"),
+			ResourceManager::GetShaderPtr("instancedSprite"),
+			PICKUPS
+
+		))
+	);
 
 	ResourceManager::GetShader("light").Use();
 
@@ -229,7 +260,7 @@ void Game::Render()
 }
 
 float spawnerTime;
-
+float z = 0;
 void Game::Update(float dt)
 {	
 
@@ -309,15 +340,17 @@ void Game::Update(float dt)
 	}
 
 	player->UpdateCooldowns(dt);
+	z += dt;
+	//renderer.UpdatePlayerPos(PlayerPosition);
+	cameraPos = glm::vec3(player->Position.x, player->Position.y, 3) - glm::vec3(playerCenter.x,playerCenter.y,0);
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-	renderer.UpdatePlayerPos(PlayerPosition);
-
+	ResourceManager::GetShader("instancedSprite").SetUniform("view", view, true);
+	ResourceManager::GetShader("sprite").SetUniform("view", view, true);
 	Common::debuginfo.Enemies = enemies.size();
 	Common::debuginfo.Projectiles = PlayerProjectiles.size();
 	Common::debuginfo.PlayerHealth = player->Health;
 	
-
-
 }
 
 void Game::ProcessInput(float dt)
@@ -334,23 +367,23 @@ void Game::ProcessInput(float dt)
 
 		if (this->Keys[GLFW_KEY_A])
 		{
-			PlayerPosition.x -= velocity;
+			player->Position.x -= velocity;
 		}
 		else if (this->Keys[GLFW_KEY_D])
 		{
-			PlayerPosition.x += velocity;
+			player->Position.x += velocity;
 		}
 		if (this->Keys[GLFW_KEY_W])
 		{
-			PlayerPosition.y -= velocity;
+			player->Position.y -= velocity;
 		}
 		else if (this->Keys[GLFW_KEY_S])
 		{
-			PlayerPosition.y += velocity;
+			player->Position.y += velocity;
 		}
 
 	}
-	MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
+	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 
 //POCISKI S¥ ZALE¯NE OD KLATEK, ogl kolizje s¹ (mo¿e dodanie dt do kalkulacji nowych pozycji cos zmieni)

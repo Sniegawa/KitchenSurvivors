@@ -1,6 +1,6 @@
 #version 430 core 
 
-layout (local_size_x = 32, local_size_y = 32) in;
+layout (local_size_x = 16, local_size_y = 16) in;
 
 layout (rgba32f, binding = 0) writeonly uniform image2D Lightmap;
 
@@ -15,25 +15,57 @@ layout(std430, binding = 1) buffer PointLights
 	pointLight pointlights[];
 };
 
+struct directionalLight
+{
+	vec4 posdir; // vec2 pos, vec2 dir
+	vec4 color; //vec3 color float intensity
+	float cutoffAngle;
+    float outercutoffAngle;
+};
+
 uniform vec2 ScreenSize;
 uniform vec2 PlayerPosition;
 
-const int MaxLightDist = 1000;
 
+const int MaxLightDist = 1000;
+//Doesn't work properly
 void main()
 {
+
+    directionalLight l1;
+    l1.posdir = vec4(20.0,20.0,-1.0,0.0);
+    l1.color = vec4(1.0,0.0,0.0,1.0);
+    l1.cutoffAngle = cos(3.14*0.225);
+    l1.outercutoffAngle = cos(3.14*0.525);
+
     ivec2 PixelPos = ivec2(gl_GlobalInvocationID.xy);
-    vec2 UV = vec2(PixelPos.x/ScreenSize.x,1 - PixelPos.y/ScreenSize.y);
+    //vec2 UV = vec2(PixelPos.x/ScreenSize.x,1 - PixelPos.y/ScreenSize.y);
     vec3 color = vec3(0.0);
 
     ivec2 iPlayerPos = ivec2(floor(PlayerPosition.x),-floor(PlayerPosition.y));
-    for(int i = 0; i < pointlights.length(); i++)
+    
+    vec2 lightDir = normalize((PixelPos + iPlayerPos) - l1.posdir.xy);
+    float dist = distance((PixelPos + iPlayerPos),l1.posdir.xy);
+
+    float phi = l1.cutoffAngle;
+    float theta = dot(lightDir, normalize(-l1.posdir.zw)); 
+    float epsilon   = 0.0448;//l1.cutoffAngle - l1.outercutoffAngle;
+    if(theta > l1.cutoffAngle && dist < MaxLightDist)
     {
-        float dist = distance(PixelPos + iPlayerPos,pointlights[i].position.xy);
+        float intensity = clamp((theta - 0.83) / epsilon, 0.0, 1.0);
+        float att = 1 / (1.0 + 0.01 * dist + 0.001 * dist * dist);
+        color = l1.color.xyz * intensity * att;
+    }
+    
+    /*for(int i = 0; i < pointlights.length(); i++)
+    {
+        float dist = distance((PixelPos + iPlayerPos),pointlights[i].position.xy);
         if (dist >= MaxLightDist) continue;
         float att = pointlights[i].color.a / (1.0 + pointlights[i].position.z * dist + pointlights[i].position.a * dist * dist);
         color += pointlights[i].color.xyz * att;
-    }
+    }*/
+
+
 
     imageStore(Lightmap,PixelPos,vec4(color,1.0));
 }

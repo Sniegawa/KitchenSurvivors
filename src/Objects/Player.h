@@ -1,13 +1,13 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
+#pragma once
 
 #include "GameObject.h"
 #include <vector>
 #include "Projectile.h"
-#include "../Weapons/Weapon.h"
+//#include "../Weapons/Weapon.h"
 #include "../Common.h"
 #include <memory>
 
+class Weapon;
 class Player : public GameObject
 {
 public:
@@ -17,6 +17,8 @@ public:
 	void UpdateCooldowns(float dt);
 	void GetXp(int type);
 	PlayerStats stats;
+	Texture2D* NormalMap;
+
 	unsigned int Level = 0;
 	float LvlProgress = 0;
 	float Health = stats.MaxHealth;
@@ -33,5 +35,3 @@ private:
 
 	
 };
-
-#endif // !PLAYER_HPP

@@ -8,6 +8,7 @@ layout (location = 1) in vec2 aTexCoord;  // Texture coordinates
 layout (location = 2) in mat4 instanceModelMatrix;  // 4x4 model matrix for each instance
 
 uniform mat4 projection;
+uniform mat4 view;
 
 // Output to fragment shader
 out vec2 TexCoord;
@@ -15,7 +16,7 @@ out vec2 fragPos;
 
 void main() {
     // Apply the instance-specific model matrix
-    vec4 transformedPos = projection * instanceModelMatrix * vec4(aPos, 0.0, 1.0);
+    vec4 transformedPos = projection * view * instanceModelMatrix * vec4(aPos, 0.0, 1.0);
     gl_Position = transformedPos;
     
     TexCoord = aTexCoord;  // Pass texture coordinates to the fragment shader

@@ -150,7 +150,6 @@
   <ItemGroup>
     <ClCompile Include="src\Common.cpp" />
     <ClCompile Include="src\Objects\Enemy.cpp" />
-    <ClCompile Include="src\Renderers\EnemyRenderer.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Objects\GameObject.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
@@ -162,7 +161,6 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Objects\Player.cpp" />
-    <ClCompile Include="src\Renderers\PlayerRenderer.cpp" />
     <ClCompile Include="src\Objects\Projectile.cpp" />
     <ClCompile Include="src\Renderers\Renderer.cpp" />
     <ClCompile Include="src\Renderers\TextRenderer.cpp" />
@@ -177,7 +175,6 @@
   <ItemGroup>
     <ClInclude Include="src\Common.h" />
     <ClInclude Include="src\Objects\Enemy.h" />
-    <ClInclude Include="src\Renderers\EnemyRenderer.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Objects\GameObject.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
@@ -190,7 +187,6 @@
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Objects\Player.h" />
-    <ClInclude Include="src\Renderers\PlayerRenderer.h" />
     <ClInclude Include="src\Objects\Projectile.h" />
     <ClInclude Include="src\Renderers\Renderer.h" />
     <ClInclude Include="src\Renderers\TextRenderer.h" />
@@ -205,7 +201,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
+    <None Include="src\Shaders\ComputeShaders\Downscaling.cmpt" />
     <None Include="src\Shaders\ComputeShaders\Lightmap.cmpt" />
+    <None Include="src\Shaders\ComputeShaders\NormalCalculation.cmpt" />
     <None Include="src\Shaders\DefferedLight.frag" />
     <None Include="src\Shaders\DefferedLight.vert" />
     <None Include="src\Shaders\EnemyShader.frag" />

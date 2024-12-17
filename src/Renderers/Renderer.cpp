@@ -15,7 +15,7 @@ void Renderer::RendererSetup()
     this->InnitPlayerData();
     this->InnitBackgroundData();
     this->InnitScreenQuad();
-    this->InnitScreenBuffers();
+    this->InnitScreenGBuffer();
     this->PrepareLightmap();
 }
 
@@ -65,7 +65,8 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 
         glm::mat4 model = glm::mat4(1.0f);
 
-        model = glm::translate(model, glm::vec3(obj->Position - this->PlayerPos, 0.0f));
+        //model = glm::translate(model, glm::vec3(obj->Position - this->PlayerPos, 0.0f));
+        model = glm::translate(model, glm::vec3(obj->Position, 0.0f));
 
         //Rotation
         model = glm::translate(model, glm::vec3(0.5f * obj->Size.x, 0.5f * obj->Size.y, 0.0f)); //We transform model to be centered at center of object
@@ -155,10 +156,13 @@ void Renderer::RenderPlayer(Player* player)
     glm::mat4 invmodel = glm::mat4(1.0f);
 
     invmodel = glm::inverse(model);
-
+    
     playershader->SetMatrix4("model", model);
     playershader->SetMatrix4("InverseModel", invmodel);
     playershader->SetVector3f("spriteColor", player->Color);
+    glActiveTexture(GL_TEXTURE4);
+    player->NormalMap->Bind();
+    playershader->SetInteger("NormalMap", 4);
     glActiveTexture(GL_TEXTURE3);
     playershader->SetInteger("image", 3);
     player->Sprite->Bind();
@@ -203,7 +207,8 @@ void Renderer::RenderBackground(GameObject* background)
 
     glm::mat4 model = glm::mat4(1.0f);
     //Position
-    model = glm::translate(model, glm::vec3(background->Position - this->PlayerPos, 0.0f));
+    //model = glm::translate(model, glm::vec3(background->Position - this->PlayerPos, 0.0f));
+    model = glm::translate(model, glm::vec3(background->Position, 0.0f));
     //Rotation
     model = glm::translate(model, glm::vec3(0.5f * background->Size.x, 0.5f * background->Size.y, 0.0f)); //We transform model to be centered at center of object
     model = glm::rotate(model, background->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
@@ -223,7 +228,7 @@ void Renderer::RenderBackground(GameObject* background)
     glBindVertexArray(0);
 }
 
-void Renderer::InnitScreenBuffers()
+void Renderer::InnitScreenGBuffer()
 {
     int SCR_WIDTH = Common::ScreenSize.x;
     int SCR_HEIGHT = Common::ScreenSize.y;
@@ -243,15 +248,15 @@ void Renderer::InnitScreenBuffers()
     // Normal buffer (vec2)
     glGenTextures(1, &this->gNormal);
     glBindTexture(GL_TEXTURE_2D, this->gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this->gNormal, 0);
 
-    // Color + specular buffer (vec4)
+    // Color buffer(vec3)
     glGenTextures(1, &this->gAlbedo);
     glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this->gAlbedo, 0);
@@ -303,7 +308,7 @@ void Renderer::PrepareLightmap()
     glTextureParameteri(this->Lightmap, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTextureParameteri(this->Lightmap, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTextureStorage2D(this->Lightmap, 1, GL_RGBA32F, Common::ScreenSize.x, Common::ScreenSize.y);
-    glBindImageTexture(0, this->Lightmap, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
 }
 
 void Renderer::RenderLight()
@@ -325,6 +330,7 @@ void Renderer::RenderLight()
     shader.SetInteger("gNormal", 1);
     shader.SetInteger("gAlbedo", 2);
     shader.SetInteger("Lightmap", 3);
+    shader.SetInteger("NormalsTest", 4);
     shader.SetVector2f("ScreenSize", Common::ScreenSize);
     shader.SetInteger("pixelSize", this->pixelSize);
     shader.SetInteger("LightPixelize", this->LightPixelize);
@@ -332,6 +338,23 @@ void Renderer::RenderLight()
     shader.SetVector2f("PlayerPosition", this->PlayerPos);
     glBindVertexArray(ScreenQuadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void UpdateDownscaledTexture(GLuint& texture, int factor)
+{
+    if(texture != -1)
+        glDeleteTextures(1, &texture);
+    int downscaledWidth = Common::ScreenSize.x / (1+factor);
+    int downscaledHeight = Common::ScreenSize.y / (1+factor);
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, downscaledWidth, downscaledHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 
@@ -339,9 +362,44 @@ void Renderer::RenderLightmap()
 {
     ComputeShader& shader = ResourceManager::GetComputeShader("Lightmap");
     shader.Use();
+    glBindImageTexture(0, this->Lightmap, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     shader.SetUniform("ScreenSize", Common::ScreenSize);
     shader.SetUniform("PlayerPosition", this->PlayerPos);
-    glDispatchCompute(Common::ScreenSize.x/16+1, Common::ScreenSize.y/16+1, 1);
+    glDispatchCompute(Common::ScreenSize.x / 16 + 1, Common::ScreenSize.y / 16 + 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    /*
+    int factor = this->LightPixelize;
+    int lastFactor = this->lastPixelSize;
+    if (factor != lastFactor)
+    {
+        std::cout << "Changing the resolution of lightmap" << std::endl;
+        this->lastPixelSize = factor;
+        UpdateDownscaledTexture(this->DownscaledLightmap, factor);
+    }
+
+    DownscaleTexture(this->Lightmap, this->DownscaledLightmap, factor);
+    */
+
+}
+
+void Renderer::DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor)
+{ 
+    int downscaledWidth = Common::ScreenSize.x / factor;
+    int downscaledHeight = Common::ScreenSize.y / factor;
+
+    // Workgroup size (matches local_size_x and local_size_y in the shader)
+    int localSizeX = 16;
+    int localSizeY = 16;
+
+    // Calculate the number of workgroups
+    int workgroupsX = (downscaledWidth + localSizeX - 1) / localSizeX;
+    int workgroupsY = (downscaledHeight + localSizeY - 1) / localSizeY;
+    ComputeShader& shader = ResourceManager::GetComputeShader("Downscaling");
+    shader.Use();
+    glBindImageTexture(0, inputTex, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(1, outputTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    shader.SetUniform("downscaleFactor", factor);
+    glDispatchCompute(workgroupsX, workgroupsY, 1);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 }

@@ -40,6 +40,7 @@ class Common
 public:
 	static DebugInfo debuginfo;
 	static glm::vec2 ScreenSize;
+	static float MousePlayerAngle;
 
 	static std::unordered_map<int, int> lvlmap;
 

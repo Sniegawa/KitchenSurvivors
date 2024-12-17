@@ -16,10 +16,8 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader,
 	this->_pos = _pos;
 	this->xp = 0;
 	this->xpToLvl = Common::lvlmap[this->Level];
-	for (int i = 0; i < 6; i++)
-	{
-		this->weapons[i] = new Weapon();
-	}
+
+	this->NormalMap = &ResourceManager::GetTexture("pizza_n");
 
 }
 

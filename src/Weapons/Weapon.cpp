@@ -1,11 +1,10 @@
 #include "Weapon.h"
-
 Weapon::~Weapon(){}
 
-Weapon::Weapon() : id(0),name("Empty weapon slot"),p_PlayerPosition(nullptr),p_Stats(nullptr) { }
+Weapon::Weapon() : id(0),name("Empty weapon slot"), p_Player(nullptr),p_Stats(nullptr) { }
 
-Weapon::Weapon(std::string _sprite, std::string _name, PlayerStats* _stats, glm::vec2* _pos, float _cooldown)
-	: sprite(_sprite), name(_name),level(1), id(0), p_Stats(_stats), p_PlayerPosition(_pos), cooldown(_cooldown)
+Weapon::Weapon(std::string _sprite, std::string _name, PlayerStats* _stats, Player* _player, float _cooldown)
+	: sprite(_sprite), name(_name),level(1), id(0), p_Stats(_stats), p_Player(_player), cooldown(_cooldown)
 {
 	this->Shoot();
 }
