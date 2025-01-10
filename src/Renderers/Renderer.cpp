@@ -313,7 +313,7 @@ void Renderer::PrepareLightmap()
 
 void Renderer::RenderLight()
 {
-    this->RenderLightmap();
+    //this->RenderLightmap(); Not implemented right yet
     Shader& shader = ResourceManager::GetShader("light");
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

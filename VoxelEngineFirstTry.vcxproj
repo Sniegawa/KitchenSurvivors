@@ -225,6 +225,7 @@
     <Font Include="src\fonts\PublicPixel-rv0pA.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Ideas.txt" />
     <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

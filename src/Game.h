@@ -6,7 +6,7 @@ enum GameState {
 	GAME_MENU,
 	GAME_WIN,
 	GAME_LOSE,
-	GAME_LVLUP
+	GAME_LVLUP,
 };
 
 
@@ -16,7 +16,7 @@ public:
 	GameState State;
 	bool Keys[1024];
 	bool Mouse[2];
-
+	bool isCooking = false;
 	Player* player;
 
 	glm::vec2 MousePos;

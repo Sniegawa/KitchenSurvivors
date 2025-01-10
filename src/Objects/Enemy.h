@@ -2,6 +2,14 @@
 
 #include "GameObject.h"
 #include "Player.h"
+
+enum EnemyType
+{
+	ENEMY_ITALIAN,
+	ENEMY_SUGAR,
+	ENEMY_FAST_FOOD
+};
+
 class Enemy : public GameObject 
 {
 public:
@@ -10,6 +18,7 @@ public:
 	void Update(float dt);
 	bool isDead;
 	float Health;
+	EnemyType enemyType;
 private:
 	float HurtTiming;
 	Player* p_player;

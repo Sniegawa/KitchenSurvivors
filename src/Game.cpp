@@ -27,7 +27,6 @@
 glm::vec2 ScreenCenter;
 
 bool CheckCollision(GameObject& one, GameObject& two);
-bool CheckCollisionWithPlayer(GameObject& one);
 void Spawnxp(GameObject* enemy);
 bool MouseInRange(glm::vec2 MousePos, glm::vec2 start, glm::vec2 end);
 
@@ -58,7 +57,7 @@ std::vector<pointLight> lights;
 
 std::vector<std::shared_ptr<Enemy>> enemies;
 
-extern glm::vec2 PlayerPosition = glm::vec2(0);
+//extern glm::vec2 PlayerPosition = glm::vec2(0);
 
 extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
@@ -105,7 +104,9 @@ void Game::LoadShaders()
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Downscaling.cmpt", "Downscaling");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/NormalCalculation.cmpt", "Normals");
 }
+
 glm::vec2 playerCenter; 
+
 void Game::Init()
 {
 	this->LoadShaders();
@@ -133,7 +134,7 @@ void Game::Init()
 	
 	Texture2D& PlayerSprite = ResourceManager::GetTexture("pizza");
 	playerCenter = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);// +glm::vec2(30.0f, 16.0f);
-	player = new Player(playerCenter, glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"), PLAYER, &PlayerProjectiles, &PlayerPosition);
+	player = new Player(playerCenter, glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"), PLAYER, &PlayerProjectiles);
 
 	cameraPos = glm::vec3(0,0, 3);
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront ,cameraUp);
@@ -229,7 +230,7 @@ void Game::Render()
 	{
 
 
-		if (glm::distance(PlayerPosition + player->Position, enemy->Position) > 800.0f)
+		if (glm::distance(player->Position, enemy->Position) > 800.0f)
 			continue;
 
 		RenderData.push_back(enemy.get());
@@ -238,14 +239,14 @@ void Game::Render()
 
 	for (const auto& expShard : expShards)
 	{
-		if (glm::distance(PlayerPosition + player->Position, expShard->Position) > 800.0f)
+		if (glm::distance(player->Position, expShard->Position) > 800.0f)
 			continue;
 		RenderData.push_back(expShard.get());
 	}
 
 	for (const auto& projectile : PlayerProjectiles)
 	{
-		if (glm::distance(PlayerPosition + player->Position, projectile->Position) > 800.0f)
+		if (glm::distance(player->Position, projectile->Position) > 800.0f)
 			continue;
 		RenderData.push_back(projectile.get());
 	}
@@ -273,11 +274,11 @@ void Game::Update(float dt)
 			this->State = GAME_ACTIVE;
 	}
 
-	if (!this->State == GAME_ACTIVE)
-		return;
-
 	if (!player->Alive)
 		this->State = GAME_LOSE;
+
+	if (!this->State == GAME_ACTIVE)
+		return;
 
 	if (player->Level > lastlvl)
 	{
@@ -381,8 +382,13 @@ void Game::ProcessInput(float dt)
 		{
 			player->Position.y += velocity;
 		}
-
+		
 	}
+	if (this->Keys[GLFW_KEY_C])
+	{
+		this->isCooking = !this->isCooking;
+	}
+
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 
@@ -457,7 +463,7 @@ void Game::RenderDebug()
 	ImGui::Text("Enemies : %i", Common::debuginfo.Enemies);
 	ImGui::Text("CollisionChecks : %i", Common::debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
-	ImGui::Text("Position : %f %f", PlayerPosition.x, PlayerPosition.y);
+	ImGui::Text("Position : %f %f", player->Position.x, player->Position.y);
 
 	ImGui::Spacing();
 	ImGui::Text("Level %i", player->Level);
@@ -470,8 +476,15 @@ void Game::RenderDebug()
 		std::string weapontxt = player->weapons[i]->name + " " + std::to_string(player->weapons[i]->level);
 		ImGui::Text(weapontxt.c_str());
 	}
-
+	ImGui::Spacing();
+	ImGui::Text("Ingredients : ");
+	for (auto kv : player->inventory.stock)
+	{
+		std::string ingredienttxt = kv.first->name + " : " + std::to_string(kv.second);
+		ImGui::Text(ingredienttxt.c_str());
+	}
 	ImGui::End();
+
 	ImGui::Begin("Settings tweaker", (bool*)0, flags);
 	ImGui::Text("Stats : ");
 	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 3.0f);
@@ -536,7 +549,6 @@ bool CheckCollision(GameObject& one, GameObject& two)
 bool Game::CheckCollisionWithPlayer(GameObject& one)
 {
 	GameObject two = *player;
-	two.Position += PlayerPosition;
 	bool axisX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
 	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
 

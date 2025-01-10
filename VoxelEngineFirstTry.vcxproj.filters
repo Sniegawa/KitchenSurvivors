@@ -228,5 +228,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
+    <Text Include="Ideas.txt" />
   </ItemGroup>
 </Project>

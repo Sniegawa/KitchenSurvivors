@@ -2,12 +2,46 @@
 #include <unordered_map>
 #include <glm.hpp>
 #include <map>
+#include <string>
+
 struct PlayerStats {
 	float AttackSpeed = 1.0f;
 	int MaxHealth = 100;
 	int projectileCount = 1;
 	float PlayerSpeed = 75.0f;
 	float ExpirienceMultiplier = 1.0f;
+};
+
+
+
+struct Ingredient
+{
+	int id;
+	std::string name;
+	std::string description;
+
+	Ingredient(int _id, std::string _name) : id(_id), name(_name), description(std::string("")) {}
+};
+
+
+struct Recipe
+{
+	int id;
+	const Ingredient& ingredient1;
+	const Ingredient& ingredient2;
+
+	std::string name;
+	std::string effect;
+
+	Recipe(int _id,const Ingredient& _ingredient1,const Ingredient& _ingredient2, std::string _name, std::string _effect) :
+		id(_id),
+		ingredient1(_ingredient1),
+		ingredient2(_ingredient2),
+		name(_name),
+		effect(_effect)
+	{}
+
+
 };
 
 //LearonOpenGL.com tutorials
@@ -45,6 +79,10 @@ public:
 	static std::unordered_map<int, int> lvlmap;
 
 	static std::map<char, Character> Characters;
+
+	static const std::unordered_map<int, Ingredient> INGREDIENTS;
+
+	static const std::unordered_map<int, Recipe> recipes;
 
 	static void AddCharacter(char _c, Character _char);
 private:

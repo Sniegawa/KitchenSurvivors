@@ -40,14 +40,14 @@ void main()
     vec3 Albedo = texture(gAlbedo, UV).rgb;
 	vec3 LightmapSampled = texture(Lightmap,UV).rgb;
 	vec3 LightColor;
-	for(int i = 0; i < pointlights.length(); i++)
+	/*for(int i = 0; i < pointlights.length(); i++)
     {
         float dist = distance((FragPos + PlayerPosition),pointlights[i].position.xy);
         if (dist >= MaxLightDist) continue;
         float att = pointlights[i].color.a / (1.0 + pointlights[i].position.z * dist + pointlights[i].position.a * dist * dist);
 
         LightColor += pointlights[i].color.xyz * att;
-    }
+    }*/
 
 	/*for(int i = 0; i < dirLights.length(); i++)
 	{

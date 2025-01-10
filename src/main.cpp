@@ -116,9 +116,16 @@ int main()
 
 
 		game->MousePos = GetMousePos(window);
-		game->ProcessInput(deltaTime);
 
-		game->Update(deltaTime);
+		float gamedt = deltaTime;
+		if (game->isCooking)
+		{
+			gamedt *= 0.25f;
+		}
+
+		game->ProcessInput(gamedt);
+
+		game->Update(gamedt);
 
 		game->Collisions();
 
@@ -148,7 +155,7 @@ int main()
 		if (t >= 1.0f)
 		{
 			fps = frames / deltaTime;
-			t = 0.0f;
+			t -= 1.0f;
 		}
 		else
 		{
