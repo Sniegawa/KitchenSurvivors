@@ -13,10 +13,8 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader,
 	this->Level = 1;
 	this->stats.projectileCount = 1;
 	this->PlayerProjectilesPtr = pprojptr;
-	//this->_pos = _pos;
 	this->xp = 0;
 	this->xpToLvl = Common::lvlmap[this->Level];
-
 	this->NormalMap = &ResourceManager::GetTexture("pizza_n");
 
 }

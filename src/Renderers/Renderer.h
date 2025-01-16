@@ -42,6 +42,9 @@ public:
 	void UpdatePlayerPos(glm::vec2 playerPos);
 	void RendererSetup();
 
+	void RenderSprite(Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
+	void RenderCookingMenu(const Inventory* inv);
+
 	int pixelSize = 1;
 	int LightPixelize = 1;
 	int RenderMode = 0;
@@ -69,13 +72,31 @@ private:
 
 	GLuint VAO = 0;
 	GLuint VBO = 0;
+	
 	GLuint InstanceVBO = 0;
+	
 	GLuint PlayerVAO = 0;
 	GLuint PlayerVBO = 0;
+	
 	GLuint BackgroundVAO = 0;
 	GLuint BackgroundVBO = 0;
+
 	GLuint ScreenQuadVAO = 0;
 	GLuint ScreenQuadVBO = 0;
+
+	GLuint CookingMenuVAO;
+
 	GLuint Lightmap = 0;
 	GLuint DownscaledLightmap = -1;
+
+	const float vertices[32] = {
+		// pos      // tex
+		0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f,
+
+		0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 0.0f
+	};
 };

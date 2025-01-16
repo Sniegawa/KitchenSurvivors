@@ -100,6 +100,7 @@ void Game::LoadShaders()
 	ResourceManager::LoadShader("src/Shaders/TextShader.vert", "src/Shaders/TextShader.frag", "text");
 	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag", "UI");
 	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
+	ResourceManager::LoadShader("src/Shaders/CookingMenu.vert", "src/Shaders/CookingMenu.frag", "CookingMenu");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Lightmap.cmpt", "Lightmap");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Downscaling.cmpt", "Downscaling");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/NormalCalculation.cmpt", "Normals");
@@ -129,6 +130,8 @@ void Game::Init()
 
 	ResourceManager::GetShader("UI").SetUniform("projection", projection,true);
 
+	ResourceManager::GetShader("CookingMenu").SetUniform("projection", projection, true);
+
 	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 	
@@ -148,6 +151,13 @@ void Game::Init()
 	{
 		player->weapons[i] = new Weapon();
 	}
+
+	player->inventory.addIngredient(Common::INGREDIENTS.at(0), 2); // Bread
+	player->inventory.addIngredient(Common::INGREDIENTS.at(1), 2); // Milk
+	player->inventory.addIngredient(Common::INGREDIENTS.at(2), 1); // Garlic
+	player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
+	player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
+	player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
 
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, player, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, player,5.0f);
@@ -257,7 +267,12 @@ void Game::Render()
 
 
 	this->renderer.RenderLight();
+}
 
+void Game::RenderUI()
+{
+	if (this->isCooking)
+		this->renderer.RenderCookingMenu(&this->player->inventory);
 }
 
 float spawnerTime;
@@ -354,6 +369,8 @@ void Game::Update(float dt)
 	
 }
 
+
+float craftingcooldown;
 void Game::ProcessInput(float dt)
 {
 	if (this->Keys[GLFW_KEY_R])
@@ -384,9 +401,25 @@ void Game::ProcessInput(float dt)
 		}
 		
 	}
-	if (this->Keys[GLFW_KEY_C])
+	
+	if (isCooking)
+	{
+
+		craftingcooldown -= (dt * 4.0f);
+	}
+	else
+	{
+		craftingcooldown -= dt;
+	}
+	if (craftingcooldown <= 0)
+	{
+		this->isCooking = false;
+	}
+
+	if (this->Keys[GLFW_KEY_C] && craftingcooldown <= 1.75f)
 	{
 		this->isCooking = !this->isCooking;
+		craftingcooldown = 2.0f;
 	}
 
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);

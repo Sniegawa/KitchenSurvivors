@@ -4,6 +4,11 @@
 #include <map>
 #include <string>
 
+#define LOG_WARNING(msg)\
+{\
+	std::printf("WARNING : ", msg);\
+}
+
 struct PlayerStats {
 	float AttackSpeed = 1.0f;
 	int MaxHealth = 100;

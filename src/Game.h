@@ -31,6 +31,7 @@ public:
 	void RenderDebug();
 	void RenderLevelUp();
 	void RenderLight();
+	void RenderUI();
 private:
 	Renderer renderer;
 	void LoadTextures();

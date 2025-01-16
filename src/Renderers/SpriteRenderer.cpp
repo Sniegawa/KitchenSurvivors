@@ -52,7 +52,7 @@ void SpriteRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
     this->shader.SetMatrix4("model", model);
-    this->shader.SetMatrix4("InverseModel", glm::inverse(model));
+    //this->shader.SetMatrix4("InverseModel", glm::inverse(model));
     this->shader.SetVector3f("spriteColor", color);
 
     glActiveTexture(GL_TEXTURE0);

@@ -118,6 +118,7 @@ int main()
 		game->MousePos = GetMousePos(window);
 
 		float gamedt = deltaTime;
+
 		if (game->isCooking)
 		{
 			gamedt *= 0.25f;
@@ -146,6 +147,8 @@ int main()
 
 		//UI RENDER PASS
 		glEnable(GL_BLEND);
+		game->RenderUI();
+
 		if (game->State == GAME_LVLUP)
 			game->RenderLevelUp();
 

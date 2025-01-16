@@ -27,6 +27,16 @@ struct Inventory
 		return stock.find(&ingredient) != stock.end() && stock.at(&ingredient) > 0;
 	}
 
+	int inventorySize() const
+	{
+		int n = 0;
+		for (auto kv : stock)
+		{
+			if (kv.second > 0)
+				n++;
+		}
+		return n;
+	}
 };
 
 
