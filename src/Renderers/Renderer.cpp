@@ -17,6 +17,8 @@ void Renderer::RendererSetup()
 	this->InnitScreenQuad();
 	this->InnitScreenGBuffer();
 	this->PrepareLightmap();
+	this->InnitUIvao();
+	this->InnitLineVao();
 }
 
 void Renderer::Innit()
@@ -395,6 +397,69 @@ void Renderer::DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor)
 
 }
 
+
+void Renderer::InnitLineVao()
+{
+	
+	glGenVertexArrays(1, &LineVAO);
+	glGenBuffers(1, &LineVBO);
+
+	glBindVertexArray(LineVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, LineVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 2, nullptr, GL_DYNAMIC_DRAW);
+	
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Renderer::RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color = glm::vec4(1.0f))
+{
+	auto& shader = ResourceManager::GetShader("Line");
+	shader.Use();
+	std::vector<glm::vec2> vertices = { p1, p2 };
+	glBindBuffer(GL_ARRAY_BUFFER, this->LineVBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec2) * vertices.size(), vertices.data());
+
+	shader.SetUniform("color", color);
+
+	glBindVertexArray(this->LineVAO);
+	glDrawArrays(GL_LINES, 0, 2);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+	
+}
+
+void Renderer::InnitUIvao()
+{
+	float quadVertices[] = {
+		// positions   // texture coords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+		1.0f,  1.0f,  1.0f, 1.0f
+	};
+
+
+	glGenVertexArrays(1, &UIspriteVAO);
+	glGenBuffers(1, &UIspriteVBO);
+
+	glBindVertexArray(UIspriteVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, UIspriteVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+}
+
 //Renders given sprite based of given position
 void Renderer::RenderSprite(Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color)
 {
@@ -417,7 +482,7 @@ void Renderer::RenderSprite(Texture2D& sprite, glm::vec2 position, float rotatio
 	shader.SetUniform("image", 0);
 	sprite.Bind();
 
-	glBindVertexArray(this->VAO);
+	glBindVertexArray(this->UIspriteVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glBindVertexArray(0);
@@ -455,6 +520,7 @@ struct CircleMenuInformation
 	GLuint VAO;
 	int vertexCount;
 	std::vector<glm::vec2> triangleCenters;
+	std::vector<float> vertices;
 };
 
 CircleMenuInformation createCircleInformation(float radius, int segments)
@@ -478,7 +544,7 @@ CircleMenuInformation createCircleInformation(float radius, int segments)
 	CircleMenuInformation inf;
 	inf.VAO = VAO;
 	inf.vertexCount = static_cast<int>(vertices.size() / 2);
-
+	inf.vertices = vertices;
 	for (int i = 2; i < vertices.size() - 2; i += 2)
 	{
 		glm::vec2 A = glm::vec2(vertices[i], vertices[i + 1]);
@@ -509,7 +575,7 @@ void Renderer::RenderCookingMenu(const Inventory* inv)
 	glBindVertexArray(CookingMenuVAO);
 
 	shader.SetUniform("center", glm::vec2(centerX, centerY));
-	shader.SetUniform("uColor", glm::vec4(0.7f,0.7f,0.7f,1.0f));
+	shader.SetUniform("uColor", glm::vec4(0.7f,0.7f,0.7f,0.6f));
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertexCount);
 
@@ -521,4 +587,11 @@ void Renderer::RenderCookingMenu(const Inventory* inv)
 	{
 		RenderSprite(ResourceManager::GetTexture("tomato"),c + glm::vec2(centerX,centerY), 0.0f, glm::vec2(16.0f));
 	}
+
+	for (int i = 2; i < info.vertices.size(); i += 2)
+	{
+		this->RenderLine(glm::vec2(0.0f, 0.0f), glm::vec2(vertices[i], vertices[i + 1]) + glm::vec2(centerX, centerY));
+	}
+
+	this->RenderLine(glm::vec2(0.0f, 0.0f), glm::vec2(300, 2000));
 }

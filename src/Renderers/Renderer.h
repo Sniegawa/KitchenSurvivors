@@ -42,6 +42,7 @@ public:
 	void UpdatePlayerPos(glm::vec2 playerPos);
 	void RendererSetup();
 
+	void RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color);
 	void RenderSprite(Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
 	void RenderCookingMenu(const Inventory* inv);
 
@@ -57,6 +58,8 @@ private:
 	void InnitBackgroundData();
 	void InnitScreenQuad();
 	void InnitScreenGBuffer();
+	void InnitUIvao();
+	void InnitLineVao();
 	void RenderLightmap();
 	void PrepareLightmap();
 	void DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor);
@@ -84,7 +87,13 @@ private:
 	GLuint ScreenQuadVAO = 0;
 	GLuint ScreenQuadVBO = 0;
 
-	GLuint CookingMenuVAO;
+	GLuint CookingMenuVAO = 0;
+
+	GLuint UIspriteVAO = 0;
+	GLuint UIspriteVBO = 0;
+
+	GLuint LineVAO = 0;
+	GLuint LineVBO = 0;
 
 	GLuint Lightmap = 0;
 	GLuint DownscaledLightmap = -1;

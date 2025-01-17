@@ -101,6 +101,7 @@ void Game::LoadShaders()
 	ResourceManager::LoadShader("src/Shaders/UIShader.vert", "src/Shaders/UIShader.frag", "UI");
 	ResourceManager::LoadShader("src/Shaders/DefferedLight.vert", "src/Shaders/DefferedLight.frag", "light");
 	ResourceManager::LoadShader("src/Shaders/CookingMenu.vert", "src/Shaders/CookingMenu.frag", "CookingMenu");
+	ResourceManager::LoadShader("src/Shaders/LineShader.vert", "src/Shaders/LineShader.frag", "Line");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Lightmap.cmpt", "Lightmap");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/Downscaling.cmpt", "Downscaling");
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/NormalCalculation.cmpt", "Normals");
@@ -131,6 +132,8 @@ void Game::Init()
 	ResourceManager::GetShader("UI").SetUniform("projection", projection,true);
 
 	ResourceManager::GetShader("CookingMenu").SetUniform("projection", projection, true);
+
+	ResourceManager::GetShader("Line").SetUniform("screenSize", Common::ScreenSize, true);
 
 	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
@@ -606,7 +609,7 @@ void Spawnxp(GameObject* enemy)
 		);
 	}
 }
-//Deprecated
+//Not used
 bool MouseInRange(glm::vec2 MousePos,glm::vec2 start, glm::vec2 end)
 {
 	return 
