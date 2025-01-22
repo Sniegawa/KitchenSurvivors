@@ -465,14 +465,13 @@ void Renderer::RenderSprite(Texture2D& sprite, glm::vec2 position, float rotatio
 {
 	glm::mat4 model = glm::mat4(1.0f);
 
-	model = glm::translate(model, glm::vec3(position - (scale*0.5f), 0.0f));
+	model = glm::translate(model, glm::vec3(position, 0.0f));
 	color = glm::vec3(1.0f);
 	//Rotation
 	model = glm::translate(model, glm::vec3(0.5f * sprite.Width, 0.5f * sprite.Height, 0.0f)); //We transform model to be centered at center of object
 	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
 	model = glm::translate(model, glm::vec3(-0.5f * sprite.Width, -0.5f * sprite.Height, 0.0f)); //transform model so it's center is back at top left corner
 	model = glm::scale(model, glm::vec3(scale, 1.0f));
-
 
 	auto& shader = ResourceManager::GetShader("UI").Use();
 	shader.SetUniform("model", model);
@@ -494,104 +493,98 @@ const int WINDOW_HEIGHT = 800;
 const float MENU_RADIUS = 300.0f; // Radius of the radial menu
 const float SLOT_RADIUS = 30.0f; // Radius of each ingredient slot
 
-std::vector<float> generateCircleVertices(float radius, int segments)
+
+CircleMenuInformation createCircleInformation(float innerRadius,float outerRadius, int edges)
 {
-	std::vector<float> vertices;
+	CircleMenuInformation inf;
 
-	vertices.push_back(0.0f);
-	vertices.push_back(0.0f);
+	std::vector<std::vector<glm::vec2>> quads;
 
-	for (int i = 0; i < segments; ++i)
+	float angleStep = 2.0f * glm::pi<float>() / edges;
+
+	for (int i = 0; i < edges; ++i)
 	{
-		float angle = i * 2.0f * glm::pi<float>() / segments;
-		
-		vertices.push_back(radius * glm::cos(angle));
-		vertices.push_back(radius * glm::sin(angle));
+		float angle1 = i * angleStep;
+		float angle2 = (i + 1) * angleStep;
+
+		glm::vec2 inner1(innerRadius * cos(angle1), innerRadius * sin(angle1));
+		glm::vec2 inner2(innerRadius * cos(angle2), innerRadius * sin(angle2));
+		glm::vec2 outer1(outerRadius * cos(angle1), outerRadius * sin(angle1));
+		glm::vec2 outer2(outerRadius * cos(angle2), outerRadius * sin(angle2));
+
+		quads.push_back({ inner1,outer1,outer2,inner2 });
+		glm::vec2 center = (inner1 + outer1 + outer2 + inner2) / 4.0f;
+		inf.slotCenters.push_back(center);
 	}
+	
+	inf.quads = quads;
 
-	vertices.push_back(radius * glm::cos(0.0f));
-	vertices.push_back(radius * glm::sin(0.0f));
-
-	return vertices;
-}
-
-struct CircleMenuInformation
-{
-	GLuint VAO;
-	int vertexCount;
-	std::vector<glm::vec2> triangleCenters;
-	std::vector<float> vertices;
-};
-
-CircleMenuInformation createCircleInformation(float radius, int segments)
-{
-	std::vector<float> vertices = generateCircleVertices(radius, segments);
-	std::vector<glm::vec2> triangleCenters;
 	GLuint VAO, VBO;
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
 	glBindVertexArray(VAO);
-
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
 
+	// Allocate buffer size (enough for all quads)
+	glBufferData(GL_ARRAY_BUFFER, edges * 4 * sizeof(glm::vec2), nullptr, GL_DYNAMIC_DRAW);
+
+	// Set vertex attribute pointers
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	CircleMenuInformation inf;
 	inf.VAO = VAO;
-	inf.vertexCount = static_cast<int>(vertices.size() / 2);
-	inf.vertices = vertices;
-	for (int i = 2; i < vertices.size() - 2; i += 2)
-	{
-		glm::vec2 A = glm::vec2(vertices[i], vertices[i + 1]);
-		glm::vec2 B = glm::vec2(vertices[i + 2], vertices[i + 3]);
-		triangleCenters.emplace_back((A + B) / 3.0f);
-	}
-	inf.triangleCenters = triangleCenters;
-
+	inf.VBO = VBO;
 	return inf;
+}
+
+void Renderer::UpdateInventoryMenu(const Inventory* inv)
+{
+	this->info = createCircleInformation(100, 200, inv->inventorySize());
 }
 
 void Renderer::RenderCookingMenu(const Inventory* inv) 
 {
+	CircleMenuInformation info = this->info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
 	shader.Use();
 
 	const float centerX = Common::ScreenSize.x / 2;       // Center of the menu
 	const float centerY = Common::ScreenSize.y / 2;       // Center of the menu
-	const float angleStep = 360.0f / inv->stock.size(); // Angle between slots
-	
-	int vertexCount = 0;
+	const float angleStep = 360.0f / inv->inventorySize(); // Angle between slots
 
-	CircleMenuInformation info = createCircleInformation(200, inv->inventorySize());
 
-	this->CookingMenuVAO = info.VAO;
-	vertexCount = info.vertexCount;
+	int slotIndex = 0;
+	for (const auto& [ingredient, quantity] : inv->stock) {
+		if (quantity <= 0) continue; // Skip empty inventory slots
 
-	glBindVertexArray(CookingMenuVAO);
+		// Update VBO with the current slot's quad vertices
+		glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
+		//glBufferData(GL_ARRAY_BUFFER, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data(), GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// Set per-slot uniforms (e.g., color)
+		glm::vec3 color = glm::vec3((float)slotIndex / info.quads.size(), 0.5f, 1.0f);
+		shader.Use();
+		shader.SetUniform("center", glm::vec2(centerX, centerY));
+		shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
 
-	shader.SetUniform("center", glm::vec2(centerX, centerY));
-	shader.SetUniform("uColor", glm::vec4(0.7f,0.7f,0.7f,0.6f));
+		glBindVertexArray(info.VAO);
+		GLint currentVAO;
+		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVAO);
+		std::cout << "Currently bound VAO: " << currentVAO << std::endl;
+		// Draw the quad
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-	glDrawArrays(GL_TRIANGLE_FAN, 0, vertexCount);
+		// Render additional elements (e.g., icons) at the slot's center
+		glm::vec2 center = info.slotCenters[slotIndex];
+		RenderSprite(ResourceManager::GetTexture("tomato"), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(16.0f));
 
+		slotIndex++;
+	}
 	glBindVertexArray(0);
 	glUseProgram(0);
-
-	//Render items, prototype
-	for (auto c : info.triangleCenters)
-	{
-		RenderSprite(ResourceManager::GetTexture("tomato"),c + glm::vec2(centerX,centerY), 0.0f, glm::vec2(16.0f));
-	}
-
-	for (int i = 2; i < info.vertices.size(); i += 2)
-	{
-		this->RenderLine(glm::vec2(0.0f, 0.0f), glm::vec2(vertices[i], vertices[i + 1]) + glm::vec2(centerX, centerY));
-	}
-
-	this->RenderLine(glm::vec2(0.0f, 0.0f), glm::vec2(300, 2000));
 }

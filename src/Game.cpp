@@ -139,7 +139,7 @@ void Game::Init()
 	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 	
 	Texture2D& PlayerSprite = ResourceManager::GetTexture("pizza");
-	playerCenter = glm::vec2(static_cast<float>(this->Width) / 2 - PlayerSprite.Width, static_cast<float>(this->Height) / 2 - PlayerSprite.Height);// +glm::vec2(30.0f, 16.0f);
+	playerCenter = glm::vec2(static_cast<float>(this->Width) / 2, static_cast<float>(this->Height) / 2) - (glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f) * 0.5f;// +glm::vec2(30.0f, 16.0f);
 	player = new Player(playerCenter, glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"), PLAYER, &PlayerProjectiles);
 
 	cameraPos = glm::vec3(0,0, 3);
@@ -161,6 +161,8 @@ void Game::Init()
 	player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
 	player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
 	player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
+
+	this->renderer.UpdateInventoryMenu(&player->inventory);
 
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, player, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, player,5.0f);
@@ -358,7 +360,12 @@ void Game::Update(float dt)
 		}
 	}
 
+
 	player->UpdateCooldowns(dt);
+
+	//if player->inventory.pickedUpItem
+	//this->renderer.UpdateInventoryMenu(player->inventory);
+
 	z += dt;
 	//renderer.UpdatePlayerPos(PlayerPosition);
 	cameraPos = glm::vec3(player->Position.x, player->Position.y, 3) - glm::vec3(playerCenter.x,playerCenter.y,0);

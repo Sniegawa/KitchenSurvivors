@@ -13,24 +13,13 @@
 #include "../Common.h"
 
 
-/*
-
-TODO:
-Podzia³ jeszce na shadery,
-- W gameobject podzia³ na pointer do shadera i Shader uniform który bezie z jakiejœ powalonej zmiennej std::variant
-- W shaderze zmieniæ z wielu funkcji na jedn¹ z overloadem.
-- ChatGPT podpowiada zrobienie czegoœ takiego
-	void SetUniform(const std::string& name, const UniformValue& value) {
-		std::visit([&](auto&& arg) { SetUniformByType(name, arg); }, value);
-	}
-	ale nie wiem czy nie bêdzie to bez sensownym skomplikowaniem gdybym chcia³ w ³atwy sposób ustawiæ uniforma, jak np do tekstury. (musze pomysleæ)
-
-Uniformy dla ka¿dej instancji: !!!!(SSBO)!!!!
-po ogarnieciu tego wy¿ej trzeba ogarnaæ jak wgl zaimplementowaæ przesy³ uniformów dla ka¿dego obiektu, 
-Aleto na póxniej najpierw trzeba przepisaæ ustawianie uniformów w klasie shader
-
-*/
-
+struct CircleMenuInformation
+{
+	GLuint VAO;
+	GLuint VBO;
+	std::vector<std::vector<glm::vec2>> quads;
+	std::vector<glm::vec2> slotCenters;
+};
 
 class Renderer {
 public:
@@ -40,11 +29,14 @@ public:
 	void RenderBackground(GameObject* background);
 	Renderer();
 	void UpdatePlayerPos(glm::vec2 playerPos);
+	void UpdateInventoryMenu(const Inventory* inv);
 	void RendererSetup();
 
 	void RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color);
 	void RenderSprite(Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
 	void RenderCookingMenu(const Inventory* inv);
+
+
 
 	int pixelSize = 1;
 	int LightPixelize = 1;
@@ -97,6 +89,8 @@ private:
 
 	GLuint Lightmap = 0;
 	GLuint DownscaledLightmap = -1;
+
+	CircleMenuInformation info;
 
 	const float vertices[32] = {
 		// pos      // tex
