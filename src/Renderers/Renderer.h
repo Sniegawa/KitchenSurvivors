@@ -102,6 +102,8 @@ private:
 	GLuint Lightmap = 0;
 	GLuint DownscaledLightmap = -1;
 
+	CircleMenuInformation smallestMenuInfo;
+
 	CircleMenuInformation info;
 
 	const float vertices[32] = {

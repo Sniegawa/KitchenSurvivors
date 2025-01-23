@@ -148,8 +148,8 @@ int main()
 		//UI RENDER PASS
 		glEnable(GL_BLEND);
 
-		if (game->State == GAME_LVLUP)
-			game->RenderLevelUp();
+		//if (game->State == GAME_LVLUP)
+		//	game->RenderLevelUp();
 
 		game->RenderUI();
 		//DEBUG RENDER PASS

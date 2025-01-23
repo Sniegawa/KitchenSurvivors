@@ -164,9 +164,9 @@ void Game::Init()
 	player->inventory.addIngredient(Common::INGREDIENTS.at(2), 1); // Garlic
 	player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
 	player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Chili
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Chili
+	player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
+	player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Chili
+	player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Chili
 
 
 	this->renderer.UpdateInventoryMenu(&player->inventory);
@@ -535,7 +535,8 @@ void Game::RenderDebug()
 	if (ImGui::Button("AddRandomItem"))
 	{
 		int n = Common::INGREDIENTS.size();
-		player->inventory.addIngredient(Common::INGREDIENTS.at(randFloat(0, n)),1);
+		
+		player->inventory.addIngredient(Common::INGREDIENTS.at(randFloat(1, n - 1)), 1);
 	}
 	ImGui::Spacing();
 	ImGui::Text("Ingredients : ");

@@ -14,6 +14,7 @@ std::map<char, Character> Common::Characters;
 
 const std::unordered_map<int, Ingredient> Common::INGREDIENTS =
 {
+	{-1,{-1,"Empty Item",""}},
 	{0,{0,"Bread","pizza"}},
 	{1,{1,"Milk","tomato"}},
 	{2,{2,"Garlic","tomato"}},

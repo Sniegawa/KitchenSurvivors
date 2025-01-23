@@ -9,6 +9,8 @@ void Renderer::UpdatePlayerPos(glm::vec2 playerPos)
 
 Renderer::Renderer() {}
 
+CircleMenuInformation createCircleInformation(float innerRadius, float outerRadius, int edges);
+
 void Renderer::RendererSetup()
 {
 	this->Innit();
@@ -19,6 +21,8 @@ void Renderer::RendererSetup()
 	this->PrepareLightmap();
 	this->InnitUIvao();
 	this->InnitLineVao();
+	this->smallestMenuInfo = createCircleInformation(125, 260, 5);
+
 }
 
 void Renderer::Innit()
@@ -554,22 +558,25 @@ void Renderer::UpdateInventoryMenu(const Inventory* inv)
 
 void Renderer::RenderCookingMenu(Inventory* inv) 
 {
-	CircleMenuInformation info = this->info;
+	CircleMenuInformation info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
 	shader.Use();
-
+	int slotAmount = (inv->inventorySize() >= 5 ? inv->inventorySize() : 5); //minimum 5 slots
 	const float centerX = Common::ScreenSize.x / 2;       // Center of the menu
 	const float centerY = Common::ScreenSize.y / 2;       // Center of the menu
-	const float angleStep = 360.0f / inv->inventorySize(); // Angle between slots
+	const float angleStep = 360.0f / slotAmount; // Angle between slots, at least 5 slots
 
+
+	if (inv->inventorySize() <= 5)
+	{
+		info = this->smallestMenuInfo;
+	}
+	else
+	{
+		info = this->info;
+	}
 
 	int slotIndex = 0;
-
-	/*
-	
-	Need to do an if statemet, so we render at least 5 inventory slots
-	
-	*/
 
 	for (const auto & [ingredient,quantity] : inv->stock)
 	{
@@ -579,7 +586,6 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 		
 		// Update VBO with the current slot's quad vertices
 		glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
-		//glBufferData(GL_ARRAY_BUFFER, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data(), GL_DYNAMIC_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		// Set per-slot uniforms (e.g., color)
@@ -599,6 +605,25 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 		RenderSprite(ResourceManager::GetTexture(ingredient->spriteID), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
 
 		slotIndex++;
+	}
+	if (slotIndex < 5)
+	{
+		while (slotIndex < 5)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			// Set per-slot uniforms (e.g., color)
+			glm::vec3 color = glm::vec3((float)slotIndex / info.quads.size(), 0.5f, 1.0f);
+			shader.Use();
+			shader.SetUniform("center", glm::vec2(centerX, centerY));
+			shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
+
+			glBindVertexArray(info.VAO);
+			// Draw the quad
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			slotIndex++;
+		}
 	}
 	glBindVertexArray(0);
 	glUseProgram(0);
