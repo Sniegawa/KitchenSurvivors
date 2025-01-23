@@ -164,9 +164,9 @@ void Game::Init()
 	player->inventory.addIngredient(Common::INGREDIENTS.at(2), 1); // Garlic
 	player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
 	player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
-	player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
-	player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Chili
-	player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Chili
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Chili
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Chili
 
 
 	this->renderer.UpdateInventoryMenu(&player->inventory);
@@ -368,11 +368,14 @@ void Game::Update(float dt)
 	}
 
 
+
 	player->UpdateCooldowns(dt);
 
-	//if player->inventory.pickedUpItem
-	//this->renderer.UpdateInventoryMenu(player->inventory);
-
+	if (player->inventory.ChangedState)
+	{
+		this->renderer.UpdateInventoryMenu(&player->inventory);
+		player->inventory.ChangedState = false;
+	}
 	z += dt;
 	//renderer.UpdatePlayerPos(PlayerPosition);
 	cameraPos = glm::vec3(player->Position.x, player->Position.y, 3) - glm::vec3(playerCenter.x,playerCenter.y,0);
@@ -437,6 +440,7 @@ void Game::ProcessInput(float dt)
 	{
 		this->isCooking = !this->isCooking;
 		craftingcooldown = 2.0f;
+
 	}
 
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
@@ -527,6 +531,13 @@ void Game::RenderDebug()
 		ImGui::Text(weapontxt.c_str());
 	}
 	ImGui::Spacing();
+	ImGui::Text("");
+	if (ImGui::Button("AddRandomItem"))
+	{
+		int n = Common::INGREDIENTS.size();
+		player->inventory.addIngredient(Common::INGREDIENTS.at(randFloat(0, n)),1);
+	}
+	ImGui::Spacing();
 	ImGui::Text("Ingredients : ");
 	for (const auto& [ingredient, quantity] : player->inventory.stock)
 	{
@@ -534,7 +545,6 @@ void Game::RenderDebug()
 		ImGui::Text(ingredienttxt.c_str());
 	}
 	ImGui::End();
-
 	ImGui::Begin("Settings tweaker", (bool*)0, flags);
 	ImGui::Text("Stats : ");
 	ImGui::SliderFloat("Attack speed",&player->stats.AttackSpeed,1.0f, 3.0f);

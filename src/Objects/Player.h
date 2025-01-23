@@ -12,14 +12,24 @@ struct Inventory
 {
 	std::unordered_map<const Ingredient*, int> stock;
 
+	bool ChangedState = false;
+
 	void addIngredient(const Ingredient& ingredient, int quantity)
 	{
+		int stockBefore = this->inventorySize();
 		stock[&ingredient] += quantity;
+
+		int stockAfter = this->inventorySize();
+		ChangedState = stockAfter>stockBefore;
 	} 
 
 	void consumeIngredient(const Ingredient& ingredient, int quantity)
 	{
+		int stockBefore = this->inventorySize();
 		stock[&ingredient] -= quantity;
+
+		int stockAfter = this->inventorySize();
+		ChangedState = stockAfter < stockBefore;
 	}
 
 	bool hasIngredient(const Ingredient& ingredient) const

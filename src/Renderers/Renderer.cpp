@@ -549,7 +549,7 @@ CircleMenuInformation createCircleInformation(float innerRadius,float outerRadiu
 
 void Renderer::UpdateInventoryMenu(const Inventory* inv)
 {
-	this->info = createCircleInformation(100, 200, inv->inventorySize());
+	this->info = createCircleInformation(125, 260, inv->inventorySize());
 }
 
 void Renderer::RenderCookingMenu(Inventory* inv) 
@@ -564,6 +564,13 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 
 
 	int slotIndex = 0;
+
+	/*
+	
+	Need to do an if statemet, so we render at least 5 inventory slots
+	
+	*/
+
 	for (const auto & [ingredient,quantity] : inv->stock)
 	{
 
@@ -582,17 +589,14 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 		shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
 
 		glBindVertexArray(info.VAO);
-		GLint currentVAO;
-		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVAO);
-		std::cout << "Currently bound VAO: " << currentVAO << std::endl;
 		// Draw the quad
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		
-		std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
+		//std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
 		
 		// Render additional elements at the slot's center
 		glm::vec2 center = info.slotCenters[slotIndex];
-		RenderSprite(ResourceManager::GetTexture(ingredient->spriteID), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(16.0f));
+		RenderSprite(ResourceManager::GetTexture(ingredient->spriteID), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
 
 		slotIndex++;
 	}
