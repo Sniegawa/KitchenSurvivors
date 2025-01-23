@@ -36,5 +36,6 @@ private:
 	Renderer renderer;
 	void LoadTextures();
 	void LoadShaders();
+	void InnitItems();
 	bool CheckCollisionWithPlayer(GameObject& one);
 };

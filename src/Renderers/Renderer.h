@@ -12,6 +12,15 @@
 #include <iostream>
 #include "../Common.h"
 
+struct Slot
+{
+	float angle1;
+	float angle2;
+	int index;
+	int ingredientID;
+
+	Slot() {}
+};
 
 struct CircleMenuInformation
 {
@@ -19,6 +28,8 @@ struct CircleMenuInformation
 	GLuint VBO;
 	std::vector<std::vector<glm::vec2>> quads;
 	std::vector<glm::vec2> slotCenters;
+	std::vector<Slot> slots;
+	std::vector<int> selectedSlots;
 };
 
 class Renderer {
@@ -33,14 +44,15 @@ public:
 	void RendererSetup();
 
 	void RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color);
-	void RenderSprite(Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
-	void RenderCookingMenu(const Inventory* inv);
+	void RenderSprite(const Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
+	void RenderCookingMenu(Inventory* inv);
 
 
 
 	int pixelSize = 1;
 	int LightPixelize = 1;
 	int RenderMode = 0;
+
 private:
 	glm::vec2 PlayerPos;
 	void UpdateInstanceData(const std::vector<glm::mat4>& modelMatrices);

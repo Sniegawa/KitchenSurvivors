@@ -3,6 +3,8 @@
 #include <glm.hpp>
 #include <map>
 #include <string>
+//#include "../src/ResourceHandlers/Texture.h"
+#include "../src/ResourceHandlers/ResourceManager.h"
 
 #define LOG_WARNING(msg)\
 {\
@@ -24,8 +26,9 @@ struct Ingredient
 	int id;
 	std::string name;
 	std::string description;
+	const std::string spriteID;
 
-	Ingredient(int _id, std::string _name) : id(_id), name(_name), description(std::string("")) {}
+	Ingredient(int _id, std::string _name,const std::string _sprite) : id(_id), name(_name), spriteID(_sprite), description(std::string("")) {}
 };
 
 

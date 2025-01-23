@@ -10,6 +10,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "ResourceHandlers/ResourceManager.h"
+
 #include "Objects/GameObject.h"
 #include "Objects/Player.h"
 #include "Objects/Enemy.h"
@@ -22,7 +24,6 @@
 #include "Renderers/Renderer.h"
 #include "Renderers/SpriteRenderer.h"
 #include "Renderers/TextRenderer.h"
-#include "ResourceHandlers/ResourceManager.h"
 
 glm::vec2 ScreenCenter;
 
@@ -90,8 +91,11 @@ void Game::LoadTextures()
 	ResourceManager::LoadTexture("src/Textures/WIDELEC.png", true, "fork");
 	ResourceManager::LoadTexture("src/Textures/TASAK.png", true, "butcher");
 	ResourceManager::LoadTexture("src/Textures/Tomato.png", true, "tomato");
+	ResourceManager::LoadTexture("src/Textures/Salt.png", true, "salt");
+	ResourceManager::LoadTexture("src/Textures/Pepper.png", true, "pepper");
 
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
+
 }
 void Game::LoadShaders()
 {
@@ -161,6 +165,9 @@ void Game::Init()
 	player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
 	player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
 	player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
+	player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Chili
+	player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Chili
+
 
 	this->renderer.UpdateInventoryMenu(&player->inventory);
 
@@ -521,9 +528,9 @@ void Game::RenderDebug()
 	}
 	ImGui::Spacing();
 	ImGui::Text("Ingredients : ");
-	for (auto kv : player->inventory.stock)
+	for (const auto& [ingredient, quantity] : player->inventory.stock)
 	{
-		std::string ingredienttxt = kv.first->name + " : " + std::to_string(kv.second);
+		std::string ingredienttxt = ingredient->name + " : " + std::to_string(quantity);
 		ImGui::Text(ingredienttxt.c_str());
 	}
 	ImGui::End();

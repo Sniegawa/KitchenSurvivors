@@ -34,13 +34,14 @@ public:
 	static void Clear();
 
 private:
-	ResourceManager() {}
+	ResourceManager();
 
 	static Shader loadShaderFromFile(const char* vShaderFile, const char* fShaderFile);
 
 	static Texture2D loadTextureFromFile(const char* file, bool alpha);
 
 	static ComputeShader loadComputeShaderFromFile(const char* computeFile);
+
 };
 
 #endif // !RESOURCE_MANAGER_H

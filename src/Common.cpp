@@ -14,12 +14,14 @@ std::map<char, Character> Common::Characters;
 
 const std::unordered_map<int, Ingredient> Common::INGREDIENTS =
 {
-	{0,{0,"Bread"}},
-	{1,{1,"Milk"}},
-	{2,{2,"Garlic"}},
-	{3,{3,"Onion"}},
-	{4,{4,"Tomato"}},
-	{5,{5,"Chili"}}
+	{0,{0,"Bread","pizza"}},
+	{1,{1,"Milk","tomato"}},
+	{2,{2,"Garlic","tomato"}},
+	{3,{3,"Onion","tomato"}},
+	{4,{4,"Tomato","tomato"}},
+	{5,{5,"Chili","tomato"}},
+	{6,{6,"Salt","salt"}},
+	{7,{7,"Pepper","pepper"}}
 };
 
 const std::unordered_map<int, Recipe> Common::recipes =

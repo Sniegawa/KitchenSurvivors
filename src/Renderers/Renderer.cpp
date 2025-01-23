@@ -461,7 +461,7 @@ void Renderer::InnitUIvao()
 }
 
 //Renders given sprite based of given position
-void Renderer::RenderSprite(Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color)
+void Renderer::RenderSprite(const Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 
@@ -515,6 +515,12 @@ CircleMenuInformation createCircleInformation(float innerRadius,float outerRadiu
 		quads.push_back({ inner1,outer1,outer2,inner2 });
 		glm::vec2 center = (inner1 + outer1 + outer2 + inner2) / 4.0f;
 		inf.slotCenters.push_back(center);
+		
+		Slot slot;
+		slot.index = i;
+		slot.angle1 = angle1;	
+		slot.angle2 = angle2;
+		inf.slots.push_back(slot);
 	}
 	
 	inf.quads = quads;
@@ -546,7 +552,7 @@ void Renderer::UpdateInventoryMenu(const Inventory* inv)
 	this->info = createCircleInformation(100, 200, inv->inventorySize());
 }
 
-void Renderer::RenderCookingMenu(const Inventory* inv) 
+void Renderer::RenderCookingMenu(Inventory* inv) 
 {
 	CircleMenuInformation info = this->info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
@@ -558,9 +564,12 @@ void Renderer::RenderCookingMenu(const Inventory* inv)
 
 
 	int slotIndex = 0;
-	for (const auto& [ingredient, quantity] : inv->stock) {
+	for (const auto & [ingredient,quantity] : inv->stock)
+	{
+
 		if (quantity <= 0) continue; // Skip empty inventory slots
 
+		
 		// Update VBO with the current slot's quad vertices
 		glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
 		//glBufferData(GL_ARRAY_BUFFER, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data(), GL_DYNAMIC_DRAW);
@@ -578,10 +587,12 @@ void Renderer::RenderCookingMenu(const Inventory* inv)
 		std::cout << "Currently bound VAO: " << currentVAO << std::endl;
 		// Draw the quad
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-		// Render additional elements (e.g., icons) at the slot's center
+		
+		std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
+		
+		// Render additional elements at the slot's center
 		glm::vec2 center = info.slotCenters[slotIndex];
-		RenderSprite(ResourceManager::GetTexture("tomato"), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(16.0f));
+		RenderSprite(ResourceManager::GetTexture(ingredient->spriteID), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(16.0f));
 
 		slotIndex++;
 	}
