@@ -118,6 +118,7 @@ void Game::Init()
 	this->LoadShaders();
 	this->LoadTextures();
 	this->renderer.RendererSetup();
+	this->renderer.MousePos = &this->MousePos;
 
 	//Debug UI flags
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
@@ -162,11 +163,11 @@ void Game::Init()
 	player->inventory.addIngredient(Common::INGREDIENTS.at(0), 2); // Bread
 	player->inventory.addIngredient(Common::INGREDIENTS.at(1), 2); // Milk
 	player->inventory.addIngredient(Common::INGREDIENTS.at(2), 1); // Garlic
-	player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
-	player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
-	player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
-	player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Chili
-	player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Chili
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Salt
+	//player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Pepper
 
 
 	this->renderer.UpdateInventoryMenu(&player->inventory);
@@ -231,11 +232,6 @@ void Game::Init()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, SSBOLights);
 
 }
-
-
-//------------------------
-//| GEOMETRY RENDER PASS |
-//------------------------
 
 std::vector<GameObject*> RenderData;
 
@@ -439,11 +435,12 @@ void Game::ProcessInput(float dt)
 	if (this->Keys[GLFW_KEY_C] && craftingcooldown <= 1.75f)
 	{
 		this->isCooking = !this->isCooking;
-		craftingcooldown = 2.0f;
+		craftingcooldown = 20.0f;
 
 	}
 
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
+	
 }
 
 //POCISKI S¥ ZALE¯NE OD KLATEK, ogl kolizje s¹ (mo¿e dodanie dt do kalkulacji nowych pozycji cos zmieni)

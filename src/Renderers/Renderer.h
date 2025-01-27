@@ -12,23 +12,16 @@
 #include <iostream>
 #include "../Common.h"
 
-struct Slot
-{
-	float angle1;
-	float angle2;
-	int index;
-	int ingredientID;
+//Renderer class is getting a bit cramped, for futer refactors, some other class would be ideal to store informations about Cooking Menu, and only use Renderer as API to render it's GUI
+//for now i dont care XD
 
-	Slot() {}
-};
-
-struct CircleMenuInformation
+struct CookingMenuInformation
 {
 	GLuint VAO;
 	GLuint VBO;
 	std::vector<std::vector<glm::vec2>> quads;
 	std::vector<glm::vec2> slotCenters;
-	std::vector<Slot> slots;
+	//std::unordered_map<int, Ingredient&> Slots;
 	std::vector<int> selectedSlots;
 };
 
@@ -52,6 +45,8 @@ public:
 	int pixelSize = 1;
 	int LightPixelize = 1;
 	int RenderMode = 0;
+
+	glm::vec2* MousePos;
 
 private:
 	glm::vec2 PlayerPos;
@@ -102,9 +97,9 @@ private:
 	GLuint Lightmap = 0;
 	GLuint DownscaledLightmap = -1;
 
-	CircleMenuInformation smallestMenuInfo;
+	CookingMenuInformation smallestMenuInfo;
 
-	CircleMenuInformation info;
+	CookingMenuInformation info;
 
 	const float vertices[32] = {
 		// pos      // tex

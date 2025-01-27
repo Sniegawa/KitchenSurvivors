@@ -9,7 +9,7 @@ void Renderer::UpdatePlayerPos(glm::vec2 playerPos)
 
 Renderer::Renderer() {}
 
-CircleMenuInformation createCircleInformation(float innerRadius, float outerRadius, int edges);
+CookingMenuInformation createCircleInformation(float innerRadius, float outerRadius, int edges);
 
 void Renderer::RendererSetup()
 {
@@ -498,9 +498,9 @@ const float MENU_RADIUS = 300.0f; // Radius of the radial menu
 const float SLOT_RADIUS = 30.0f; // Radius of each ingredient slot
 
 
-CircleMenuInformation createCircleInformation(float innerRadius,float outerRadius, int edges)
+CookingMenuInformation createCircleInformation(float innerRadius,float outerRadius, int edges)
 {
-	CircleMenuInformation inf;
+	CookingMenuInformation inf;
 
 	std::vector<std::vector<glm::vec2>> quads;
 
@@ -518,13 +518,10 @@ CircleMenuInformation createCircleInformation(float innerRadius,float outerRadiu
 
 		quads.push_back({ inner1,outer1,outer2,inner2 });
 		glm::vec2 center = (inner1 + outer1 + outer2 + inner2) / 4.0f;
+
+
+
 		inf.slotCenters.push_back(center);
-		
-		Slot slot;
-		slot.index = i;
-		slot.angle1 = angle1;	
-		slot.angle2 = angle2;
-		inf.slots.push_back(slot);
 	}
 	
 	inf.quads = quads;
@@ -556,9 +553,40 @@ void Renderer::UpdateInventoryMenu(const Inventory* inv)
 	this->info = createCircleInformation(125, 260, inv->inventorySize());
 }
 
+float CalculateMouseAngle(glm::vec2 screenCenter, glm::vec2 mousePos)
+{
+	glm::vec2 delta = mousePos - screenCenter;
+
+	float angle = atan2(delta.y, delta.x);
+
+	if (angle < 0.0f)
+	{
+		angle += 2.0f * glm::pi<float>();
+	}
+
+	return angle;
+}
+
+int DetermineHoveredSlot(float mouseAngle, int edges)
+{
+	float angleStep = 2.0f * glm::pi<float>() / edges;
+
+	for (int i = 0; i < edges; ++i)
+	{
+		float startAngle = i * angleStep;
+		float endAngle = (i + 1) * angleStep;
+
+		if (mouseAngle >= startAngle && mouseAngle < endAngle)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 void Renderer::RenderCookingMenu(Inventory* inv) 
 {
-	CircleMenuInformation info;
+	CookingMenuInformation info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
 	shader.Use();
 	int slotAmount = (inv->inventorySize() >= 5 ? inv->inventorySize() : 5); //minimum 5 slots
@@ -576,51 +604,80 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 		info = this->info;
 	}
 
+	//Currently hovered slot
+	int HoveredSlot = DetermineHoveredSlot(CalculateMouseAngle(Common::ScreenSize * 0.5f,*this->MousePos), slotAmount);
+
+
+
 	int slotIndex = 0;
 
 	for (const auto & [ingredient,quantity] : inv->stock)
 	{
 
 		if (quantity <= 0) continue; // Skip empty inventory slots
-
 		
 		// Update VBO with the current slot's quad vertices
 		glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 		// Set per-slot uniforms (e.g., color)
 		glm::vec3 color = glm::vec3((float)slotIndex / info.quads.size(), 0.5f, 1.0f);
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::vec2 center = info.slotCenters[slotIndex];
+		if (slotIndex == HoveredSlot)
+		{
+			color = glm::vec3(1.0f);
+			//model = glm::translate(model, glm::vec3(center,0.0f));
+			//model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
+			//model = glm::translate(model, glm::vec3(-center,0.0f));
+			//For now i surrender with scale
+		}
+
+		
+
 		shader.Use();
+		shader.SetUniform("model", model);
 		shader.SetUniform("center", glm::vec2(centerX, centerY));
 		shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
 
-		glBindVertexArray(info.VAO);
 		// Draw the quad
+		glBindVertexArray(info.VAO);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		
+
 		//std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
 		
 		// Render additional elements at the slot's center
-		glm::vec2 center = info.slotCenters[slotIndex];
 		RenderSprite(ResourceManager::GetTexture(ingredient->spriteID), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
+
+		//When i get line rendering working i want to use it to draw small outline of selected slots for better clarity
 
 		slotIndex++;
 	}
+	//Ensure that we draw atleast 5 slots
 	if (slotIndex < 5)
 	{
 		while (slotIndex < 5)
 		{
+			//Same code as above, just without all 
+
 			glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			// Set per-slot uniforms (e.g., color)
 			glm::vec3 color = glm::vec3((float)slotIndex / info.quads.size(), 0.5f, 1.0f);
+			if (slotIndex == HoveredSlot)
+			{
+				color = glm::vec3(1.0f);
+				//model = glm::translate(model, glm::vec3(center,0.0f));
+				//model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
+				//model = glm::translate(model, glm::vec3(-center,0.0f));
+				//For now i surrender with scale
+			}
 			shader.Use();
 			shader.SetUniform("center", glm::vec2(centerX, centerY));
 			shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
 
 			glBindVertexArray(info.VAO);
-			// Draw the quad
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 			slotIndex++;
 		}

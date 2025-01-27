@@ -1,3 +1,8 @@
-radial menu, two ideas:
--render premade texture and assign up to n slots on fly,
--render premade texture split based on amount of ingredients in inventory,
+COOKING MECHANIC
+-Somehow figure out how to store selected slots
+-Come up with good practice to handle mouse clicks on UI
+-Buffs system
+
+CLARITY
+-Damage numbers
+-Ingredient count in cooking menu
