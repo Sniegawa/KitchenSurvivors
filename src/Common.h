@@ -3,7 +3,7 @@
 #include <glm.hpp>
 #include <map>
 #include <string>
-//#include "../src/ResourceHandlers/Texture.h"
+
 #include "../src/ResourceHandlers/ResourceManager.h"
 
 #define LOG_WARNING(msg)\
@@ -11,7 +11,8 @@
 	std::printf("WARNING : ", msg);\
 }
 
-struct PlayerStats {
+struct PlayerStats 
+{
 	float AttackSpeed = 1.0f;
 	int MaxHealth = 100;
 	int projectileCount = 1;
@@ -21,38 +22,8 @@ struct PlayerStats {
 
 
 
-struct Ingredient
-{
-	int id;
-	std::string name;
-	std::string description;
-	const std::string spriteID;
 
-	Ingredient(int _id, std::string _name,const std::string _sprite) : id(_id), name(_name), spriteID(_sprite), description(std::string("")) {}
-};
-
-
-struct Recipe
-{
-	int id;
-	const Ingredient& ingredient1;
-	const Ingredient& ingredient2;
-
-	std::string name;
-	std::string effect;
-
-	Recipe(int _id,const Ingredient& _ingredient1,const Ingredient& _ingredient2, std::string _name, std::string _effect) :
-		id(_id),
-		ingredient1(_ingredient1),
-		ingredient2(_ingredient2),
-		name(_name),
-		effect(_effect)
-	{}
-
-
-};
-
-//LearonOpenGL.com tutorials
+//LearonOpenGL.com tutorial
 struct Character {
 	unsigned int TextureID;  // ID handle of the glyph texture
 	glm::ivec2   Size;       // Size of glyph
@@ -88,13 +59,7 @@ public:
 
 	static std::map<char, Character> Characters;
 
-	static const std::unordered_map<int, Ingredient> INGREDIENTS;
-
-	static const std::unordered_map<int, Recipe> recipes;
-
 	static void AddCharacter(char _c, Character _char);
 private:
 	Common() { this->ScreenSize = glm::vec2(1280, 720); this->debuginfo = DebugInfo(); };
 };
-
-

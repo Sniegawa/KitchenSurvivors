@@ -1,10 +1,9 @@
 #pragma once
-
 #include "GameObject.h"
-#include <vector>
 #include "Projectile.h"
-//#include "../Weapons/Weapon.h"
 #include "../Common.h"
+
+#include <vector>
 #include <memory>
 
 
@@ -51,7 +50,9 @@ struct Inventory
 
 
 
-class Weapon;
+class Weapon; //????
+
+
 class Player : public GameObject
 {
 public:
@@ -63,8 +64,10 @@ public:
 
 	Weapon *weapons[6];
 	PlayerStats stats;
-	Inventory inventory;
+	
+	//std::vector<std::shared_ptr<Effect>> effects;
 
+	Inventory inventory;
 
 	Texture2D* NormalMap;
 	unsigned int Level = 0;

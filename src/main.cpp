@@ -14,15 +14,12 @@
 #include <iomanip>
 
 #include FT_FREETYPE_H
-using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void Mouse_callback(GLFWwindow* window, int button, int action, int mods);
 glm::vec2 GetMousePos(GLFWwindow* window);
 void PrepareFreeType();
-
-bool showdemo = true;
 
 Game* game = new Game(Common::ScreenSize.x, Common::ScreenSize.y);
 

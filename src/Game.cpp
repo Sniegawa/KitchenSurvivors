@@ -11,6 +11,11 @@
 #include <algorithm>
 
 #include "ResourceHandlers/ResourceManager.h"
+#include "CookingMenu/CookingMenu.h"
+
+#include "Renderers/Renderer.h"
+#include "Renderers/SpriteRenderer.h"
+#include "Renderers/TextRenderer.h"
 
 #include "Objects/GameObject.h"
 #include "Objects/Player.h"
@@ -21,9 +26,7 @@
 #include "Weapons/ThrownWeapon.h"
 #include "Weapons/OrbitWeapon.h"
 
-#include "Renderers/Renderer.h"
-#include "Renderers/SpriteRenderer.h"
-#include "Renderers/TextRenderer.h"
+
 
 glm::vec2 ScreenCenter;
 
@@ -119,6 +122,7 @@ void Game::Init()
 	this->LoadTextures();
 	this->renderer.RendererSetup();
 	this->renderer.MousePos = &this->MousePos;
+	this->cookingMenu.InnitCookingMenu(std::make_shared<Player>(player));
 
 	//Debug UI flags
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
@@ -160,17 +164,14 @@ void Game::Init()
 		player->weapons[i] = new Weapon();
 	}
 
-	player->inventory.addIngredient(Common::INGREDIENTS.at(0), 2); // Bread
-	player->inventory.addIngredient(Common::INGREDIENTS.at(1), 2); // Milk
-	player->inventory.addIngredient(Common::INGREDIENTS.at(2), 1); // Garlic
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(3), 1); // Onion
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(4), 1); // Tomato
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(5), 1); // Chili
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(6), 1); // Salt
-	//player->inventory.addIngredient(Common::INGREDIENTS.at(7), 10); // Pepper
-
-
-	this->renderer.UpdateInventoryMenu(&player->inventory);
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(0), 2); // Bread
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(1), 2); // Milk
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(2), 1); // Garlic
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(3), 1); // Onion
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(4), 1); // Tomato
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(5), 1); // Chili
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(6), 1); // Salt
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(7), 10); // Pepper
 
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, player, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, player,5.0f);
@@ -233,8 +234,6 @@ void Game::Init()
 
 }
 
-std::vector<GameObject*> RenderData;
-
 void Game::Render()
 {
 	Common::debuginfo.DrawCalls = 0;
@@ -242,7 +241,6 @@ void Game::Render()
 	this->renderer.RenderBackground(background);
 
 	std::vector<GameObject*> RenderData;
-	//U¿y³bym std::vector.resize ale wywala b³¹d glm vec2, coœ musi byæ skopane w klasach ale idk co xD
 	RenderData.reserve(sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()));
 	for (const auto& enemy : enemies)
 	{
@@ -271,16 +269,13 @@ void Game::Render()
 
 	this->renderer.Render(RenderData);
 	this->renderer.RenderPlayer(player);
-	//std::cout << "Data Size : " << sizeof(GameObject*) * RenderData.size() << "/" << sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()) << "  Data Count : " << RenderData.size() << "/" << (enemies.size() + expShards.size() + PlayerProjectiles.size()) << std::endl;
-
-
 	this->renderer.RenderLight();
 }
 
 void Game::RenderUI()
 {
 	if (this->isCooking)
-		this->renderer.RenderCookingMenu(&this->player->inventory);
+		this->renderer.RenderCookingMenu(&this->player->inventory,this->cookingMenu);
 }
 
 float spawnerTime;
@@ -315,7 +310,6 @@ void Game::Update(float dt)
 		weapon->Update(dt);
 	}
 	
-
 	for (int i = 0; i < PlayerProjectiles.size();i++)
 	{
 		auto obj = PlayerProjectiles[i].get();
@@ -369,11 +363,10 @@ void Game::Update(float dt)
 
 	if (player->inventory.ChangedState)
 	{
-		this->renderer.UpdateInventoryMenu(&player->inventory);
+		this->cookingMenu.UpdateCookingMenu();
 		player->inventory.ChangedState = false;
 	}
 	z += dt;
-	//renderer.UpdatePlayerPos(PlayerPosition);
 	cameraPos = glm::vec3(player->Position.x, player->Position.y, 3) - glm::vec3(playerCenter.x,playerCenter.y,0);
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
@@ -430,17 +423,17 @@ void Game::ProcessInput(float dt)
 	if (craftingcooldown <= 0)
 	{
 		this->isCooking = false;
+		this->renderer.ResetCookingMenuInfo();
 	}
 
 	if (this->Keys[GLFW_KEY_C] && craftingcooldown <= 1.75f)
 	{
 		this->isCooking = !this->isCooking;
-		craftingcooldown = 20.0f;
+		craftingcooldown = 5.0f;
 
 	}
 
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
-	
 }
 
 //POCISKI S¥ ZALE¯NE OD KLATEK, ogl kolizje s¹ (mo¿e dodanie dt do kalkulacji nowych pozycji cos zmieni)
@@ -531,9 +524,9 @@ void Game::RenderDebug()
 	ImGui::Text("");
 	if (ImGui::Button("AddRandomItem"))
 	{
-		int n = Common::INGREDIENTS.size();
+		int n = this->cookingMenu.INGREDIENTS.size();
 		
-		player->inventory.addIngredient(Common::INGREDIENTS.at(randFloat(1, n - 1)), 1);
+		player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(randFloat(1, n - 1)), 1);
 	}
 	ImGui::Spacing();
 	ImGui::Text("Ingredients : ");

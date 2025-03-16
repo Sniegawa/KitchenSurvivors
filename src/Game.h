@@ -34,6 +34,7 @@ public:
 	void RenderUI();
 private:
 	Renderer renderer;
+	CookingMenu cookingMenu;
 	void LoadTextures();
 	void LoadShaders();
 	void InnitItems();

@@ -1,15 +1,16 @@
 #include "Renderer.h"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
+#include "../Common.h"
+#include "../CookingMenu/CookingMenu.h"
+#include "../ResourceHandlers/Texture.h"
+#include "../ResourceHandlers/ShaderLoader.h"
+#include "../Objects/Player.h"
 void Renderer::UpdatePlayerPos(glm::vec2 playerPos)
 {
 	this->PlayerPos = playerPos;
 }
 
 Renderer::Renderer() {}
-
-CookingMenuInformation createCircleInformation(float innerRadius, float outerRadius, int edges);
 
 void Renderer::RendererSetup()
 {
@@ -21,7 +22,7 @@ void Renderer::RendererSetup()
 	this->PrepareLightmap();
 	this->InnitUIvao();
 	this->InnitLineVao();
-	this->smallestMenuInfo = createCircleInformation(125, 260, 5);
+	
 
 }
 
@@ -492,67 +493,6 @@ void Renderer::RenderSprite(const Texture2D& sprite, glm::vec2 position, float r
 	glUseProgram(0);
 }
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 800;
-const float MENU_RADIUS = 300.0f; // Radius of the radial menu
-const float SLOT_RADIUS = 30.0f; // Radius of each ingredient slot
-
-
-CookingMenuInformation createCircleInformation(float innerRadius,float outerRadius, int edges)
-{
-	CookingMenuInformation inf;
-
-	std::vector<std::vector<glm::vec2>> quads;
-
-	float angleStep = 2.0f * glm::pi<float>() / edges;
-
-	for (int i = 0; i < edges; ++i)
-	{
-		float angle1 = i * angleStep;
-		float angle2 = (i + 1) * angleStep;
-
-		glm::vec2 inner1(innerRadius * cos(angle1), innerRadius * sin(angle1));
-		glm::vec2 inner2(innerRadius * cos(angle2), innerRadius * sin(angle2));
-		glm::vec2 outer1(outerRadius * cos(angle1), outerRadius * sin(angle1));
-		glm::vec2 outer2(outerRadius * cos(angle2), outerRadius * sin(angle2));
-
-		quads.push_back({ inner1,outer1,outer2,inner2 });
-		glm::vec2 center = (inner1 + outer1 + outer2 + inner2) / 4.0f;
-
-
-
-		inf.slotCenters.push_back(center);
-	}
-	
-	inf.quads = quads;
-
-	GLuint VAO, VBO;
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// Allocate buffer size (enough for all quads)
-	glBufferData(GL_ARRAY_BUFFER, edges * 4 * sizeof(glm::vec2), nullptr, GL_DYNAMIC_DRAW);
-
-	// Set vertex attribute pointers
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	inf.VAO = VAO;
-	inf.VBO = VBO;
-	return inf;
-}
-
-void Renderer::UpdateInventoryMenu(const Inventory* inv)
-{
-	this->info = createCircleInformation(125, 260, inv->inventorySize());
-}
-
 float CalculateMouseAngle(glm::vec2 screenCenter, glm::vec2 mousePos)
 {
 	glm::vec2 delta = mousePos - screenCenter;
@@ -584,9 +524,10 @@ int DetermineHoveredSlot(float mouseAngle, int edges)
 	return -1;
 }
 
-void Renderer::RenderCookingMenu(Inventory* inv) 
+
+void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu) 
 {
-	CookingMenuInformation info;
+	CookingMenuInformations info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
 	shader.Use();
 	int slotAmount = (inv->inventorySize() >= 5 ? inv->inventorySize() : 5); //minimum 5 slots
@@ -597,15 +538,16 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 
 	if (inv->inventorySize() <= 5)
 	{
-		info = this->smallestMenuInfo;
+		info = cookingMenu.GetSmallestCookingMenu();
 	}
 	else
 	{
-		info = this->info;
+		info = cookingMenu.GetCookingMenuInfo();
 	}
 
 	//Currently hovered slot
 	int HoveredSlot = DetermineHoveredSlot(CalculateMouseAngle(Common::ScreenSize * 0.5f,*this->MousePos), slotAmount);
+
 
 
 
@@ -648,7 +590,7 @@ void Renderer::RenderCookingMenu(Inventory* inv)
 		//std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
 		
 		// Render additional elements at the slot's center
-		RenderSprite(ResourceManager::GetTexture(ingredient->spriteID), center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
+		RenderSprite(ingredient->sprite, center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
 
 		//When i get line rendering working i want to use it to draw small outline of selected slots for better clarity
 

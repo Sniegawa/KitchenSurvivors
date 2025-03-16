@@ -113,6 +113,9 @@
     <ClCompile Include="src\Renderers\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\CookingMenu\CookingMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -188,6 +191,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderers\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CookingMenu\Effects\Effect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CookingMenu\Effects\DoubleTroubleEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CookingMenu\CookingMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CookingMenu\Effects\EffectsInclude.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
