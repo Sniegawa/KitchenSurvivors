@@ -1,6 +1,9 @@
 #pragma once
 #include <glm.hpp>
-#include"../src/Renderers/Renderer.h"
+#include "Renderers/Renderer.h"
+#include "CookingMenu/CookingMenu.h"
+#include "Objects/Player.h"
+
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,

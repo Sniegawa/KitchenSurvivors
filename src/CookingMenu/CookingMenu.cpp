@@ -1,4 +1,15 @@
 #include "CookingMenu.h"
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <vector>
+
+#include "../ResourceHandlers/Texture.h"
+#include "../Objects/Player.h"
+
 CookingMenuInformations createCircleInformation(float innerRadius, float outerRadius, int edges)
 {
 	CookingMenuInformations inf;
@@ -43,13 +54,13 @@ CookingMenuInformations createCircleInformation(float innerRadius, float outerRa
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
+	
 	inf.VAO = VAO;
 	inf.VBO = VBO;
 	return inf;
 }
 
-void CookingMenu::InnitCookingMenu(std::shared_ptr<Player> _player_ptr)
+void CookingMenu::InnitCookingMenu(Player* _player_ptr)
 {
 	this->m_player_ptr = _player_ptr;
 
@@ -93,8 +104,8 @@ void CookingMenu::InnitEffects()
 {
 	this->EFFECTS =
 	{
-		{0,std::make_unique<Effect>(new E_DoubleTroube("Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr))},
-		{1,std::make_unique<Effect>(new E_DoubleTroube("Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr))}
+		{0,new E_DoubleTrouble("Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)},
+		{1,new E_DoubleTrouble("Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)}
 	};
 }
 

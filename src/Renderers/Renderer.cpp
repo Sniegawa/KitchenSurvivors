@@ -1,10 +1,10 @@
 #include "Renderer.h"
 
-#include "../Common.h"
-#include "../CookingMenu/CookingMenu.h"
-#include "../ResourceHandlers/Texture.h"
-#include "../ResourceHandlers/ShaderLoader.h"
-#include "../Objects/Player.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm.hpp>
+#include <vector>
+
 void Renderer::UpdatePlayerPos(glm::vec2 playerPos)
 {
 	this->PlayerPos = playerPos;

@@ -1,14 +1,8 @@
 #pragma once
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <unordered_map>
-#include <map>
-#include <vector>
-#include <string>
-#include <memory>
-#include <iostream>
-#include "glm.hpp"
+#include "../Objects/Player.h"
+#include "../Common.h"
+#include "../ResourceHandlers/ResourceManager.h"
 
 class Renderer {
 public:
@@ -24,7 +18,6 @@ public:
 	void RenderSprite(const Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
 	
 	void RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu);
-	void ResetCookingMenuInfo();
 
 	int pixelSize = 1;
 	int LightPixelize = 1;

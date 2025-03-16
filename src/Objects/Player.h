@@ -2,9 +2,9 @@
 #include "GameObject.h"
 #include "Projectile.h"
 #include "../Common.h"
+#include "../CookingMenu/CookingMenu.h"
+#include<memory>
 
-#include <vector>
-#include <memory>
 
 
 struct Inventory
@@ -57,6 +57,7 @@ class Player : public GameObject
 {
 public:
 	Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader, RenderLayer layer, std::vector<std::shared_ptr<Projectile>>* pprojptr, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
+	~Player(){}
 	//glm::vec2* _pos;
 	void TakeDamage(float amount);
 	void UpdateCooldowns(float dt);
@@ -65,16 +66,16 @@ public:
 	Weapon *weapons[6];
 	PlayerStats stats;
 	
-	//std::vector<std::shared_ptr<Effect>> effects;
+	std::vector<Effect*> effects;
 
 	Inventory inventory;
 
 	Texture2D* NormalMap;
-	unsigned int Level = 0;
+	int Level = 0;
 	float LvlProgress = 0;
 	float Health = stats.MaxHealth;
 	bool Alive = true;
-	unsigned int Kills;
+	int Kills;
 
 	float xp;
 	float xpToLvl;
@@ -82,6 +83,4 @@ private:
 
 	float InvulnerabilityCD;
 	std::vector<std::shared_ptr<Projectile>>* PlayerProjectilesPtr; //Cursed
-
-	
 };

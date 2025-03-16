@@ -122,7 +122,6 @@ void Game::Init()
 	this->LoadTextures();
 	this->renderer.RendererSetup();
 	this->renderer.MousePos = &this->MousePos;
-	this->cookingMenu.InnitCookingMenu(std::make_shared<Player>(player));
 
 	//Debug UI flags
 	flags |= ImGuiWindowFlags_AlwaysAutoResize;
@@ -164,6 +163,8 @@ void Game::Init()
 		player->weapons[i] = new Weapon();
 	}
 
+	this->cookingMenu.InnitCookingMenu(player);
+
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(0), 2); // Bread
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(1), 2); // Milk
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(2), 1); // Garlic
@@ -177,6 +178,8 @@ void Game::Init()
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, player,5.0f);
 	lastlvl = player->Level;
 	
+
+
 	srand(time(0));
 	for (int i = 0; i < 100; i++)
 	{
@@ -423,7 +426,7 @@ void Game::ProcessInput(float dt)
 	if (craftingcooldown <= 0)
 	{
 		this->isCooking = false;
-		this->renderer.ResetCookingMenuInfo();
+		//this->renderer.ResetCookingMenuInfo(); if it is important implement it in CookingMenu
 	}
 
 	if (this->Keys[GLFW_KEY_C] && craftingcooldown <= 1.75f)

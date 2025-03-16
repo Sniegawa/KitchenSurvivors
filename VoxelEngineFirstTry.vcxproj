@@ -150,6 +150,8 @@
   <ItemGroup>
     <ClCompile Include="src\Common.cpp" />
     <ClCompile Include="src\CookingMenu\CookingMenu.cpp" />
+    <ClCompile Include="src\CookingMenu\Effects\DoubleTroubleEffect.cpp" />
+    <ClCompile Include="src\CookingMenu\Effects\Effect.cpp" />
     <ClCompile Include="src\Objects\Enemy.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Objects\GameObject.cpp" />

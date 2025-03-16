@@ -1,10 +1,15 @@
 #pragma once
+#include "Effects/Effect.h"
+#include "Effects/EffectsInclude.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
+#include <glm.hpp>
+#include <unordered_map>
 #include <memory>
-#include "../Common.h"
+#include <vector>
 
-#include "./Effects/Effect.h"
-#include "./Effects/EffectsInclude.h"
+class Texture2D;
 
 struct CookingMenuInformations
 {
@@ -46,6 +51,9 @@ struct Recipe
 	
 };
 
+
+
+
 class CookingMenu
 {	
 public:
@@ -54,11 +62,11 @@ public:
 
 	std::unordered_map<int, Recipe> RECIPES;
 
-	std::unordered_map<int, std::unique_ptr<Effect>> EFFECTS;
+	std::unordered_map<int, Effect*> EFFECTS;
 
 	CookingMenu() {};
 
-	void InnitCookingMenu(std::shared_ptr<Player> _player_ptr);
+	void InnitCookingMenu(Player* _player_ptr);
 	void UpdateCookingMenu();
 
 	const CookingMenuInformations& GetCookingMenuInfo() const { return this->m_currentMenuInfo; }
@@ -68,7 +76,7 @@ private:
 	void InnitIngredients();
 	void InnitRecipes();
 	void InnitEffects();
-	std::shared_ptr<Player> m_player_ptr;
+	Player* m_player_ptr;
 	CookingMenuInformations m_smallestMenuInfo;
 	CookingMenuInformations m_currentMenuInfo;
 };
