@@ -62,6 +62,7 @@ public:
 	void TakeDamage(float amount);
 	void UpdateCooldowns(float dt);
 	void GetXp(int type);
+	void AddEffect(Effect* effect, float Length);
 
 	Weapon *weapons[6];
 	PlayerStats stats;

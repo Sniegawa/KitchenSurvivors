@@ -9,16 +9,30 @@ class Texture2D;
 class Effect
 {
 public:
-	Effect(std::string _name, std::string _desc, const Texture2D& _sprite, Player* _playerPointer);
-
+	Effect(int _id,std::string _name, std::string _desc, const Texture2D& _sprite, Player* _playerPointer) : ID(_id), Name(_name), Description(_desc), Sprite(_sprite), m_playerptr(_playerPointer) {};
+	const int ID;
 	const std::string Name;
 	const std::string Description;
 	const Texture2D& Sprite;
 
-	virtual void Start() { std::cout << "You have called base effect Start function"<<std::endl; }
-	virtual void Tick(float dt) { std::cout << "You have called base effect Tick function" << std::endl; }
-	virtual void End() { std::cout << "You have called base effect End function" << std::endl; }
-protected:
-	Player* m_playerptr;
 	float Duration = 0;
+	
+	virtual void Start(float length) 
+	{
+		this->Duration = length;
+	}
+	
+	virtual void Tick(float dt) 
+	{
+		this->Duration -= dt;
+	}
+	
+	virtual void End() 
+	{
+		
+	}
+
+protected:
+
+	Player* m_playerptr;
 };

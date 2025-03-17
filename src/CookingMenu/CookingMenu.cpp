@@ -104,8 +104,8 @@ void CookingMenu::InnitEffects()
 {
 	this->EFFECTS =
 	{
-		{0,new E_DoubleTrouble("Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)},
-		{1,new E_DoubleTrouble("Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)}
+		{0,new E_DoubleTrouble(0,"Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)},
+		{1,new E_DoubleTrouble(1,"Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)}
 	};
 }
 

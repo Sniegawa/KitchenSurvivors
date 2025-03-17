@@ -281,7 +281,7 @@ void Game::RenderUI()
 		this->renderer.RenderCookingMenu(&this->player->inventory,this->cookingMenu);
 }
 
-float spawnerTime;
+float spawnerTime = 0;
 float z = 0;
 void Game::Update(float dt)
 {	
@@ -381,7 +381,7 @@ void Game::Update(float dt)
 	
 }
 
-
+float temptime;
 float craftingcooldown;
 void Game::ProcessInput(float dt)
 {
@@ -434,6 +434,13 @@ void Game::ProcessInput(float dt)
 		this->isCooking = !this->isCooking;
 		craftingcooldown = 5.0f;
 
+	}
+	temptime -= dt;
+	if (this->Keys[GLFW_KEY_P] && temptime <= 0.0f)
+	{
+		temptime = 2.0f;
+		this->player->AddEffect(this->cookingMenu.EFFECTS.at(0),2.0f);
+		
 	}
 
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);

@@ -35,6 +35,21 @@ void Player::TakeDamage(float amount)
 void Player::UpdateCooldowns(float dt)
 {
 	this->InvulnerabilityCD -= dt;
+	
+	//Update effects
+	for (int i = 0; i < this->effects.size(); i++)
+	{
+		Effect* eff = this->effects[i];
+		eff->Tick(dt);
+
+		//Handle effect expiration
+		if (eff->Duration <= 0.0f)
+		{
+			eff->End();
+			this->effects.erase(this->effects.begin() + i);
+		}
+
+	}
 }
 
 void Player::GetXp(int type)
@@ -52,4 +67,19 @@ void Player::GetXp(int type)
 		else
 			this->xpToLvl = Common::lvlmap[this->Level];
 	}
+}
+
+void Player::AddEffect(Effect* effect, float Length)
+{
+	for (int i = 0; i < this->effects.size(); i++)
+	{
+		if (this->effects[i]->ID == effect->ID)
+		{
+			this->effects[i]->End();
+			this->effects[i]->Start(Length);
+			return;
+		}
+	}
+	this->effects.push_back(effect);
+	effect->Start(Length);
 }
