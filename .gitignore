@@ -366,5 +366,5 @@ FodyWeavers.xsd
 TODO.txt
 Ideas.txt
 libs/
-.ods
-.odt
+*.ods
+*.odt
