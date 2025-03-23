@@ -382,7 +382,9 @@ void Game::Update(float dt)
 }
 
 float temptime;
-float craftingcooldown;
+float cookingcooldown;
+float pausecd;
+float selectcd;
 void Game::ProcessInput(float dt)
 {
 	if (this->Keys[GLFW_KEY_R])
@@ -391,6 +393,16 @@ void Game::ProcessInput(float dt)
 		player->Alive = true;
 		this->State = GAME_ACTIVE;
 	}
+	pausecd -= dt;
+	temptime -= dt;
+	selectcd -= dt;
+	if (this->Keys[GLFW_KEY_TAB] && pausecd <= 0.0f)
+	{
+		this->State = this->State == GAME_MENU ? GAME_ACTIVE : GAME_MENU;
+		pausecd = 0.02f;
+		return;
+	}
+
 	if (this->State == GAME_ACTIVE)
 	{
 		float velocity = player->stats.PlayerSpeed * dt;
@@ -411,38 +423,50 @@ void Game::ProcessInput(float dt)
 		{
 			player->Position.y += velocity;
 		}
-		
-	}
-	
-	if (isCooking)
-	{
 
-		craftingcooldown -= (dt * 4.0f);
-	}
-	else
-	{
-		craftingcooldown -= dt;
-	}
-	if (craftingcooldown <= 0)
-	{
-		this->isCooking = false;
-		//this->renderer.ResetCookingMenuInfo(); if it is important implement it in CookingMenu
-	}
+		if (isCooking)
+		{
+			cookingcooldown -= (dt * 4.0f);
+			//Select recipe
+			if ((this->Mouse[GLFW_MOUSE_BUTTON_1] || this->Keys[GLFW_KEY_E]) && selectcd <= 0.0f)
+			{
+				this->cookingMenu.SelectHoveredSlot();
+				selectcd = 0.05f;
+			}
+			//Cook
+			if (this->Keys[GLFW_KEY_SPACE])
+			{
+				this->cookingMenu.Cook();
+				isCooking = false;
+				cookingcooldown = 0.0f;
+			}
+		}
+		else
+		{
+			cookingcooldown -= dt;
+		}
 
-	if (this->Keys[GLFW_KEY_C] && craftingcooldown <= 1.75f)
-	{
-		this->isCooking = !this->isCooking;
-		craftingcooldown = 5.0f;
+		if (cookingcooldown <= 0)
+		{
+			this->isCooking = false;
+			this->cookingMenu.ResetSlots();
+			//this->renderer.ResetCookingMenuInfo(); if it is important implement it in CookingMenu
+		}
 
-	}
-	temptime -= dt;
-	if (this->Keys[GLFW_KEY_P] && temptime <= 0.0f)
-	{
-		temptime = 2.0f;
-		this->player->AddEffect(this->cookingMenu.EFFECTS.at(0),2.0f);
-		
-	}
+		if (this->Keys[GLFW_KEY_C] && cookingcooldown <= 1.75f)
+		{
+			this->isCooking = true;
+			cookingcooldown = 5.0f;
 
+		}
+
+		if (this->Keys[GLFW_KEY_P] && temptime <= 0.0f)
+		{
+			temptime = 2.0f;
+			this->player->AddEffect(this->cookingMenu.EFFECTS.at(0), 2.0f);
+
+		}
+	}
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 

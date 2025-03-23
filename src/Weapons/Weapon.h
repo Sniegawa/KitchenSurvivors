@@ -19,7 +19,7 @@ struct Upgrade {
 	UpgradeType Type;
 	int Amount;
 	Upgrade(UpgradeType _type, int _amount) : Type(_type), Amount(_amount) {};
-	Upgrade() {};
+	Upgrade() : Type(UpgradeType::WEAPON_UPGRADE_DAMAGE) , Amount(0) {};
 };
 
 class Weapon

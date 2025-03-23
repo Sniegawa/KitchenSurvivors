@@ -11,6 +11,7 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader,
 	this->Rotation = rotation;
 	this->Kills = 0;
 	this->Level = 1;
+	this->InvulnerabilityCD = 0.0f;
 	this->stats.projectileCount = 1;
 	this->PlayerProjectilesPtr = pprojptr;
 	this->xp = 0;
@@ -54,7 +55,8 @@ void Player::UpdateCooldowns(float dt)
 
 void Player::GetXp(int type)
 {
-	
+	return;// !!!!!!!!!!
+	/*
 	xp += type * this->stats.ExpirienceMultiplier;
 
 	if (this->xp >= this->xpToLvl)
@@ -67,6 +69,7 @@ void Player::GetXp(int type)
 		else
 			this->xpToLvl = Common::lvlmap[this->Level];
 	}
+	*/
 }
 
 void Player::AddEffect(Effect* effect, float Length)

@@ -527,7 +527,7 @@ int DetermineHoveredSlot(float mouseAngle, int edges)
 
 void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu) 
 {
-	CookingMenuInformations info;
+	CookingMenuInformations* info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
 	shader.Use();
 	int slotAmount = (inv->inventorySize() >= 5 ? inv->inventorySize() : 5); //minimum 5 slots
@@ -538,19 +538,16 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 
 	if (inv->inventorySize() <= 5)
 	{
-		info = cookingMenu.GetSmallestCookingMenu();
+		info = &cookingMenu.GetSmallestCookingMenu();
 	}
 	else
 	{
-		info = cookingMenu.GetCookingMenuInfo();
+		info = &cookingMenu.GetCookingMenuInfo();
 	}
 
 	//Currently hovered slot
 	int HoveredSlot = DetermineHoveredSlot(CalculateMouseAngle(Common::ScreenSize * 0.5f,*this->MousePos), slotAmount);
-
-
-
-
+	
 	int slotIndex = 0;
 
 	for (const auto & [ingredient,quantity] : inv->stock)
@@ -559,16 +556,18 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 		if (quantity <= 0) continue; // Skip empty inventory slots
 		
 		// Update VBO with the current slot's quad vertices
-		glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
+		glBindBuffer(GL_ARRAY_BUFFER, info->VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, info->quads[slotIndex].size() * sizeof(glm::vec2), info->quads[slotIndex].data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		// Set per-slot uniforms (e.g., color)
-		glm::vec3 color = glm::vec3((float)slotIndex / info.quads.size(), 0.5f, 1.0f);
+		glm::vec3 color = glm::vec3((float)slotIndex / info->quads.size(), 0.5f, 1.0f);
 		glm::mat4 model = glm::mat4(1.0f);
-		glm::vec2 center = info.slotCenters[slotIndex];
+		glm::vec2 center = info->slotCenters[slotIndex];
 		if (slotIndex == HoveredSlot)
 		{
+			cookingMenu.HoveredSlot = Slot(slotIndex, ingredient->id);
+			
 			color = glm::vec3(1.0f);
 			//model = glm::translate(model, glm::vec3(center,0.0f));
 			//model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
@@ -576,7 +575,13 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 			//For now i surrender with scale
 		}
 
-		
+		for (const auto& ss : cookingMenu.selectedSlots)
+		{
+			if (slotIndex == ss.slotID)
+			{
+				color = glm::vec3(0.75f);
+			}
+		}
 
 		shader.Use();
 		shader.SetUniform("model", model);
@@ -584,13 +589,13 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 		shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
 
 		// Draw the quad
-		glBindVertexArray(info.VAO);
+		glBindVertexArray(info->VAO);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 		//std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
 		
 		// Render additional elements at the slot's center
-		RenderSprite(ingredient->sprite, center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
+		RenderSprite(*ingredient->sprite, center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
 
 		//When i get line rendering working i want to use it to draw small outline of selected slots for better clarity
 
@@ -603,12 +608,13 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 		{
 			//Same code as above, just without all 
 
-			glBindBuffer(GL_ARRAY_BUFFER, info.VBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, info.quads[slotIndex].size() * sizeof(glm::vec2), info.quads[slotIndex].data());
+			glBindBuffer(GL_ARRAY_BUFFER, info->VBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, info->quads[slotIndex].size() * sizeof(glm::vec2), info->quads[slotIndex].data());
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glm::vec3 color = glm::vec3((float)slotIndex / info.quads.size(), 0.5f, 1.0f);
+			glm::vec3 color = glm::vec3((float)slotIndex / info->quads.size(), 0.5f, 1.0f);
 			if (slotIndex == HoveredSlot)
 			{
+				//info->HoveredSlot = -1;
 				color = glm::vec3(1.0f);
 				//model = glm::translate(model, glm::vec3(center,0.0f));
 				//model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
@@ -619,7 +625,7 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 			shader.SetUniform("center", glm::vec2(centerX, centerY));
 			shader.SetUniform("uColor", glm::vec4(color.x, color.y, color.z, 0.6f));
 
-			glBindVertexArray(info.VAO);
+			glBindVertexArray(info->VAO);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 			slotIndex++;
 		}

@@ -71,32 +71,79 @@ void CookingMenu::InnitCookingMenu(Player* _player_ptr)
 	this->m_smallestMenuInfo = createCircleInformation(125, 260, 5);
 }
 
+void CookingMenu::ResetSlots()
+{
+	this->selectedSlots.clear();
+	this->HoveredSlot = Slot();
+}
+
+void CookingMenu::SelectHoveredSlot()
+{
+	//If hovered slot is already selected unselect
+	for (int i = 0; i < this->selectedSlots.size(); i++)
+	{
+		if (this->selectedSlots[i].slotID == this->HoveredSlot.slotID)
+		{
+			this->selectedSlots.erase(this->selectedSlots.begin() + i);
+			return;
+		}
+	}
+	//Else simply select slot
+	this->selectedSlots.emplace_back(this->HoveredSlot);
+}
+
+void CookingMenu::Cook()
+{
+	std::vector<int> ingredientsID;
+	for (const auto& selectedSlot : this->selectedSlots)
+	{
+		ingredientsID.emplace_back(selectedSlot.ingredientID);
+	}
+	for (const auto& recipe : RECIPES)
+	{
+		if (recipe.second.matches(ingredientsID))
+		{
+			this->m_player_ptr->AddEffect(EFFECTS[recipe.second.effectID], 5.0f); // LENGTH SHOULD BE AN EFFECT VARIABLE
+			for (int i : ingredientsID)
+			{
+				this->m_player_ptr->inventory.consumeIngredient(INGREDIENTS[i], 1);
+			}
+			return;
+		}
+	}
+	//Maybe some feedback that recipe were wrong
+}
+
+Ingredient::Ingredient()
+{
+
+}
+Ingredient::Ingredient(int _id, std::string _name, Texture2D* _sprite) : id(_id), name(_name), sprite(_sprite), description(std::string("")) {}
 
 void CookingMenu::InnitIngredients()
 {
 	this->INGREDIENTS =
 	{
 		//{-1,{-1,"Empty Item",ResourceManager::GetTexture("tomato")}},
-		{0,{0,"Bread",ResourceManager::GetTexture("pizza")}},
-		{1,{1,"Milk",ResourceManager::GetTexture("tomato")}},
-		{2,{2,"Garlic",ResourceManager::GetTexture("tomato")}},
-		{3,{3,"Onion",ResourceManager::GetTexture("tomato")}},
-		{4,{4,"Tomato",ResourceManager::GetTexture("tomato")}},
-		{5,{5,"Chili",ResourceManager::GetTexture("tomato")}},
-		{6,{6,"Salt",ResourceManager::GetTexture("salt")}},
-		{7,{7,"Pepper",ResourceManager::GetTexture("pepper")}}
+		{0,{0,"Bread",&ResourceManager::GetTexture("pizza")}},
+		{1,{1,"Milk",&ResourceManager::GetTexture("tomato")}},
+		{2,{2,"Garlic",&ResourceManager::GetTexture("tomato")}},
+		{3,{3,"Onion",&ResourceManager::GetTexture("tomato")}},
+		{4,{4,"Tomato",&ResourceManager::GetTexture("tomato")}},
+		{5,{5,"Chili",&ResourceManager::GetTexture("tomato")}},
+		{6,{6,"Salt",&ResourceManager::GetTexture("salt")}},
+		{7,{7,"Pepper",&ResourceManager::GetTexture("pepper")}}
 	};
 }
+
+
 
 void CookingMenu::InnitRecipes()
 {
 	this->RECIPES =
 	{
-		//ID -> Recipe  {id,ingr1ID,ingr2ID Name			EffectID
-		{0,				{0,	6,		7,		"Double trouble", 0}},
-		{1,			    {1, 2,		3,		"Poison Aura", 1}},
-		{2,				{2, 4,		5,		"Fire Boost", 2}}
-
+		//ID -> Recipe  {id,ingr Name			EffectID
+		{0,				{0,	{6,7},		"Double trouble", 0} }
 	};
 }
 
@@ -105,7 +152,6 @@ void CookingMenu::InnitEffects()
 	this->EFFECTS =
 	{
 		{0,new E_DoubleTrouble(0,"Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)},
-		{1,new E_DoubleTrouble(1,"Double trouble", "Prepare for double and make it trouble!",ResourceManager::GetTexture("knife") , this->m_player_ptr)}
 	};
 }
 

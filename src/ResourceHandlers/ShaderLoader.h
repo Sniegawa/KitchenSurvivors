@@ -14,7 +14,7 @@ public:
 
     //using UniformValue = std::variant<int, float, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
 
-	unsigned int ID;
+	unsigned int ID = 0;
 	Shader() {}
 	Shader& Use();
 	void Compile(const char* vertex_source, const char* fragment_source);

@@ -40,11 +40,11 @@ struct pointLight
 
 struct DebugInfo
 {
-	int CollisionChecks;
-	int Enemies;
-	int Projectiles;
-	int PlayerHealth;
-	int DrawCalls;
+	int CollisionChecks = 0;
+	int Enemies = 0;
+	int Projectiles = 0;
+	int PlayerHealth = 0;
+	int DrawCalls = 0;
 	float SpawnRate = 1.0f;
 };
 

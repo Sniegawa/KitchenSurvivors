@@ -33,13 +33,11 @@ public:
 	void Collisions();
 	void RenderDebug();
 	void RenderLevelUp();
-	void RenderLight();
 	void RenderUI();
 private:
 	Renderer renderer;
 	CookingMenu cookingMenu;
 	void LoadTextures();
 	void LoadShaders();
-	void InnitItems();
 	bool CheckCollisionWithPlayer(GameObject& one);
 };

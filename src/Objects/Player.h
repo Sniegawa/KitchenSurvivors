@@ -11,6 +11,7 @@ struct Inventory
 {
 	std::unordered_map<const Ingredient*, int> stock;
 
+	//Need this variable as trigger to rebuilding Cooking Menu graphic
 	bool ChangedState = false;
 
 	void addIngredient(const Ingredient& ingredient, int quantity)
