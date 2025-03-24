@@ -22,7 +22,6 @@
 #include "Objects/Enemy.h"
 #include "Objects/Projectile.h"
 
-//#include "Weapons/Weapon.h"
 #include "Weapons/ThrownWeapon.h"
 #include "Weapons/OrbitWeapon.h"
 
@@ -35,7 +34,7 @@ void Spawnxp(GameObject* enemy);
 bool MouseInRange(glm::vec2 MousePos, glm::vec2 start, glm::vec2 end);
 
 Game::Game(unsigned int width, unsigned int height)
-	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0){}
+	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0),camera(new Camera()){}
 
 //DEBUG
 static glm::vec4 randColor()
@@ -61,8 +60,6 @@ std::vector<pointLight> lights;
 
 std::vector<std::shared_ptr<Enemy>> enemies;
 
-//extern glm::vec2 PlayerPosition = glm::vec2(0);
-
 extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
 std::vector<std::shared_ptr<GameObject>> expShards;
@@ -70,6 +67,8 @@ std::vector<std::shared_ptr<GameObject>> expShards;
 Game::~Game()
 {
 	delete UIRenderer;
+	delete player;
+	delete camera;
 }
 
 ImGuiWindowFlags flags = 0;
@@ -77,10 +76,6 @@ ImGuiWindowFlags flags = 0;
 int lastlvl;
 
 float k1, k2;
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 glm::mat4 view;
 
@@ -122,39 +117,21 @@ void Game::Init()
 	this->LoadTextures();
 	this->renderer.RendererSetup();
 	this->renderer.MousePos = &this->MousePos;
-
-	//Debug UI flags
-	flags |= ImGuiWindowFlags_AlwaysAutoResize;
-	flags |= ImGuiWindowFlags_NoCollapse;
-
-	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
-
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), static_cast<float>(this->Height), 0.0f, -1.0f, 10.0f);
-	
-	ResourceManager::GetShader("instancedSprite").SetUniform("projection", projection, true);
-
-	ResourceManager::GetShader("sprite").SetUniform("projection", projection, true);
-
-	ResourceManager::GetShader("text").SetUniform("projection", projection, true);
-
-	ResourceManager::GetShader("UI").SetUniform("projection", projection,true);
-
-	ResourceManager::GetShader("CookingMenu").SetUniform("projection", projection, true);
-
-	ResourceManager::GetShader("Line").SetUniform("screenSize", Common::ScreenSize, true);
-
-	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
-	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 	
 	Texture2D& PlayerSprite = ResourceManager::GetTexture("pizza");
 	playerCenter = glm::vec2(static_cast<float>(this->Width) / 2, static_cast<float>(this->Height) / 2) - (glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f) * 0.5f;// +glm::vec2(30.0f, 16.0f);
 	player = new Player(playerCenter, glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"), PLAYER, &PlayerProjectiles);
 
-	cameraPos = glm::vec3(0,0, 3);
-	view = glm::lookAt(cameraPos, cameraPos + cameraFront ,cameraUp);
+	this->camera->Setup(this->player);
+	
+	//Debug UI flags
+	flags |= ImGuiWindowFlags_AlwaysAutoResize;
+	flags |= ImGuiWindowFlags_NoCollapse;
 
-	ResourceManager::GetShader("instancedSprite").SetUniform("view", view, true);
-	ResourceManager::GetShader("sprite").SetUniform("view", view, true);
+	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
+	
+	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
+	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
 
 	background = new GameObject(glm::vec2(0.0), glm::vec2(this->Width * 10.0f, this->Height * 10.0f), 0.0f, &ResourceManager::GetTexture("background"), ResourceManager::GetShaderPtr("sprite"), BACKGROUND);
 
@@ -370,11 +347,9 @@ void Game::Update(float dt)
 		player->inventory.ChangedState = false;
 	}
 	z += dt;
-	cameraPos = glm::vec3(player->Position.x, player->Position.y, 3) - glm::vec3(playerCenter.x,playerCenter.y,0);
-	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	
+	this->camera->Update(dt);
 
-	ResourceManager::GetShader("instancedSprite").SetUniform("view", view, true);
-	ResourceManager::GetShader("sprite").SetUniform("view", view, true);
 	Common::debuginfo.Enemies = enemies.size();
 	Common::debuginfo.Projectiles = PlayerProjectiles.size();
 	Common::debuginfo.PlayerHealth = player->Health;
@@ -542,7 +517,6 @@ void Game::RenderDebug()
 	ImGui::Text("CollisionChecks : %i", Common::debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
 	ImGui::Text("Position : %f %f", player->Position.x, player->Position.y);
-
 	ImGui::Spacing();
 	ImGui::Text("Level %i", player->Level);
 	ImGui::Text("xp %f/%f",player->xp,player->xpToLvl);

@@ -79,10 +79,10 @@ void Player::AddEffect(Effect* effect, float Length)
 		if (this->effects[i]->ID == effect->ID)
 		{
 			this->effects[i]->End();
-			this->effects[i]->Start(Length);
+			this->effects[i]->Start();
 			return;
 		}
 	}
 	this->effects.push_back(effect);
-	effect->Start(Length);
+	effect->Start();
 }

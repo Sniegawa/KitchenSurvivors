@@ -164,6 +164,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Objects\Player.cpp" />
     <ClCompile Include="src\Objects\Projectile.cpp" />
+    <ClCompile Include="src\Renderers\Camera.cpp" />
     <ClCompile Include="src\Renderers\Renderer.cpp" />
     <ClCompile Include="src\Renderers\TextRenderer.cpp" />
     <ClCompile Include="src\ResourceHandlers\ResourceManager.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Objects\Player.h" />
     <ClInclude Include="src\Objects\Projectile.h" />
+    <ClInclude Include="src\Renderers\Camera.h" />
     <ClInclude Include="src\Renderers\Renderer.h" />
     <ClInclude Include="src\Renderers\TextRenderer.h" />
     <ClInclude Include="src\ResourceHandlers\ResourceManager.h" />
