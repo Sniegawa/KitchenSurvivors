@@ -7,9 +7,9 @@ void E_DoubleTrouble::Tick(float dt)
 	Effect::Tick(dt);
 }
 
-void E_DoubleTrouble::Start(float length)
+void E_DoubleTrouble::Start()
 {
-	Effect::Start(length);
+	Effect::Start();
 	this->m_playerptr->stats.AttackSpeed += 1.0f;
 	this->m_playerptr->Color = glm::vec3(1.0f, 0.0f, 0.0f);
 }

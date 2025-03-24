@@ -11,7 +11,7 @@ struct Inventory
 {
 	std::unordered_map<const Ingredient*, int> stock;
 
-	//Need this variable as trigger to rebuilding Cooking Menu graphic
+	//Need this variable as trigger for rebuilding Cooking Menu graphic
 	bool ChangedState = false;
 
 	void addIngredient(const Ingredient& ingredient, int quantity)
@@ -51,7 +51,7 @@ struct Inventory
 
 
 
-class Weapon; //????
+class Weapon;
 
 
 class Player : public GameObject
@@ -65,7 +65,7 @@ public:
 	void GetXp(int type);
 	void AddEffect(Effect* effect, float Length);
 
-	Weapon *weapons[6];
+	Weapon* weapons[6];
 	PlayerStats stats;
 	
 	std::vector<Effect*> effects;
