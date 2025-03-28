@@ -1,8 +1,15 @@
 COOKING MECHANIC
--Somehow figure out how to store selected slots
--Come up with good practice to handle mouse clicks on UI
--Buffs system
+-Somehow figure out how to store selected slots						x
+-Come up with good practice to handle mouse clicks on UI			?
+-Buffs system														x
+-Fill content 
+
 
 CLARITY
 -Damage numbers
 -Ingredient count in cooking menu
+-Selecting recipe shows it's icon/name/buff desc
+
+
+Engine
+-Migrate Text rendering into Renderer class							? (Rewrite of text rendering needed)

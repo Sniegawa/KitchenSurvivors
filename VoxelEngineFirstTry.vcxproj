@@ -166,10 +166,8 @@
     <ClCompile Include="src\Objects\Projectile.cpp" />
     <ClCompile Include="src\Renderers\Camera.cpp" />
     <ClCompile Include="src\Renderers\Renderer.cpp" />
-    <ClCompile Include="src\Renderers\TextRenderer.cpp" />
     <ClCompile Include="src\ResourceHandlers\ResourceManager.cpp" />
     <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp" />
-    <ClCompile Include="src\Renderers\SpriteRenderer.cpp" />
     <ClCompile Include="src\ResourceHandlers\Texture.cpp" />
     <ClCompile Include="src\Weapons\ThrownWeapon.cpp" />
     <ClCompile Include="src\Weapons\OrbitWeapon.cpp" />
@@ -197,10 +195,8 @@
     <ClInclude Include="src\Objects\Projectile.h" />
     <ClInclude Include="src\Renderers\Camera.h" />
     <ClInclude Include="src\Renderers\Renderer.h" />
-    <ClInclude Include="src\Renderers\TextRenderer.h" />
     <ClInclude Include="src\ResourceHandlers\ResourceManager.h" />
     <ClInclude Include="src\ResourceHandlers\ShaderLoader.h" />
-    <ClInclude Include="src\Renderers\SpriteRenderer.h" />
     <ClInclude Include="src\ResourceHandlers\stb_image.h" />
     <ClInclude Include="src\ResourceHandlers\Texture.h" />
     <ClInclude Include="src\Weapons\ThrownWeapon.h" />

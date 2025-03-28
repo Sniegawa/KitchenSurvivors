@@ -4,8 +4,7 @@
 #include <glm.hpp>
 
 #include "../ResourceHandlers/Texture.h"
-#include "../Renderers/SpriteRenderer.h"
-
+#include "../ResourceHandlers/ShaderLoader.h"
 enum RenderLayer {
 	BACKGROUND,
 	ENEMY,
@@ -29,8 +28,6 @@ public:
 
 	const RenderLayer GetRenderLayer() { return this->renderLayer; };
 
-	virtual void Draw(SpriteRenderer& renderer);
-	virtual void Draw(SpriteRenderer& renderer, glm::vec2 PlayerPosition);
 	Texture2D* Sprite;
 	Shader* shader;
 private:

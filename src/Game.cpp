@@ -14,8 +14,6 @@
 #include "CookingMenu/CookingMenu.h"
 
 #include "Renderers/Renderer.h"
-#include "Renderers/SpriteRenderer.h"
-#include "Renderers/TextRenderer.h"
 
 #include "Objects/GameObject.h"
 #include "Objects/Player.h"
@@ -50,10 +48,6 @@ static float randFloat(float min = 0.0f, float max = 1.0f)
 }
 
 
-//TODO: Implement in renderer
-TextRenderer* textRenderer;
-SpriteRenderer* UIRenderer;
-
 GameObject* background;
 
 std::vector<pointLight> lights;
@@ -66,7 +60,6 @@ std::vector<std::shared_ptr<GameObject>> expShards;
 
 Game::~Game()
 {
-	delete UIRenderer;
 	delete player;
 	delete camera;
 }
@@ -129,9 +122,7 @@ void Game::Init()
 	flags |= ImGuiWindowFlags_NoCollapse;
 
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
-	
-	UIRenderer = new SpriteRenderer(ResourceManager::GetShader("UI"));
-	textRenderer = new TextRenderer(ResourceManager::GetShader("text"));
+
 
 	background = new GameObject(glm::vec2(0.0), glm::vec2(this->Width * 10.0f, this->Height * 10.0f), 0.0f, &ResourceManager::GetTexture("background"), ResourceManager::GetShaderPtr("sprite"), BACKGROUND);
 
@@ -219,7 +210,7 @@ void Game::Render()
 	Common::debuginfo.DrawCalls = 0;
 	
 	this->renderer.RenderBackground(background);
-
+	
 	std::vector<GameObject*> RenderData;
 	RenderData.reserve(sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()));
 	for (const auto& enemy : enemies)
@@ -250,6 +241,9 @@ void Game::Render()
 	this->renderer.Render(RenderData);
 	this->renderer.RenderPlayer(player);
 	this->renderer.RenderLight();
+
+	renderer.RenderText("abcaaaaaaaaaaaaaaaaaaaaaa", glm::vec3(1.0f, 0.0f, 0.0f), this->MousePos, 1.0f);
+
 }
 
 void Game::RenderUI()
@@ -448,6 +442,7 @@ void Game::ProcessInput(float dt)
 //POCISKI S¥ ZALE¯NE OD KLATEK, ogl kolizje s¹ (mo¿e dodanie dt do kalkulacji nowych pozycji cos zmieni)
 void Game::Collisions()
 {
+
 	if (this->State != GAME_ACTIVE)
 		return;
 	Common::debuginfo.CollisionChecks = 0;
@@ -464,7 +459,9 @@ void Game::Collisions()
 			Common::debuginfo.CollisionChecks++;
 			if (CheckCollision(*projectile, *enemy))
 			{
-				enemy->TakeDamage(projectile->DamageDealt);
+				float Damage = projectile->DamageDealt;
+
+				enemy->TakeDamage(Damage);
 				projectile->Hit();
 				if (enemy->Health <= 0.0f)
 				{
@@ -479,8 +476,10 @@ void Game::Collisions()
 		if (CheckCollisionWithPlayer(*enemy))
 		{
 			enemy->TakeDamage(2.0f);
+			
 			player->TakeDamage(1.0f);
 		}
+		/*
 		for (int j = 0; j < enemies.size(); j++)
 		{
 			Common::debuginfo.CollisionChecks++;
@@ -492,6 +491,7 @@ void Game::Collisions()
 				enemy->Position += test;
 			}
 		}
+		*/
 	}
 	
 	for (int i = 0; i < expShards.size();i++)
@@ -560,6 +560,7 @@ void Game::RenderDebug()
 
 void Game::RenderLevelUp()
 {
+	/*
 	//This should be randomized so each slot has it's own weapon,
 	//that is either an weapon from inventory or a new one
 	Weapon* weapon = player->weapons[0];
@@ -595,6 +596,7 @@ void Game::RenderLevelUp()
 	//Debug exit
 	if (this->Keys[GLFW_KEY_SPACE])
 		this->State = GAME_ACTIVE;
+		*/
 }
 
 bool CheckCollision(GameObject& one, GameObject& two)

@@ -16,7 +16,7 @@ public:
 
 	void RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color);
 	void RenderSprite(const Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color = glm::vec3(1.0f));
-	
+	void RenderText(std::string text, glm::vec3 color, glm::vec2 position, float textScale);
 	void RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu);
 
 	int pixelSize = 1;

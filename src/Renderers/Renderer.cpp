@@ -633,3 +633,64 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
+
+//Function that renders text on screen
+//somehow need to render it in another pass
+//maybe with maintaining a vector of text to render in textPass
+void Renderer::RenderText(std::string text,glm::vec3 color, glm::vec2 position,float textScale)
+{
+	unsigned int VBO;
+	unsigned int quadVAO;
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	Shader shader = ResourceManager::GetShader("text");
+	shader.Use();
+	shader.SetVector3f("textColor", color);
+	shader.SetUniform("text", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(quadVAO);
+
+	std::string::const_iterator c;
+
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = Common::Characters[*c];
+		
+		float xpos = position.x + ch.Bearing.x * textScale;
+		float ypos = position.y + (Common::Characters['H'].Bearing.y - ch.Bearing.y) * textScale; \
+
+		float w = ch.Size.x * textScale;
+		float h = ch.Size.y * textScale;
+
+		float vertices[6][4] =
+		{
+			{ xpos,     ypos + h,   0.0f, 1.0f },
+			{ xpos + w, ypos,       1.0f, 0.0f },
+			{ xpos,     ypos,       0.0f, 0.0f },
+
+			{ xpos,     ypos + h,   0.0f, 1.0f },
+			{ xpos + w, ypos + h,   1.0f, 1.0f },
+			{ xpos + w, ypos,       1.0f, 0.0f }
+		};
+
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices),vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		position.x += (ch.Advance >> 6) * textScale;
+
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
