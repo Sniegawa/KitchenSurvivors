@@ -133,12 +133,12 @@ void Game::Init()
 
 	this->cookingMenu.InnitCookingMenu(player);
 
-	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(0), 2); // Bread
-	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(1), 2); // Milk
-	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(2), 1); // Garlic
-	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(3), 1); // Onion
-	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(4), 1); // Tomato
-	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(5), 1); // Chili
+	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(0), 2); // Bread
+	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(1), 2); // Milk
+	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(2), 1); // Garlic
+	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(3), 1); // Onion
+	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(4), 1); // Tomato
+	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(5), 1); // Chili
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(6), 1); // Salt
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(7), 10); // Pepper
 
@@ -241,9 +241,6 @@ void Game::Render()
 	this->renderer.Render(RenderData);
 	this->renderer.RenderPlayer(player);
 	this->renderer.RenderLight();
-
-	renderer.RenderText("abcaaaaaaaaaaaaaaaaaaaaaa", glm::vec3(1.0f, 0.0f, 0.0f), this->MousePos, 1.0f);
-
 }
 
 void Game::RenderUI()
@@ -256,8 +253,6 @@ float spawnerTime = 0;
 float z = 0;
 void Game::Update(float dt)
 {	
-
-	//Menu
 	if (this->Keys[GLFW_KEY_TAB])
 	{
 		if (this->State == GAME_ACTIVE)
@@ -439,7 +434,6 @@ void Game::ProcessInput(float dt)
 	Common::MousePlayerAngle = -atan2(this->MousePos.x - ScreenCenter.x, this->MousePos.y - ScreenCenter.y);
 }
 
-//POCISKI S¥ ZALE¯NE OD KLATEK, ogl kolizje s¹ (mo¿e dodanie dt do kalkulacji nowych pozycji cos zmieni)
 void Game::Collisions()
 {
 

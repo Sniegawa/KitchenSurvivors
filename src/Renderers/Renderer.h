@@ -27,7 +27,6 @@ public:
 
 private:
 	glm::vec2 PlayerPos;
-	void UpdateInstanceData(const std::vector<glm::mat4>& modelMatrices);
 	void DrawInstances(GLsizei instanceCount);
 	void Innit();
 	void InnitPlayerData();
@@ -72,6 +71,7 @@ private:
 	GLuint Lightmap = 0;
 	GLuint DownscaledLightmap = -1;
 
+	//Simple quad vertices
 	const float vertices[32] = {
 		// pos      // tex
 		0.0f, 1.0f, 0.0f, 1.0f,

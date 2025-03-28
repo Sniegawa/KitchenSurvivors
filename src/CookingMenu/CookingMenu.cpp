@@ -10,10 +10,12 @@
 #include "../ResourceHandlers/Texture.h"
 #include "../Objects/Player.h"
 
-CookingMenuInformations createCircleInformation(float innerRadius, float outerRadius, int edges)
+CookingMenuInfo createCircleInformation(float innerRadius, float outerRadius, int edges)
 {
-	CookingMenuInformations inf;
+	CookingMenuInfo inf;
 
+
+	//each quad has set of vertices
 	std::vector<std::vector<glm::vec2>> quads;
 
 	float angleStep = 2.0f * glm::pi<float>() / edges;
@@ -23,15 +25,15 @@ CookingMenuInformations createCircleInformation(float innerRadius, float outerRa
 		float angle1 = i * angleStep;
 		float angle2 = (i + 1) * angleStep;
 
+		//Calculate vertices
 		glm::vec2 inner1(innerRadius * cos(angle1), innerRadius * sin(angle1));
 		glm::vec2 inner2(innerRadius * cos(angle2), innerRadius * sin(angle2));
 		glm::vec2 outer1(outerRadius * cos(angle1), outerRadius * sin(angle1));
 		glm::vec2 outer2(outerRadius * cos(angle2), outerRadius * sin(angle2));
 
 		quads.push_back({ inner1,outer1,outer2,inner2 });
+		//Calculate slot geometrical center
 		glm::vec2 center = (inner1 + outer1 + outer2 + inner2) / 4.0f;
-
-
 
 		inf.slotCenters.push_back(center);
 	}
@@ -46,10 +48,7 @@ CookingMenuInformations createCircleInformation(float innerRadius, float outerRa
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	// Allocate buffer size (enough for all quads)
 	glBufferData(GL_ARRAY_BUFFER, edges * 4 * sizeof(glm::vec2), nullptr, GL_DYNAMIC_DRAW);
-
-	// Set vertex attribute pointers
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -79,6 +78,10 @@ void CookingMenu::ResetSlots()
 
 void CookingMenu::SelectHoveredSlot()
 {
+	//If hovered slot is empty simply do nothing
+	if (this->HoveredSlot.slotID == -1)
+		return;
+
 	//If hovered slot is already selected unselect
 	for (int i = 0; i < this->selectedSlots.size(); i++)
 	{
@@ -114,9 +117,8 @@ void CookingMenu::Cook()
 	//Maybe some feedback that recipe were wrong
 }
 
-Ingredient::Ingredient()
+Ingredient::Ingredient() : id(-1),sprite(nullptr)
 {
-
 }
 Ingredient::Ingredient(int _id, std::string _name, Texture2D* _sprite) : id(_id), name(_name), sprite(_sprite), description(std::string("")) {}
 
@@ -135,8 +137,6 @@ void CookingMenu::InnitIngredients()
 		{7,{7,"Pepper",&ResourceManager::GetTexture("pepper")}}
 	};
 }
-
-
 
 void CookingMenu::InnitRecipes()
 {

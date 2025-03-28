@@ -16,7 +16,7 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader,
 	this->PlayerProjectilesPtr = pprojptr;
 	this->xp = 0;
 	this->xpToLvl = Common::lvlmap[this->Level];
-	this->NormalMap = &ResourceManager::GetTexture("pizza_n");
+	this->NormalMap = &ResourceManager::GetTexture("pizza_n"); // TEMP
 
 }
 
@@ -30,7 +30,7 @@ void Player::TakeDamage(float amount)
 	{
 		this -> Alive = false;
 	}
-	this->InvulnerabilityCD = 0.1f;
+	this->InvulnerabilityCD = 0.1f; // Shouldn't be fixed amount
 }
 
 void Player::UpdateCooldowns(float dt)
@@ -55,7 +55,7 @@ void Player::UpdateCooldowns(float dt)
 
 void Player::GetXp(int type)
 {
-	return;// !!!!!!!!!!
+	return;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	/*
 	xp += type * this->stats.ExpirienceMultiplier;
 

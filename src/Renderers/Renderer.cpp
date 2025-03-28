@@ -22,23 +22,10 @@ void Renderer::RendererSetup()
 	this->PrepareLightmap();
 	this->InnitUIvao();
 	this->InnitLineVao();
-	
-
 }
 
 void Renderer::Innit()
 {
-	float vertices[] = {
-		// pos      // tex
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f
-	};
-
 	glBindVertexArray(0);
 	glGenVertexArrays(1, &this->VAO);
 	glBindVertexArray(this->VAO);
@@ -56,10 +43,11 @@ void Renderer::Innit()
 
 	glGenBuffers(1, &this->InstanceVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, this->InstanceVBO);
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) 
+	{
 		glEnableVertexAttribArray(2 + i);
 		glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4) * i));
-		glVertexAttribDivisor(2 + i, 1);  // Tell OpenGL this is per-instance data
+		glVertexAttribDivisor(2 + i, 1);  
 	}
 	glBindVertexArray(0);
 }
@@ -67,24 +55,27 @@ void Renderer::Innit()
 void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 {
     //glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
-	std::map<RenderLayer,std::map<Shader* ,std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
+
+	//Maybe use Structs for future refactor
+	std::map<RenderLayer, std::map<Shader*, std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
 	for (const auto& obj : gameObjects) {
 
 		glm::mat4 model = glm::mat4(1.0f);
-
-		//model = glm::translate(model, glm::vec3(obj->Position - this->PlayerPos, 0.0f));
+		//Position
 		model = glm::translate(model, glm::vec3(obj->Position, 0.0f));
 
 		//Rotation
 		model = glm::translate(model, glm::vec3(0.5f * obj->Size.x, 0.5f * obj->Size.y, 0.0f)); //We transform model to be centered at center of object
 		model = glm::rotate(model, obj->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
 		model = glm::translate(model, glm::vec3(-0.5f * obj->Size.x, -0.5f * obj->Size.y, 0.0f)); //transform model so it's center is back at top left corner
+		//Scale
 		model = glm::scale(model, glm::vec3(obj->Size, 1.0f));
 
-		RenderBatches[obj->GetRenderLayer()][obj->shader][obj->Sprite].push_back(model); //Wyszukujemy vector macierzy po kluczu i przypisujemy do niego nowa macierz
-		
+		RenderBatches[obj->GetRenderLayer()][obj->shader][obj->Sprite].push_back(model); //We search vector of matrices by all our parameters and add new matrice to it
+
 	}
 
+	//We want to render back to front based on below layer order
 	for (auto& layer : { RenderLayer::BACKGROUND, RenderLayer::PICKUPS, RenderLayer::PROJECTILES, RenderLayer::ENEMY, RenderLayer::PLAYER })
 	{
 		for (auto& Shaderbatch : RenderBatches[layer])
@@ -98,17 +89,14 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 				const auto& modelMatrices = renderBatch.second;
 				glActiveTexture(GL_TEXTURE3);
 				texture->Bind();
-				this->UpdateInstanceData(modelMatrices);
+				//Update instance data
+				glBindBuffer(GL_ARRAY_BUFFER, this->InstanceVBO);
+				glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), modelMatrices.data(), GL_DYNAMIC_DRAW);
 				this->DrawInstances(modelMatrices.size());
 			}
 		}
 	}
-}
-
-void Renderer::UpdateInstanceData(const std::vector<glm::mat4>& modelMatrices)
-{
-	glBindBuffer(GL_ARRAY_BUFFER, this->InstanceVBO);
-	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), modelMatrices.data(), GL_DYNAMIC_DRAW);
+	RenderBatches.clear();
 }
 
 void Renderer::DrawInstances(GLsizei instanceCount)
@@ -122,7 +110,6 @@ void Renderer::DrawInstances(GLsizei instanceCount)
 
 void Renderer::InnitPlayerData()
 {
-
 	glGenVertexArrays(1, &this->PlayerVAO);
 	glGenBuffers(1, &this->PlayerVBO);
 
@@ -145,14 +132,13 @@ void Renderer::RenderPlayer(Player* player)
 	//Position
 	model = glm::translate(model, glm::vec3(player->Position, 0.0f));
 	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * player->Size.x, 0.5f * player->Size.y, 0.0f)); //We transform model to be centered at center of object
-	model = glm::rotate(model, player->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
-	model = glm::translate(model, glm::vec3(-0.5f * player->Size.x, -0.5f * player->Size.y, 0.0f)); //transform model so it's center is back at top left corner
-
+	model = glm::translate(model, glm::vec3(0.5f * player->Size.x, 0.5f * player->Size.y, 0.0f));
+	model = glm::rotate(model, player->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); 
+	model = glm::translate(model, glm::vec3(-0.5f * player->Size.x, -0.5f * player->Size.y, 0.0f)); 
+	//Scale
 	model = glm::scale(model, glm::vec3(player->Size, 1.0f));
 
 	glm::mat4 invmodel = glm::mat4(1.0f);
-
 	invmodel = glm::inverse(model);
 	
 	playershader->SetMatrix4("model", model);
@@ -198,20 +184,21 @@ void Renderer::InnitBackgroundData()
 
 void Renderer::RenderBackground(GameObject* background)
 {
+	//As it's persumably first object to be drawn bind g buffer and clear everything
 	glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	Shader* backgroundShader = background->shader;
 	backgroundShader->Use();
 
 	glm::mat4 model = glm::mat4(1.0f);
 	//Position
-	//model = glm::translate(model, glm::vec3(background->Position - this->PlayerPos, 0.0f));
 	model = glm::translate(model, glm::vec3(background->Position, 0.0f));
 	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * background->Size.x, 0.5f * background->Size.y, 0.0f)); //We transform model to be centered at center of object
-	model = glm::rotate(model, background->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
-	model = glm::translate(model, glm::vec3(-0.5f * background->Size.x, -0.5f * background->Size.y, 0.0f)); //transform model so it's center is back at top left corner
-
+	model = glm::translate(model, glm::vec3(0.5f * background->Size.x, 0.5f * background->Size.y, 0.0f));
+	model = glm::rotate(model, background->Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(-0.5f * background->Size.x, -0.5f * background->Size.y, 0.0f)); 
+	//Scale
 	model = glm::scale(model, glm::vec3(background->Size, 1.0f));
 
 	backgroundShader->SetMatrix4("model", model);
@@ -231,7 +218,6 @@ void Renderer::InnitScreenGBuffer()
 	int SCR_WIDTH = Common::ScreenSize.x;
 	int SCR_HEIGHT = Common::ScreenSize.y;
 
-	
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
@@ -243,7 +229,7 @@ void Renderer::InnitScreenGBuffer()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gPosition, 0);
 
-	// Normal buffer (vec2)
+	// Normal buffer (vec3)
 	glGenTextures(1, &this->gNormal);
 	glBindTexture(GL_TEXTURE_2D, this->gNormal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
@@ -284,7 +270,6 @@ void Renderer::InnitScreenQuad()
 		1.0f, -1.0f,  1.0f, 0.0f,
 		1.0f,  1.0f,  1.0f, 1.0f
 	};
-
    
 	glGenVertexArrays(1, &ScreenQuadVAO);
 	glGenBuffers(1, &ScreenQuadVBO);
@@ -380,6 +365,7 @@ void Renderer::RenderLightmap()
 
 }
 
+//Implementation of downscaling texture using compute shaders, better to use buffers
 void Renderer::DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor)
 { 
 	int downscaledWidth = Common::ScreenSize.x / factor;
@@ -402,10 +388,8 @@ void Renderer::DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor)
 
 }
 
-
 void Renderer::InnitLineVao()
 {
-	
 	glGenVertexArrays(1, &LineVAO);
 	glGenBuffers(1, &LineVBO);
 
@@ -421,6 +405,7 @@ void Renderer::InnitLineVao()
 	glBindVertexArray(0);
 }
 
+//Doesn't work
 void Renderer::RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color = glm::vec4(1.0f))
 {
 	auto& shader = ResourceManager::GetShader("Line");
@@ -465,17 +450,18 @@ void Renderer::InnitUIvao()
 	glEnableVertexAttribArray(0);
 }
 
-//Renders given sprite based of given position
+//Renders given sprite based of given position purpose of this function is to render UI sprite elements
 void Renderer::RenderSprite(const Texture2D& sprite, glm::vec2 position, float rotation, glm::vec2 scale, glm::vec3 color)
 {
 	glm::mat4 model = glm::mat4(1.0f);
-
+	//Position
 	model = glm::translate(model, glm::vec3(position, 0.0f));
 	color = glm::vec3(1.0f);
 	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * sprite.Width, 0.5f * sprite.Height, 0.0f)); //We transform model to be centered at center of object
-	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
-	model = glm::translate(model, glm::vec3(-0.5f * sprite.Width, -0.5f * sprite.Height, 0.0f)); //transform model so it's center is back at top left corner
+	model = glm::translate(model, glm::vec3(0.5f * sprite.Width, 0.5f * sprite.Height, 0.0f));
+	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(-0.5f * sprite.Width, -0.5f * sprite.Height, 0.0f));
+	//Scale
 	model = glm::scale(model, glm::vec3(scale, 1.0f));
 
 	auto& shader = ResourceManager::GetShader("UI").Use();
@@ -493,20 +479,21 @@ void Renderer::RenderSprite(const Texture2D& sprite, glm::vec2 position, float r
 	glUseProgram(0);
 }
 
-float CalculateMouseAngle(glm::vec2 screenCenter, glm::vec2 mousePos)
+float CalculateMouseAngle(glm::vec2 mousePos)
 {
+	glm::vec2 screenCenter = Common::ScreenSize * 0.5f;
 	glm::vec2 delta = mousePos - screenCenter;
 
 	float angle = atan2(delta.y, delta.x);
 
 	if (angle < 0.0f)
 	{
-		angle += 2.0f * glm::pi<float>();
+		angle += 2.0f * glm::pi<float>(); //Loop angle to be positive
 	}
 
 	return angle;
 }
-
+//Calculate angle of next slot until we get slot index if somehow we can't find slot returns -1
 int DetermineHoveredSlot(float mouseAngle, int edges)
 {
 	float angleStep = 2.0f * glm::pi<float>() / edges;
@@ -524,16 +511,16 @@ int DetermineHoveredSlot(float mouseAngle, int edges)
 	return -1;
 }
 
-
 void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu) 
 {
-	CookingMenuInformations* info;
+	//We can have two different menu info struct so i just use pointer to that menu info
+	CookingMenuInfo* info;
 	auto& shader = ResourceManager::GetShader("CookingMenu");
 	shader.Use();
 	int slotAmount = (inv->inventorySize() >= 5 ? inv->inventorySize() : 5); //minimum 5 slots
-	const float centerX = Common::ScreenSize.x / 2;       // Center of the menu
-	const float centerY = Common::ScreenSize.y / 2;       // Center of the menu
-	const float angleStep = 360.0f / slotAmount; // Angle between slots, at least 5 slots
+	const float centerX = Common::ScreenSize.x / 2;
+	const float centerY = Common::ScreenSize.y / 2;
+	const float angleStep = 360.0f / slotAmount;
 
 
 	if (inv->inventorySize() <= 5)
@@ -546,35 +533,32 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 	}
 
 	//Currently hovered slot
-	int HoveredSlot = DetermineHoveredSlot(CalculateMouseAngle(Common::ScreenSize * 0.5f,*this->MousePos), slotAmount);
-	
+	int HoveredSlot = DetermineHoveredSlot(CalculateMouseAngle(*this->MousePos), slotAmount);
+	//We are looping using objects but need to keep track of current index
 	int slotIndex = 0;
 
 	for (const auto & [ingredient,quantity] : inv->stock)
 	{
 
-		if (quantity <= 0) continue; // Skip empty inventory slots
+		if (quantity <= 0) continue;
 		
-		// Update VBO with the current slot's quad vertices
+		//Update VBO with the current slot's quad vertices
 		glBindBuffer(GL_ARRAY_BUFFER, info->VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, info->quads[slotIndex].size() * sizeof(glm::vec2), info->quads[slotIndex].data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		// Set per-slot uniforms (e.g., color)
+		//Set per slot uniforms
 		glm::vec3 color = glm::vec3((float)slotIndex / info->quads.size(), 0.5f, 1.0f);
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::vec2 center = info->slotCenters[slotIndex];
 		if (slotIndex == HoveredSlot)
 		{
+			//Assign Hovered slot 
 			cookingMenu.HoveredSlot = Slot(slotIndex, ingredient->id);
-			
+			//Make hovered slot point out
 			color = glm::vec3(1.0f);
-			//model = glm::translate(model, glm::vec3(center,0.0f));
-			//model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
-			//model = glm::translate(model, glm::vec3(-center,0.0f));
-			//For now i surrender with scale
 		}
-
+		//Visuals for selected slots, maybe use another shader in future for effects
 		for (const auto& ss : cookingMenu.selectedSlots)
 		{
 			if (slotIndex == ss.slotID)
@@ -591,35 +575,25 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 		// Draw the quad
 		glBindVertexArray(info->VAO);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-		//std::cout << info.slots[slotIndex].angle1 << " : " << info.slots[slotIndex].angle2 << std::endl;
 		
-		// Render additional elements at the slot's center
+		//Render ingredient sprite at slot center
 		RenderSprite(*ingredient->sprite, center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
-
-		//When i get line rendering working i want to use it to draw small outline of selected slots for better clarity
 
 		slotIndex++;
 	}
-	//Ensure that we draw atleast 5 slots
+	//If we haven't drawn 5 slots draw empty ones it's pretty much same code as above but it just doesn't include slot variable stuff
 	if (slotIndex < 5)
 	{
 		while (slotIndex < 5)
 		{
-			//Same code as above, just without all 
-
 			glBindBuffer(GL_ARRAY_BUFFER, info->VBO);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, info->quads[slotIndex].size() * sizeof(glm::vec2), info->quads[slotIndex].data());
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glm::vec3 color = glm::vec3((float)slotIndex / info->quads.size(), 0.5f, 1.0f);
 			if (slotIndex == HoveredSlot)
 			{
-				//info->HoveredSlot = -1;
+				cookingMenu.HoveredSlot = Slot(-1, -1);
 				color = glm::vec3(1.0f);
-				//model = glm::translate(model, glm::vec3(center,0.0f));
-				//model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
-				//model = glm::translate(model, glm::vec3(-center,0.0f));
-				//For now i surrender with scale
 			}
 			shader.Use();
 			shader.SetUniform("center", glm::vec2(centerX, centerY));

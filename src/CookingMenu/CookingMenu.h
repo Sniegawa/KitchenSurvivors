@@ -20,7 +20,7 @@ struct Slot
 	Slot() {}
 };
 
-struct CookingMenuInformations
+struct CookingMenuInfo
 {
 	GLuint VAO = 0;
 	GLuint VBO = 0;
@@ -82,14 +82,14 @@ public:
 	void ResetSlots();
 	void SelectHoveredSlot();
 	void Cook();
-	CookingMenuInformations& GetCookingMenuInfo() { return this->m_currentMenuInfo; }
-	CookingMenuInformations& GetSmallestCookingMenu() { return this->m_smallestMenuInfo; }
+	CookingMenuInfo& GetCookingMenuInfo() { return this->m_currentMenuInfo; }
+	CookingMenuInfo& GetSmallestCookingMenu() { return this->m_smallestMenuInfo; }
 
 private:
 	void InnitIngredients();
 	void InnitRecipes();
 	void InnitEffects();
 	Player* m_player_ptr = nullptr;
-	CookingMenuInformations m_smallestMenuInfo;
-	CookingMenuInformations m_currentMenuInfo;
+	CookingMenuInfo m_smallestMenuInfo;
+	CookingMenuInfo m_currentMenuInfo;
 };
