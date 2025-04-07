@@ -5,8 +5,6 @@
 #include "../CookingMenu/CookingMenu.h"
 #include<memory>
 
-
-
 struct Inventory
 {
 	std::unordered_map<const Ingredient*, int> stock;
@@ -49,40 +47,43 @@ struct Inventory
 	}
 };
 
-
-
 class Weapon;
-
 
 class Player : public GameObject
 {
 public:
 	Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader, RenderLayer layer, std::vector<std::shared_ptr<Projectile>>* pprojptr, glm::vec3 color = glm::vec3(1.0f), float rotation = 0.0f);
 	~Player(){}
-	//glm::vec2* _pos;
 	void TakeDamage(float amount);
 	void UpdateCooldowns(float dt);
 	void GetXp(int type);
 	void AddEffect(Effect* effect, float Length);
 
 	Weapon* weapons[6];
+
 	PlayerStats stats;
 	
 	std::vector<Effect*> effects;
 
 	Inventory inventory;
 
-	Texture2D* NormalMap;
+	//Dunno if still neccesary
 	int Level = 0;
 	float LvlProgress = 0;
-	float Health = stats.MaxHealth;
 	bool Alive = true;
 	int Kills;
 
 	float xp;
 	float xpToLvl;
+
+	Texture2D* GetNormalMap() { return this->NormalMap; }
+
+	const float& GetHealth() const { return this->Health; }
+
 private:
 
+	float Health = stats.MaxHealth;
+	Texture2D* NormalMap;
 	float InvulnerabilityCD;
 	std::vector<std::shared_ptr<Projectile>>* PlayerProjectilesPtr; //Cursed
 };

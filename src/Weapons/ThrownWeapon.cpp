@@ -7,7 +7,7 @@ void CreateProjectile(std::string sprite,Player* p_player,float angleoffset = 0.
 	Texture2D knifetex = ResourceManager::GetTexture(sprite);
 	PlayerProjectiles.push_back(
 		std::make_shared<Projectile>(Projectile(
-			p_player->Position + p_player->Size * 0.5f ,
+			p_player->GetPosition() + p_player->GetSize() * 0.5f,
 			glm::vec2(knifetex.Width, knifetex.Height),
 			&ResourceManager::GetTexture(sprite),
 			ResourceManager::GetShaderPtr("instancedSprite"),

@@ -17,7 +17,7 @@ void Camera::Update(float dt)
 	this->m_playerFollower += dir * dt * m_followingScale * ((dist >= this->m_maxDist) ? 10.0f : 1.0f);
 
 	*/
-	glm::vec3 cameraPos = glm::vec3(this->m_playerPtr->Position - offset,0.0f);//glm::vec3(this->m_playerFollower, 0.0f);
+	glm::vec3 cameraPos = glm::vec3(this->m_playerPtr->GetPosition() - offset, 0.0f);//glm::vec3(this->m_playerFollower, 0.0f);
 
 	viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
@@ -28,7 +28,7 @@ void Camera::Update(float dt)
 void Camera::Setup(Player* player)
 {
 	this->m_playerPtr = player;
-	this->offset = (Common::ScreenSize / 2.0f) - (glm::vec2(player->Sprite->Width,player->Sprite->Height) * 0.75f);
+	this->offset = (Common::ScreenSize / 2.0f) - (glm::vec2(player->GetSprite()->Width, player->GetSprite()->Height) * 0.75f);
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Common::ScreenSize.x), static_cast<float>(Common::ScreenSize.y), 0.0f, -1.0f, 10.0f);
 
 	ResourceManager::GetShader("instancedSprite").SetUniform("projection", projection, true);
@@ -43,7 +43,7 @@ void Camera::Setup(Player* player)
 
 	ResourceManager::GetShader("Line").SetUniform("screenSize", Common::ScreenSize, true);
 
-	this->m_playerFollower = this->m_playerPtr->Position;
+	this->m_playerFollower = this->m_playerPtr->GetPosition();
 
 	glm::vec3 cameraPos = glm::vec3(this->m_playerFollower, 0.0f);
 

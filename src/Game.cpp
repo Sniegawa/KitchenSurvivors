@@ -217,7 +217,7 @@ void Game::Render()
 	{
 
 
-		if (glm::distance(player->Position, enemy->Position) > 800.0f)
+		if (glm::distance(player->GetPosition(), enemy->GetPosition()) > 800.0f)
 			continue;
 
 		RenderData.push_back(enemy.get());
@@ -226,14 +226,14 @@ void Game::Render()
 
 	for (const auto& expShard : expShards)
 	{
-		if (glm::distance(player->Position, expShard->Position) > 800.0f)
+		if (glm::distance(player->GetPosition(), expShard->GetPosition()) > 800.0f)
 			continue;
 		RenderData.push_back(expShard.get());
 	}
 
 	for (const auto& projectile : PlayerProjectiles)
 	{
-		if (glm::distance(player->Position, projectile->Position) > 800.0f)
+		if (glm::distance(player->GetPosition(), projectile->GetPosition()) > 800.0f)
 			continue;
 		RenderData.push_back(projectile.get());
 	}
@@ -318,7 +318,7 @@ void Game::Update(float dt)
 
 	for (int i = 0; i < enemies.size(); i++)
 	{
-		if (enemies[i]->isDead)
+		if (enemies[i]->isDead())
 		{
 
 			enemies.erase(enemies.begin() + i);
@@ -341,7 +341,7 @@ void Game::Update(float dt)
 
 	Common::debuginfo.Enemies = enemies.size();
 	Common::debuginfo.Projectiles = PlayerProjectiles.size();
-	Common::debuginfo.PlayerHealth = player->Health;
+	Common::debuginfo.PlayerHealth = player->GetHealth();
 	
 }
 
@@ -351,12 +351,6 @@ float pausecd;
 float selectcd;
 void Game::ProcessInput(float dt)
 {
-	if (this->Keys[GLFW_KEY_R])
-	{
-		player->Health = 100;
-		player->Alive = true;
-		this->State = GAME_ACTIVE;
-	}
 	pausecd -= dt;
 	temptime -= dt;
 	selectcd -= dt;
@@ -370,23 +364,25 @@ void Game::ProcessInput(float dt)
 	if (this->State == GAME_ACTIVE)
 	{
 		float velocity = player->stats.PlayerSpeed * dt;
-
+		glm::vec2 VectorToMove = glm::vec2(0.0f);
 		if (this->Keys[GLFW_KEY_A])
 		{
-			player->Position.x -= velocity;
+			VectorToMove.x -= velocity;
 		}
 		else if (this->Keys[GLFW_KEY_D])
 		{
-			player->Position.x += velocity;
+			VectorToMove.x += velocity;
 		}
 		if (this->Keys[GLFW_KEY_W])
 		{
-			player->Position.y -= velocity;
+			VectorToMove.y -= velocity;
 		}
 		else if (this->Keys[GLFW_KEY_S])
 		{
-			player->Position.y += velocity;
+			VectorToMove.y += velocity;
 		}
+
+		player->Move(VectorToMove);
 
 		if (isCooking)
 		{
@@ -457,7 +453,7 @@ void Game::Collisions()
 
 				enemy->TakeDamage(Damage);
 				projectile->Hit();
-				if (enemy->Health <= 0.0f)
+				if (enemy->GetHealth() <= 0.0f)
 				{
 					player->Kills++;
 					Spawnxp(enemy.get());
@@ -510,7 +506,7 @@ void Game::RenderDebug()
 	ImGui::Text("Enemies : %i", Common::debuginfo.Enemies);
 	ImGui::Text("CollisionChecks : %i", Common::debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
-	ImGui::Text("Position : %f %f", player->Position.x, player->Position.y);
+	ImGui::Text("Position : %f %f", player->GetPosition().x, player->GetPosition().y);
 	ImGui::Spacing();
 	ImGui::Text("Level %i", player->Level);
 	ImGui::Text("xp %f/%f",player->xp,player->xpToLvl);
@@ -595,8 +591,14 @@ void Game::RenderLevelUp()
 
 bool CheckCollision(GameObject& one, GameObject& two)
 {
-	bool axisX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
-	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
+	glm::vec2 onePos = one.GetPosition();
+	glm::vec2 twoPos = two.GetPosition();
+
+	glm::vec2 oneSize = one.GetSize();
+	glm::vec2 twosize = two.GetSize();
+
+	bool axisX = onePos.x + oneSize.x >= twoPos.x && twoPos.x + twosize.x >= onePos.x;
+	bool axisY = onePos.y + oneSize.y >= twoPos.y && twoPos.y + twosize.y >= onePos.y;
 	
 	return axisX && axisY;
 }
@@ -604,8 +606,15 @@ bool CheckCollision(GameObject& one, GameObject& two)
 bool Game::CheckCollisionWithPlayer(GameObject& one)
 {
 	GameObject two = *player;
-	bool axisX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
-	bool axisY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
+
+	glm::vec2 onePos = one.GetPosition();
+	glm::vec2 twoPos = two.GetPosition();
+
+	glm::vec2 oneSize = one.GetSize();
+	glm::vec2 twosize = two.GetSize();
+
+	bool axisX = onePos.x + oneSize.x >= twoPos.x && twoPos.x + twosize.x >= onePos.x;
+	bool axisY = onePos.y + oneSize.y >= twoPos.y && twoPos.y + twosize.y >= onePos.y;
 
 	return axisX && axisY;
 }
@@ -617,7 +626,7 @@ void Spawnxp(GameObject* enemy)
 		expShards.push_back
 		(
 			std::make_shared<GameObject>(GameObject(
-				enemy->Position,
+				enemy->GetPosition(),
 				glm::vec2(32.0f, 32.0f),
 				0.0f,
 				&ResourceManager::GetTexture("tomato"),

@@ -15,4 +15,4 @@ Engine
 -Migrate Text rendering into Renderer class							? (Rewrite of text rendering needed)
 
 Good practices
--maintain good practices in oop, getters setters and so on
+-maintain good practices in oop, getters setters and so on			x

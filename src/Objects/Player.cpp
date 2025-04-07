@@ -1,14 +1,9 @@
 #include "Player.h"
 
 Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader, RenderLayer layer, std::vector<std::shared_ptr<Projectile>>* pprojptr, glm::vec3 color, float rotation)
+	: GameObject(pos, size, rotation, sprite, shader, layer, color)
 {
-	this->Position = pos;
-	this->Size = size;
-	this->Sprite = sprite;
 	this->SetRenderLayer(layer);
-	this->shader = shader;
-	this->Color = color;
-	this->Rotation = rotation;
 	this->Kills = 0;
 	this->Level = 1;
 	this->InvulnerabilityCD = 0.0f;

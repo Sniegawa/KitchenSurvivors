@@ -25,7 +25,7 @@ void OrbitWeapon::Shoot()
 	int k = 0;
 	int n = this->p_Stats->projectileCount + this->AdditionalProjectiles;
 	int r = 100;
-	glm::vec2 playerpos = p_Player->Position + p_Player->Size * 0.5f;
+	glm::vec2 playerpos = p_Player->GetPosition() + p_Player->GetSize() * 0.5f;
 	for (; k < n; k++)
 	{
 		float tk = (2 * glm::pi<float>() * k) / n;
@@ -57,7 +57,7 @@ void OrbitWeapon::Shoot()
 
 void OrbitWeapon::Update(float dt)
 {	
-	glm::vec2 playerpos = p_Player->Position + p_Player->Size * 0.5f;// -glm::vec2(8, 8);
+	glm::vec2 playerpos = p_Player->GetPosition() + p_Player->GetSize() * 0.5f;// -glm::vec2(8, 8);
 	//Calling base class Update method
 	Weapon::Update(dt);
 
@@ -79,8 +79,8 @@ void OrbitWeapon::Update(float dt)
 			float lt = p->lifetime;
 			float tk = 2 * glm::pi<float>() * k / n;
 			float rotation = -atan2(cos(tk-lt), sin(tk-lt)) + glm::pi<float>() / 2;
-			p->Position = glm::vec2(cos(tk - lt) * r, r * sin(tk - lt)) + playerpos;
-			p->Rotation = rotation;
+			p->SetPosition(glm::vec2(cos(tk - lt) * r, r * sin(tk - lt)) + playerpos);
+			p->SetRotation(rotation);
 			k++;
 		}
 	}

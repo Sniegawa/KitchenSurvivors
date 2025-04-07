@@ -11,11 +11,11 @@ void E_DoubleTrouble::Start()
 {
 	Effect::Start();
 	this->m_playerptr->stats.AttackSpeed += 1.0f;
-	this->m_playerptr->Color = glm::vec3(1.0f, 0.0f, 0.0f);
+	this->m_playerptr->SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 void E_DoubleTrouble::End()
 {
 	this->m_playerptr->stats.AttackSpeed -= 1.0f;
-	this->m_playerptr->Color = glm::vec3(1.0f, 1.0f, 1.0f);
+	this->m_playerptr->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
 }

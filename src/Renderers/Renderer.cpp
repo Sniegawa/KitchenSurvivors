@@ -62,16 +62,16 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 
 		glm::mat4 model = glm::mat4(1.0f);
 		//Position
-		model = glm::translate(model, glm::vec3(obj->Position, 0.0f));
+		model = glm::translate(model, glm::vec3(obj->GetPosition(), 0.0f));
 
 		//Rotation
-		model = glm::translate(model, glm::vec3(0.5f * obj->Size.x, 0.5f * obj->Size.y, 0.0f)); //We transform model to be centered at center of object
-		model = glm::rotate(model, obj->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
-		model = glm::translate(model, glm::vec3(-0.5f * obj->Size.x, -0.5f * obj->Size.y, 0.0f)); //transform model so it's center is back at top left corner
+		model = glm::translate(model, glm::vec3(0.5f * obj->GetSize().x, 0.5f * obj->GetSize().y, 0.0f)); //We transform model to be centered at center of object
+		model = glm::rotate(model, obj->GetRotation(), glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
+		model = glm::translate(model, glm::vec3(-0.5f * obj->GetSize().x, -0.5f * obj->GetSize().y, 0.0f)); //transform model so it's center is back at top left corner
 		//Scale
-		model = glm::scale(model, glm::vec3(obj->Size, 1.0f));
+		model = glm::scale(model, glm::vec3(obj->GetSize(), 1.0f));
 
-		RenderBatches[obj->GetRenderLayer()][obj->shader][obj->Sprite].push_back(model); //We search vector of matrices by all our parameters and add new matrice to it
+		RenderBatches[obj->GetRenderLayer()][obj->GetShader()][obj->GetSprite()].push_back(model); //We search vector of matrices by all our parameters and add new matrice to it
 
 	}
 
@@ -125,31 +125,32 @@ void Renderer::InnitPlayerData()
 
 void Renderer::RenderPlayer(Player* player)
 {
-	Shader* playershader = player->shader;
+	Shader* playershader = player->GetShader();
 	playershader->Use();
 
 	glm::mat4 model = glm::mat4(1.0f);
+	glm::vec2 PlayerSize = player->GetSize();
 	//Position
-	model = glm::translate(model, glm::vec3(player->Position, 0.0f));
+	model = glm::translate(model, glm::vec3(player->GetPosition(), 0.0f));
 	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * player->Size.x, 0.5f * player->Size.y, 0.0f));
-	model = glm::rotate(model, player->Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); 
-	model = glm::translate(model, glm::vec3(-0.5f * player->Size.x, -0.5f * player->Size.y, 0.0f)); 
+	model = glm::translate(model, glm::vec3(0.5f * PlayerSize.x, 0.5f * PlayerSize.y, 0.0f));
+	model = glm::rotate(model, player->GetRotation(), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(-0.5f * PlayerSize.x, -0.5f * PlayerSize.y, 0.0f));
 	//Scale
-	model = glm::scale(model, glm::vec3(player->Size, 1.0f));
+	model = glm::scale(model, glm::vec3(PlayerSize, 1.0f));
 
 	glm::mat4 invmodel = glm::mat4(1.0f);
 	invmodel = glm::inverse(model);
 	
 	playershader->SetMatrix4("model", model);
 	playershader->SetMatrix4("InverseModel", invmodel);
-	playershader->SetVector3f("spriteColor", player->Color);
+	playershader->SetVector3f("spriteColor", player->GetColor());
 	glActiveTexture(GL_TEXTURE4);
-	player->NormalMap->Bind();
+	player->GetNormalMap()->Bind();
 	playershader->SetInteger("NormalMap", 4);
 	glActiveTexture(GL_TEXTURE3);
 	playershader->SetInteger("image", 3);
-	player->Sprite->Bind();
+	player->GetSprite()->Bind();
 
 	glBindVertexArray(this->PlayerVAO);
 	Common::debuginfo.DrawCalls++;
@@ -188,24 +189,26 @@ void Renderer::RenderBackground(GameObject* background)
 	glBindFramebuffer(GL_FRAMEBUFFER, this->gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Shader* backgroundShader = background->shader;
+	Shader* backgroundShader = background->GetShader();
 	backgroundShader->Use();
+
+	glm::vec2 BackgroundSize = background->GetSize();
 
 	glm::mat4 model = glm::mat4(1.0f);
 	//Position
-	model = glm::translate(model, glm::vec3(background->Position, 0.0f));
+	model = glm::translate(model, glm::vec3(background->GetPosition(), 0.0f));
 	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * background->Size.x, 0.5f * background->Size.y, 0.0f));
-	model = glm::rotate(model, background->Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::translate(model, glm::vec3(-0.5f * background->Size.x, -0.5f * background->Size.y, 0.0f)); 
+	model = glm::translate(model, glm::vec3(0.5f * BackgroundSize.x, 0.5f * BackgroundSize.y, 0.0f));
+	model = glm::rotate(model, background->GetRotation(), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(-0.5f * BackgroundSize.x, -0.5f * BackgroundSize.y, 0.0f));
 	//Scale
-	model = glm::scale(model, glm::vec3(background->Size, 1.0f));
+	model = glm::scale(model, glm::vec3(BackgroundSize, 1.0f));
 
 	backgroundShader->SetMatrix4("model", model);
-	backgroundShader->SetVector3f("spriteColor", background->Color);
+	backgroundShader->SetVector3f("spriteColor", background->GetColor());
 	glActiveTexture(GL_TEXTURE3);
 	backgroundShader->SetInteger("image", 3);
-	background->Sprite->Bind();
+	background->GetSprite()->Bind();
 
 	glBindVertexArray(this->BackgroundVAO);
 	Common::debuginfo.DrawCalls++;
@@ -578,6 +581,8 @@ void Renderer::RenderCookingMenu(Inventory* inv, CookingMenu& cookingMenu)
 		
 		//Render ingredient sprite at slot center
 		RenderSprite(*ingredient->sprite, center + glm::vec2(centerX, centerY), 0.0f, glm::vec2(32.0f));
+
+		//TODO Render outline of the slot
 
 		slotIndex++;
 	}
