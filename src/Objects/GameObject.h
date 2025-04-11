@@ -45,6 +45,7 @@ public:
 	Shader* GetShader()  { return this->m_shader; }
 	void SetShader(Shader* shader) { this->m_shader = shader; }
 
+	glm::mat4 CalculateModelMatrix();
 
 protected:
 	glm::vec2 m_Position;

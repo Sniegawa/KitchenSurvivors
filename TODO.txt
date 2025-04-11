@@ -4,15 +4,29 @@ COOKING MECHANIC
 -Buffs system														x
 -Fill content 
 
+ENEMY SPAWN
+-Figure out how to spawn enemies, ror2 director system seems fun
+-Enemy Spawn manager class
+
 
 CLARITY
 -Damage numbers
 -Ingredient count in cooking menu
--Selecting recipe shows it's icon/name/buff desc
+-Selecting recipe shows its icon/name/buff desc
 
 
 Engine
 -Migrate Text rendering into Renderer class							? (Rewrite of text rendering needed)
+-another rewrite of Renderer, i would like to use RenderCommands instead of just passing a vector of objects
 
 Good practices
--maintain good practices in oop, getters setters and so on			x
+-maintain good practices of oop, getters setters and so on			x
+
+
+MAKE SPRITES FOR F SAKE
+MAKE SPRITES FOR F SAKE
+MAKE SPRITES FOR F SAKE
+MAKE SPRITES FOR F SAKE
+MAKE SPRITES FOR F SAKE
+MAKE SPRITES FOR F SAKE
+MAKE SPRITES FOR F SAKE

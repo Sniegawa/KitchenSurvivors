@@ -58,21 +58,12 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 
 	//Maybe use Structs for future refactor
 	std::map<RenderLayer, std::map<Shader*, std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
-	for (const auto& obj : gameObjects) {
-
-		glm::mat4 model = glm::mat4(1.0f);
-		//Position
-		model = glm::translate(model, glm::vec3(obj->GetPosition(), 0.0f));
-
-		//Rotation
-		model = glm::translate(model, glm::vec3(0.5f * obj->GetSize().x, 0.5f * obj->GetSize().y, 0.0f)); //We transform model to be centered at center of object
-		model = glm::rotate(model, obj->GetRotation(), glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
-		model = glm::translate(model, glm::vec3(-0.5f * obj->GetSize().x, -0.5f * obj->GetSize().y, 0.0f)); //transform model so it's center is back at top left corner
-		//Scale
-		model = glm::scale(model, glm::vec3(obj->GetSize(), 1.0f));
-
-		RenderBatches[obj->GetRenderLayer()][obj->GetShader()][obj->GetSprite()].push_back(model); //We search vector of matrices by all our parameters and add new matrice to it
-
+	for (const auto& obj : gameObjects) 
+	{
+		// !!! Don't just genreate ModelMatrix each frame, if object is not movable i can just get it's model matrix without regenerating it !!!
+		
+		//We search vector of matrices by all our parameters and add new matrice to it
+		RenderBatches[obj->GetRenderLayer()][obj->GetShader()][obj->GetSprite()].push_back(obj->CalculateModelMatrix()); 
 	}
 
 	//We want to render back to front based on below layer order
@@ -128,16 +119,7 @@ void Renderer::RenderPlayer(Player* player)
 	Shader* playershader = player->GetShader();
 	playershader->Use();
 
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::vec2 PlayerSize = player->GetSize();
-	//Position
-	model = glm::translate(model, glm::vec3(player->GetPosition(), 0.0f));
-	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * PlayerSize.x, 0.5f * PlayerSize.y, 0.0f));
-	model = glm::rotate(model, player->GetRotation(), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::translate(model, glm::vec3(-0.5f * PlayerSize.x, -0.5f * PlayerSize.y, 0.0f));
-	//Scale
-	model = glm::scale(model, glm::vec3(PlayerSize, 1.0f));
+	glm::mat4 model = player->CalculateModelMatrix();
 
 	glm::mat4 invmodel = glm::mat4(1.0f);
 	invmodel = glm::inverse(model);
@@ -192,17 +174,7 @@ void Renderer::RenderBackground(GameObject* background)
 	Shader* backgroundShader = background->GetShader();
 	backgroundShader->Use();
 
-	glm::vec2 BackgroundSize = background->GetSize();
-
-	glm::mat4 model = glm::mat4(1.0f);
-	//Position
-	model = glm::translate(model, glm::vec3(background->GetPosition(), 0.0f));
-	//Rotation
-	model = glm::translate(model, glm::vec3(0.5f * BackgroundSize.x, 0.5f * BackgroundSize.y, 0.0f));
-	model = glm::rotate(model, background->GetRotation(), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::translate(model, glm::vec3(-0.5f * BackgroundSize.x, -0.5f * BackgroundSize.y, 0.0f));
-	//Scale
-	model = glm::scale(model, glm::vec3(BackgroundSize, 1.0f));
+	glm::mat4 model = background->CalculateModelMatrix();
 
 	backgroundShader->SetMatrix4("model", model);
 	backgroundShader->SetVector3f("spriteColor", background->GetColor());

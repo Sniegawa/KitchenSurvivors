@@ -11,3 +11,19 @@ void GameObject::SetRenderLayer(RenderLayer layer)
 {
 	this->m_renderLayer = layer;
 }
+
+glm::mat4 GameObject::CalculateModelMatrix()
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	//Position
+	model = glm::translate(model, glm::vec3(this->m_Position, 0.0f));
+
+	//Rotation
+	model = glm::translate(model, glm::vec3(0.5f * this->m_Size.x, 0.5f * this->m_Size.y, 0.0f)); //We transform model to be centered at center of object
+	model = glm::rotate(model, this->m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f)); //Rotate
+	model = glm::translate(model, glm::vec3(-0.5f * this->m_Size.x, -0.5f * this->m_Size.y, 0.0f)); //transform model so it's center is back at top left corner
+	//Scale
+	model = glm::scale(model, glm::vec3(this->m_Size, 1.0f));
+
+	return model;
+}
