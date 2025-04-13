@@ -60,7 +60,6 @@ void Renderer::Render(const std::vector<GameObject*>& gameObjects)
 	std::map<RenderLayer, std::map<Shader*, std::map<Texture2D*, std::vector<glm::mat4>>>> RenderBatches;
 	for (const auto& obj : gameObjects) 
 	{
-		// !!! Don't just genreate ModelMatrix each frame, if object is not movable i can just get it's model matrix without regenerating it !!!
 		
 		//We search vector of matrices by all our parameters and add new matrice to it
 		RenderBatches[obj->GetRenderLayer()][obj->GetShader()][obj->GetSprite()].push_back(obj->CalculateModelMatrix()); 
