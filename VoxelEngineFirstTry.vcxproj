@@ -169,6 +169,7 @@
     <ClCompile Include="src\ResourceHandlers\ResourceManager.cpp" />
     <ClCompile Include="src\ResourceHandlers\ShaderLoader.cpp" />
     <ClCompile Include="src\ResourceHandlers\Texture.cpp" />
+    <ClCompile Include="src\Systems\Directors\Director.cpp" />
     <ClCompile Include="src\Weapons\ThrownWeapon.cpp" />
     <ClCompile Include="src\Weapons\OrbitWeapon.cpp" />
     <ClCompile Include="src\Weapons\Weapon.cpp" />

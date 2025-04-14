@@ -6,7 +6,8 @@
 #include "Objects/Player.h"
 #include "Renderers/Camera.h"
 
-enum GameState {
+enum GameState 
+{
 	GAME_ACTIVE,
 	GAME_MENU,
 	GAME_WIN,
@@ -44,4 +45,8 @@ private:
 	void LoadTextures();
 	void LoadShaders();
 	bool CheckCollisionWithPlayer(GameObject& one);
+
+	unsigned int seed;
+
+	std::vector<std::shared_ptr<Enemy>> enemies;
 };

@@ -32,7 +32,11 @@ void Spawnxp(GameObject* enemy);
 bool MouseInRange(glm::vec2 MousePos, glm::vec2 start, glm::vec2 end);
 
 Game::Game(unsigned int width, unsigned int height)
-	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0),camera(new Camera()){}
+	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0),
+	camera(new Camera()),
+	seed(12345),
+	director(new Director(&this->seed))
+{}
 
 //DEBUG
 static glm::vec4 randColor()
@@ -52,7 +56,7 @@ GameObject* background;
 
 std::vector<pointLight> lights;
 
-std::vector<std::shared_ptr<Enemy>> enemies;
+
 
 extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
@@ -62,6 +66,7 @@ Game::~Game()
 {
 	delete player;
 	delete camera;
+	delete director;
 }
 
 ImGuiWindowFlags flags = 0;
@@ -84,7 +89,6 @@ void Game::LoadTextures()
 	ResourceManager::LoadTexture("src/Textures/Tomato.png", true, "tomato");
 	ResourceManager::LoadTexture("src/Textures/Salt.png", true, "salt");
 	ResourceManager::LoadTexture("src/Textures/Pepper.png", true, "pepper");
-
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
 
 }
@@ -145,8 +149,6 @@ void Game::Init()
 	player->weapons[0] = new ThrownWeapon("fork","Fork","Throw a fork at enemy", &player->stats, player, 1.0f);
 	player->weapons[1] = new OrbitWeapon("knife", "Orbit", &player->stats, player,5.0f);
 	lastlvl = player->Level;
-	
-
 
 	srand(time(0));
 	for (int i = 0; i < 100; i++)
@@ -178,18 +180,6 @@ void Game::Init()
 	}
 	lights[0].coords.x = 4;
 	lights[0].coords.y = 4;
-	expShards.push_back
-	(
-		std::make_shared<GameObject>(GameObject(
-			glm::vec2(2.0f,2.0f),
-			glm::vec2(32.0f, 32.0f),
-			0.0f,
-			&ResourceManager::GetTexture("tomato"),
-			ResourceManager::GetShaderPtr("instancedSprite"),
-			PICKUPS
-
-		))
-	);
 
 	ResourceManager::GetShader("light").Use();
 
@@ -250,7 +240,6 @@ void Game::RenderUI()
 }
 
 float spawnerTime = 0;
-float z = 0;
 void Game::Update(float dt)
 {	
 	if (this->Keys[GLFW_KEY_TAB])
@@ -335,7 +324,6 @@ void Game::Update(float dt)
 		this->cookingMenu.UpdateCookingMenu();
 		player->inventory.ChangedState = false;
 	}
-	z += dt;
 	
 	this->camera->Update(dt);
 
