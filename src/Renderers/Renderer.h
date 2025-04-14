@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Objects/Player.h"
-#include "../Common.h"
-#include "../ResourceHandlers/ResourceManager.h"
+#include "Objects/Player.h"
+#include "Common.h"
+#include "ResourceHandlers/ResourceManager.h"
 
 class Renderer {
 public:
@@ -11,7 +11,6 @@ public:
 	void RenderPlayer(Player* player);
 	void RenderBackground(GameObject* background);
 	Renderer();
-	void UpdatePlayerPos(glm::vec2 playerPos);
 	void RendererSetup();
 
 	void RenderLine(glm::vec2 p1, glm::vec2 p2, glm::vec4 color);
@@ -26,8 +25,10 @@ public:
 	glm::vec2* MousePos;
 
 private:
-	glm::vec2 PlayerPos;
+	//glm::vec2 PlayerPos;
+	
 	void DrawInstances(GLsizei instanceCount);
+
 	void Innit();
 	void InnitPlayerData();
 	void InnitBackgroundData();
@@ -40,7 +41,6 @@ private:
 	void DownscaleTexture(GLuint inputTex, GLuint outputTex, int factor);
 
 	unsigned int gBuffer = 0;
-
 	unsigned int gPosition = 0;
 	unsigned int gNormal = 0;
 	unsigned int gAlbedo = 0;

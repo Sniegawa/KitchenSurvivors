@@ -7,8 +7,8 @@
 #include <gtc/matrix_transform.hpp>
 #include <vector>
 
-#include "../ResourceHandlers/Texture.h"
-#include "../Objects/Player.h"
+#include "ResourceHandlers/Texture.h"
+#include "Objects/Player.h"
 
 CookingMenuInfo createCircleInformation(float innerRadius, float outerRadius, int edges)
 {

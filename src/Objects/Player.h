@@ -2,7 +2,7 @@
 #include "GameObject.h"
 #include "Projectile.h"
 #include "../Common.h"
-#include "../CookingMenu/CookingMenu.h"
+#include "../Systems/CookingMenu/CookingMenu.h"
 #include<memory>
 
 struct Inventory

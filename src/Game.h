@@ -1,9 +1,11 @@
 #pragma once
 #include <glm.hpp>
 #include "Renderers/Renderer.h"
-#include "CookingMenu/CookingMenu.h"
+#include "Systems/CookingMenu/CookingMenu.h"
+#include "Systems/Directors/Director.h"
 #include "Objects/Player.h"
 #include "Renderers/Camera.h"
+
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
@@ -22,6 +24,7 @@ public:
 	bool isCooking = false;
 	Player* player;
 	Camera* camera;
+	Director* director;
 
 	glm::vec2 MousePos;
 	unsigned int Width, Height;//Useless

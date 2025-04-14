@@ -11,7 +11,7 @@
 #include <algorithm>
 
 #include "ResourceHandlers/ResourceManager.h"
-#include "CookingMenu/CookingMenu.h"
+#include "Systems/CookingMenu/CookingMenu.h"
 
 #include "Renderers/Renderer.h"
 

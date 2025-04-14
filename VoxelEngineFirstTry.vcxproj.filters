@@ -107,10 +107,10 @@
     <ClCompile Include="src\Renderers\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CookingMenu\CookingMenu.cpp">
+    <ClCompile Include="src\Systems\CookingMenu\CookingMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CookingMenu\Effects\DoubleTroubleEffect.cpp">
+    <ClCompile Include="src\Systems\CookingMenu\Effects\DoubleTroubleEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderers\Camera.cpp">
@@ -187,19 +187,22 @@
     <ClInclude Include="src\Renderers\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CookingMenu\Effects\Effect.h">
+    <ClInclude Include="src\Systems\CookingMenu\Effects\Effect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CookingMenu\Effects\DoubleTroubleEffect.h">
+    <ClInclude Include="src\Systems\CookingMenu\Effects\DoubleTroubleEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CookingMenu\CookingMenu.h">
+    <ClInclude Include="src\Systems\CookingMenu\CookingMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CookingMenu\Effects\EffectsInclude.h">
+    <ClInclude Include="src\Systems\CookingMenu\Effects\EffectsInclude.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderers\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\Directors\Director.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

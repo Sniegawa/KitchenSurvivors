@@ -1,6 +1,6 @@
 #include "DoubleTroubleEffect.h"
 
-#include "../../Objects/Player.h"
+#include "Objects/Player.h"
 
 void E_DoubleTrouble::Tick(float dt)
 {

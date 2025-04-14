@@ -3,8 +3,8 @@
 #include <GL/glew.h>
 #include <glm.hpp>
 
-#include "../ResourceHandlers/Texture.h"
-#include "../ResourceHandlers/ShaderLoader.h"
+#include "ResourceHandlers/Texture.h"
+#include "ResourceHandlers/ShaderLoader.h"
 enum RenderLayer {
 	BACKGROUND,
 	ENEMY,

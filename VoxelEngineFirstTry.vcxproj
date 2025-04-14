@@ -116,7 +116,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\libs\freetype-git\freetype-windows-binaries\include;$(ProjectDir)\libs\glew-2.2.0-win32\glew-2.2.0\include;$(ProjectDir)\libs\glm\glm;$(ProjectDir)\libs\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src;$(ProjectDir)\libs\freetype-git\freetype-windows-binaries\include;$(ProjectDir)\libs\glew-2.2.0-win32\glew-2.2.0\include;$(ProjectDir)\libs\glm\glm;$(ProjectDir)\libs\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,8 +149,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Common.cpp" />
-    <ClCompile Include="src\CookingMenu\CookingMenu.cpp" />
-    <ClCompile Include="src\CookingMenu\Effects\DoubleTroubleEffect.cpp" />
+    <ClCompile Include="src\Systems\CookingMenu\CookingMenu.cpp" />
+    <ClCompile Include="src\Systems\CookingMenu\Effects\DoubleTroubleEffect.cpp" />
     <ClCompile Include="src\Objects\Enemy.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Objects\GameObject.cpp" />
@@ -175,10 +175,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common.h" />
-    <ClInclude Include="src\CookingMenu\CookingMenu.h" />
-    <ClInclude Include="src\CookingMenu\Effects\DoubleTroubleEffect.h" />
-    <ClInclude Include="src\CookingMenu\Effects\Effect.h" />
-    <ClInclude Include="src\CookingMenu\Effects\EffectsInclude.h" />
+    <ClInclude Include="src\Systems\CookingMenu\CookingMenu.h" />
+    <ClInclude Include="src\Systems\CookingMenu\Effects\DoubleTroubleEffect.h" />
+    <ClInclude Include="src\Systems\CookingMenu\Effects\Effect.h" />
+    <ClInclude Include="src\Systems\CookingMenu\Effects\EffectsInclude.h" />
     <ClInclude Include="src\Objects\Enemy.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Objects\GameObject.h" />
@@ -199,6 +199,7 @@
     <ClInclude Include="src\ResourceHandlers\ShaderLoader.h" />
     <ClInclude Include="src\ResourceHandlers\stb_image.h" />
     <ClInclude Include="src\ResourceHandlers\Texture.h" />
+    <ClInclude Include="src\Systems\Directors\Director.h" />
     <ClInclude Include="src\Weapons\ThrownWeapon.h" />
     <ClInclude Include="src\Weapons\OrbitWeapon.h" />
     <ClInclude Include="src\Weapons\Weapon.h" />

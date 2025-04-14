@@ -5,11 +5,6 @@
 #include <glm.hpp>
 #include <vector>
 
-void Renderer::UpdatePlayerPos(glm::vec2 playerPos)
-{
-	this->PlayerPos = playerPos;
-}
-
 Renderer::Renderer() {}
 
 void Renderer::RendererSetup()
@@ -292,7 +287,7 @@ void Renderer::RenderLight()
 	shader.SetInteger("pixelSize", this->pixelSize);
 	shader.SetInteger("LightPixelize", this->LightPixelize);
 	shader.SetInteger("RenderMode", this->RenderMode);
-	shader.SetVector2f("PlayerPosition", this->PlayerPos);
+	//shader.SetVector2f("PlayerPosition", this->PlayerPos);
 	glBindVertexArray(ScreenQuadVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
@@ -321,7 +316,7 @@ void Renderer::RenderLightmap()
 	shader.Use();
 	glBindImageTexture(0, this->Lightmap, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	shader.SetUniform("ScreenSize", Common::ScreenSize);
-	shader.SetUniform("PlayerPosition", this->PlayerPos);
+	//shader.SetUniform("PlayerPosition", this->PlayerPos);
 	glDispatchCompute(Common::ScreenSize.x / 16 + 1, Common::ScreenSize.y / 16 + 1, 1);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 	/*
