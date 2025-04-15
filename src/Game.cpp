@@ -298,6 +298,7 @@ void Game::Update(float dt)
 	for (auto enemy : enemies)
 	{
 		enemy->Update(dt);
+		enemy->NavigateToPlayer(player, dt);
 	}
 
 	for (int i = 0; i < enemies.size(); i++)

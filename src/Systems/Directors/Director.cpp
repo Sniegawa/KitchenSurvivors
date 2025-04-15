@@ -10,12 +10,17 @@
 //Some clever usage of modern c++ need to study it some more
 //std::function to store it as lambda in SpawnCard
 template <typename T>
-std::function<std::shared_ptr<Enemy>(const glm::vec2&)> createEnemyFactory()
+std::function<std::shared_ptr<Enemy>(const glm::vec2&, const EnemyInformation& info)> createEnemyFactory()
 {
-	return [](const glm::vec2& pos) -> std::shared_ptr<Enemy>
+	return [](const glm::vec2& pos, const EnemyInformation& info) -> std::shared_ptr<Enemy>
 		{
-			std::shared_ptr<T> enemy = std::make_shared<T>();
-			enemy->SetPosition(pos);
+			std::shared_ptr<T> enemy = std::make_shared<T>(
+				pos,
+				info.size,
+				&ResourceManager::GetTexture(info.sprite),
+				ResourceManager::GetShaderPtr(info.shader),
+				RenderLayer::ENEMY,
+				info.Health);
 			return enemy;
 		};
 }
@@ -29,7 +34,7 @@ Director::Director(unsigned int* _seed, DifficultyManager** _diffManager, std::v
 
 	m_SpawnCards =
 	{
-		{10,25,createEnemyFactory<Enemy>(),{glm::vec2(15.0f),}}
+		{10,25,createEnemyFactory<Enemy>(),{glm::vec2(15.0f),"pizza","instancedSprite",100}}
 	};
 
 	m_credits = 400;
@@ -79,7 +84,7 @@ bool Director::Spawn()
 	{
 		while (m_credits >= cardToSpawn->Cost)
 		{
-			m_enemyVector_ptr->push_back(cardToSpawn->createEnemy(glm::vec2(1.0f,0.0f)));
+			m_enemyVector_ptr->push_back(cardToSpawn->createEnemy(glm::vec2(1.0f,0.0f),cardToSpawn->info));
 			m_credits -= cardToSpawn->Cost;
 		}
 	}

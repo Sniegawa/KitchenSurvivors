@@ -1,13 +1,12 @@
 #include "Enemy.h"
 
-Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader, RenderLayer layer,Player* _player, float health, glm::vec3 color, float rotation) 
+Enemy::Enemy(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader, RenderLayer layer, float health, glm::vec3 color, float rotation) 
 	: GameObject(pos,size,rotation,sprite,shader,layer,color)
 {
 	this->SetRenderLayer(layer);
 	this->m_Health = health;
 	this->m_isDead = false;
 	this->m_HurtTiming = 0.0f;
-	this->p_player = _player;
 }
 
 void Enemy::TakeDamage(float amount)
@@ -32,9 +31,10 @@ void Enemy::Update(float dt)
 	{
 		this->SetColor(glm::vec3(1.0f));
 	}
-	
-	glm::vec2 DirectionToPlayer = glm::normalize(this->GetPosition() - p_player->GetPosition() - glm::vec2(p_player->GetSprite()->Width, p_player->GetSprite()->Height) * 0.5f);
+}
 
+void Enemy::NavigateToPlayer(Player* player_ptr, float dt)
+{
+	glm::vec2 DirectionToPlayer = glm::normalize(this->GetPosition() - player_ptr->GetPosition() - glm::vec2(player_ptr->GetSprite()->Width, player_ptr->GetSprite()->Height) * 0.5f);
 	this->m_Position -= DirectionToPlayer * 25.0f * dt;
-
 }

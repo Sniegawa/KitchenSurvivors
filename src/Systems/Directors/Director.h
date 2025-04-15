@@ -12,15 +12,14 @@ struct EnemyInformation
 	glm::vec2 size;
 	std::string sprite;
 	std::string shader;
-	RenderLayer layer;
-	Player* _player;
+	float Health;
 };
 
 struct SpawnCard
 {
 	int Weight;
 	int Cost;
-	std::function<std::shared_ptr<Enemy>(const glm::vec2&)> createEnemy;
+	std::function<std::shared_ptr<Enemy>(const glm::vec2&,const EnemyInformation& info)> createEnemy;
 	EnemyInformation info;
 };
 
