@@ -23,8 +23,6 @@
 #include "Weapons/ThrownWeapon.h"
 #include "Weapons/OrbitWeapon.h"
 
-
-
 glm::vec2 ScreenCenter;
 
 bool CheckCollision(GameObject& one, GameObject& two);
@@ -32,10 +30,11 @@ void Spawnxp(GameObject* enemy);
 bool MouseInRange(glm::vec2 MousePos, glm::vec2 start, glm::vec2 end);
 
 Game::Game(unsigned int width, unsigned int height)
-	: State(GAME_ACTIVE),Keys(),Width(width),Height(height),MousePos(0,0),
+	: State(GAME_ACTIVE), Keys(), Width(width), Height(height), MousePos(0, 0),
 	camera(new Camera()),
 	seed(12345),
-	director(new Director(&this->seed))
+	diffManager(new DifficultyManager(2.0f, 5.0f)),
+	director(new Director(&this->seed,&this->diffManager,&this->enemies))
 {}
 
 //DEBUG
@@ -55,8 +54,6 @@ static float randFloat(float min = 0.0f, float max = 1.0f)
 GameObject* background;
 
 std::vector<pointLight> lights;
-
-
 
 extern std::vector<std::shared_ptr<Projectile>> PlayerProjectiles;
 
@@ -106,7 +103,6 @@ void Game::LoadShaders()
 	ResourceManager::LoadComputeShader("src/Shaders/ComputeShaders/NormalCalculation.cmpt", "Normals");
 }
 
-glm::vec2 playerCenter; 
 
 void Game::Init()
 {
@@ -116,7 +112,7 @@ void Game::Init()
 	this->renderer.MousePos = &this->MousePos;
 	
 	Texture2D& PlayerSprite = ResourceManager::GetTexture("pizza");
-	playerCenter = glm::vec2(static_cast<float>(this->Width) / 2, static_cast<float>(this->Height) / 2) - (glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f) * 0.5f;// +glm::vec2(30.0f, 16.0f);
+	glm::vec2 playerCenter = glm::vec2(static_cast<float>(this->Width) / 2, static_cast<float>(this->Height) / 2) - (glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f) * 0.5f;// +glm::vec2(30.0f, 16.0f);
 	player = new Player(playerCenter, glm::vec2(PlayerSprite.Width, PlayerSprite.Height) * 1.5f, &PlayerSprite, ResourceManager::GetShaderPtr("sprite"), PLAYER, &PlayerProjectiles);
 
 	this->camera->Setup(this->player);
@@ -127,7 +123,6 @@ void Game::Init()
 
 	ScreenCenter = glm::vec2(this->Width / 2, this->Height / 2);
 
-
 	background = new GameObject(glm::vec2(0.0), glm::vec2(this->Width * 10.0f, this->Height * 10.0f), 0.0f, &ResourceManager::GetTexture("background"), ResourceManager::GetShaderPtr("sprite"), BACKGROUND);
 
 	for (int i = 0; i < 6; i++)
@@ -137,12 +132,12 @@ void Game::Init()
 
 	this->cookingMenu.InnitCookingMenu(player);
 
-	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(0), 2); // Bread
-	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(1), 2); // Milk
-	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(2), 1); // Garlic
-	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(3), 1); // Onion
-	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(4), 1); // Tomato
-	//player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(5), 1); // Chili
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(0), 2); // Bread
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(1), 2); // Milk
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(2), 1); // Garlic
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(3), 1); // Onion
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(4), 1); // Tomato
+	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(5), 1); // Chili
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(6), 1); // Salt
 	player->inventory.addIngredient(this->cookingMenu.INGREDIENTS.at(7), 10); // Pepper
 
@@ -281,7 +276,7 @@ void Game::Update(float dt)
 
 	spawnerTime += dt;
 
-	if (spawnerTime >= 1.0f / Common::debuginfo.SpawnRate)
+	/*if (spawnerTime >= 1.0f / Common::debuginfo.SpawnRate)
 	{
 		
 		float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.25f);
@@ -297,7 +292,7 @@ void Game::Update(float dt)
 			)));
 		spawnerTime = 0.0f;
 		
-	}
+	}*/
 
 
 	for (auto enemy : enemies)
@@ -315,7 +310,7 @@ void Game::Update(float dt)
 		}
 	}
 
-
+	this->director->Update(dt);
 
 	player->UpdateCooldowns(dt);
 

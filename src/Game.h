@@ -3,6 +3,7 @@
 #include "Renderers/Renderer.h"
 #include "Systems/CookingMenu/CookingMenu.h"
 #include "Systems/Directors/Director.h"
+#include "Systems/Directors/DifficultyManager.h"
 #include "Objects/Player.h"
 #include "Renderers/Camera.h"
 
@@ -26,6 +27,7 @@ public:
 	Player* player;
 	Camera* camera;
 	Director* director;
+	DifficultyManager* diffManager;
 
 	glm::vec2 MousePos;
 	unsigned int Width, Height;//Useless

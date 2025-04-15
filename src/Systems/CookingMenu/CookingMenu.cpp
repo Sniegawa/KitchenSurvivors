@@ -111,6 +111,7 @@ void CookingMenu::Cook()
 			{
 				this->m_player_ptr->inventory.consumeIngredient(INGREDIENTS[i], 1);
 			}
+			this->m_player_ptr->inventory.ChangedState = true;
 			return;
 		}
 	}

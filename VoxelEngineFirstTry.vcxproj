@@ -200,6 +200,7 @@
     <ClInclude Include="src\ResourceHandlers\ShaderLoader.h" />
     <ClInclude Include="src\ResourceHandlers\stb_image.h" />
     <ClInclude Include="src\ResourceHandlers\Texture.h" />
+    <ClInclude Include="src\Systems\Directors\DifficultyManager.h" />
     <ClInclude Include="src\Systems\Directors\Director.h" />
     <ClInclude Include="src\Weapons\ThrownWeapon.h" />
     <ClInclude Include="src\Weapons\OrbitWeapon.h" />

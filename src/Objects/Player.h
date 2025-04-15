@@ -27,7 +27,7 @@ struct Inventory
 		stock[&ingredient] -= quantity;
 
 		int stockAfter = this->inventorySize();
-		ChangedState = stockAfter < stockBefore;
+		ChangedState = stockAfter < stockBefore || stock[&ingredient] == 0;
 	}
 
 	bool hasIngredient(const Ingredient& ingredient) const

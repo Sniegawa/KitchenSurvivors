@@ -208,6 +208,9 @@
     <ClInclude Include="src\Systems\Directors\Director.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Systems\Directors\DifficultyManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\SpriteShader.frag">

@@ -3,8 +3,6 @@
 #include "GameObject.h"
 #include "Player.h"
 
-
-
 class Enemy : public GameObject 
 {
 public:
@@ -14,8 +12,6 @@ public:
 
 	const float& GetHealth() const { return this->m_Health; }
 	const bool& isDead() const { return this->m_isDead; }
-
-
 
 private:
 	float m_Health;
