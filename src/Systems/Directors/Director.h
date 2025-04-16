@@ -39,19 +39,22 @@ public:
 	Director(unsigned int* _seed, DifficultyManager** _diffManager, std::vector<std::shared_ptr<Enemy>>* enemies_ptr);
 
 	void Update(float dt);
-
-	bool Spawn();
-private:
+	
+	//Should be private but for debug purposes i leave it public
 	float m_credits;
+private:
+	
+	bool Spawn();
+
 
 	std::vector<SpawnCard> m_SpawnCards;
 	std::vector<std::shared_ptr<Enemy>>* m_enemyVector_ptr;
 
 	unsigned int* m_seed;
 
-	//Cursed double pointer, need refactoring asap
+	//double pointer, need refactoring asap
 	DifficultyManager** m_diffManager;
-	Player* m_playerptr;
-	float m_SpawnCooldown = 10;
-	float m_CurrentCooldown;
+	//Should be dependend of difficulty
+	float m_SpawnCooldown = 30.0f;
+	float m_CurrentCooldown = 15.0f;
 };

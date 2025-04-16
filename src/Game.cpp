@@ -200,10 +200,8 @@ void Game::Render()
 	RenderData.reserve(sizeof(GameObject*) * (enemies.size() + expShards.size() + PlayerProjectiles.size()));
 	for (const auto& enemy : enemies)
 	{
-
-
-		if (glm::distance(player->GetPosition(), enemy->GetPosition()) > 800.0f)
-			continue;
+		//if (glm::distance(player->GetPosition(), enemy->GetPosition()) > 800.0f)
+			//continue;
 
 		RenderData.push_back(enemy.get());
 		
@@ -305,14 +303,13 @@ void Game::Update(float dt)
 	{
 		if (enemies[i]->isDead())
 		{
-
 			enemies.erase(enemies.begin() + i);
 			continue;
 		}
 	}
 
+	this->diffManager->Update(dt);
 	this->director->Update(dt);
-
 	player->UpdateCooldowns(dt);
 
 	if (player->inventory.ChangedState)
@@ -488,6 +485,7 @@ void Game::RenderDebug()
 	ImGui::Text("HP : %i", Common::debuginfo.PlayerHealth);
 	ImGui::Text("Projectiles : %i", Common::debuginfo.Projectiles);
 	ImGui::Text("Enemies : %i", Common::debuginfo.Enemies);
+	ImGui::Text("Director credits : %f", this->director->m_credits);
 	ImGui::Text("CollisionChecks : %i", Common::debuginfo.CollisionChecks);
 	ImGui::Text("Kills : %i",player->Kills);
 	ImGui::Text("Position : %f %f", player->GetPosition().x, player->GetPosition().y);

@@ -27,14 +27,11 @@ void Enemy::TakeDamage(float amount)
 void Enemy::Update(float dt)
 {
 	this->m_HurtTiming -= dt;
-	if (this->m_HurtTiming <= 0.0f)
-	{
-		this->SetColor(glm::vec3(1.0f));
-	}
 }
 
 void Enemy::NavigateToPlayer(Player* player_ptr, float dt)
 {
 	glm::vec2 DirectionToPlayer = glm::normalize(this->GetPosition() - player_ptr->GetPosition() - glm::vec2(player_ptr->GetSprite()->Width, player_ptr->GetSprite()->Height) * 0.5f);
 	this->m_Position -= DirectionToPlayer * 25.0f * dt;
+	this->m_Moved = true;
 }

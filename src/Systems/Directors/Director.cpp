@@ -7,21 +7,21 @@
 
 //#include "Objects/Enemies/EnemyIncludes.h"
 
-//Some clever usage of modern c++ need to study it some more
-//std::function to store it as lambda in SpawnCard
+//Template function that can be stored as lambda wich determines it's type
+//Used for instancing different types of enemies
 template <typename T>
 std::function<std::shared_ptr<Enemy>(const glm::vec2&, const EnemyInformation& info)> createEnemyFactory()
 {
 	return [](const glm::vec2& pos, const EnemyInformation& info) -> std::shared_ptr<Enemy>
 		{
-			std::shared_ptr<T> enemy = std::make_shared<T>(
+			return std::make_shared<T>(
 				pos,
 				info.size,
 				&ResourceManager::GetTexture(info.sprite),
 				ResourceManager::GetShaderPtr(info.shader),
 				RenderLayer::ENEMY,
-				info.Health);
-			return enemy;
+				info.Health
+				);
 		};
 }
 
@@ -31,17 +31,19 @@ Director::Director(unsigned int* _seed, DifficultyManager** _diffManager, std::v
 	m_diffManager = _diffManager;
 	m_seed = _seed;
 	m_CurrentCooldown = m_SpawnCooldown;
+	m_credits = 0;
 
 	m_SpawnCards =
 	{
-		{10,25,createEnemyFactory<Enemy>(),{glm::vec2(15.0f),"pizza","instancedSprite",100}}
+		{10,25,createEnemyFactory<Enemy>(),{glm::vec2(25.0f),"pizza","instancedSprite",25}},
+		{10,50,createEnemyFactory<Enemy>(),{glm::vec2(50.0f),"tomato","instancedSprite",100}}
 	};
 
-	m_credits = 400;
 }
 
 bool Director::Spawn()
 {
+	std::cout << "trying to spawn : " << m_credits << std::endl;
 	std::vector<SpawnCard*> AffordableCards;
 	int maxWeight = 0;
 
@@ -84,7 +86,7 @@ bool Director::Spawn()
 	{
 		while (m_credits >= cardToSpawn->Cost)
 		{
-			m_enemyVector_ptr->push_back(cardToSpawn->createEnemy(glm::vec2(1.0f,0.0f),cardToSpawn->info));
+			m_enemyVector_ptr->push_back(cardToSpawn->createEnemy(glm::vec2(1.0f * (rand() % 1000), 2.0f * (rand() % 1000)), cardToSpawn->info));
 			m_credits -= cardToSpawn->Cost;
 		}
 	}
@@ -100,6 +102,7 @@ void Director::Update(float dt)
 
 	if (m_CurrentCooldown <= 0.0f)
 	{
+		//Try spawning
 		bool didSpawn = this->Spawn();
 
 		if (!didSpawn)
@@ -108,6 +111,8 @@ void Director::Update(float dt)
 		}
 		else
 		{
+			//If couldn't spawn for some reason half the cooldown
+			//Valid reason is for now non existent but should be lack of spawn spots
 			m_CurrentCooldown = m_SpawnCooldown * 0.5f;
 		}
 	}
