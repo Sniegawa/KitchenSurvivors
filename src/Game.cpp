@@ -87,8 +87,10 @@ void Game::LoadTextures()
 	ResourceManager::LoadTexture("src/Textures/Salt.png", true, "salt");
 	ResourceManager::LoadTexture("src/Textures/Pepper.png", true, "pepper");
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
-
+	ResourceManager::LoadTexture("src/Textures/BurgerBase.png", true, "BurgerBase");
+	ResourceManager::LoadTexture("src/Textures/burger-mold.png", true, "BurgerMold");
 }
+
 void Game::LoadShaders()
 {
 	ResourceManager::LoadShader("src/Shaders/SpriteShader.vert", "src/Shaders/SpriteShader.frag", "sprite");
@@ -232,7 +234,6 @@ void Game::RenderUI()
 		this->renderer.RenderCookingMenu(&this->player->inventory,this->cookingMenu);
 }
 
-float spawnerTime = 0;
 void Game::Update(float dt)
 {	
 	if (this->Keys[GLFW_KEY_TAB])
@@ -271,27 +272,6 @@ void Game::Update(float dt)
 		}
 		obj->Update(dt);
 	}
-
-	spawnerTime += dt;
-
-	/*if (spawnerTime >= 1.0f / Common::debuginfo.SpawnRate)
-	{
-		
-		float enemy_size = glm::max(static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 1.5f, 0.25f);
-		enemies.push_back(std::make_shared<Enemy>(
-			Enemy(
-				glm::vec2(rand()%500,rand()%500),
-				glm::vec2(64.0f) * enemy_size,
-				&ResourceManager::GetTexture("pizza"),
-				ResourceManager::GetShaderPtr("instancedSprite"),
-				ENEMY,
-				player,
-				25.0f* enemy_size
-			)));
-		spawnerTime = 0.0f;
-		
-	}*/
-
 
 	for (auto enemy : enemies)
 	{
@@ -436,7 +416,6 @@ void Game::Collisions()
 				projectile->Hit();
 				if (enemy->GetHealth() <= 0.0f)
 				{
-					player->Kills++;
 					Spawnxp(enemy.get());
 
 				}
@@ -487,7 +466,6 @@ void Game::RenderDebug()
 	ImGui::Text("Enemies : %i", Common::debuginfo.Enemies);
 	ImGui::Text("Director credits : %f", this->director->m_credits);
 	ImGui::Text("CollisionChecks : %i", Common::debuginfo.CollisionChecks);
-	ImGui::Text("Kills : %i",player->Kills);
 	ImGui::Text("Position : %f %f", player->GetPosition().x, player->GetPosition().y);
 	ImGui::Spacing();
 	ImGui::Text("Level %i", player->Level);

@@ -54,7 +54,7 @@ private:
 
 	//double pointer, need refactoring asap
 	DifficultyManager** m_diffManager;
-	//Should be dependend of difficulty
+	//Should be based on difficulty
 	float m_SpawnCooldown = 30.0f;
 	float m_CurrentCooldown = 15.0f;
 };

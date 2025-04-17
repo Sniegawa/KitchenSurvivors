@@ -71,7 +71,6 @@ public:
 	int Level = 0;
 	float LvlProgress = 0;
 	bool Alive = true;
-	int Kills;
 
 	float xp;
 	float xpToLvl;

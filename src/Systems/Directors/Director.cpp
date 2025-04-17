@@ -35,8 +35,8 @@ Director::Director(unsigned int* _seed, DifficultyManager** _diffManager, std::v
 
 	m_SpawnCards =
 	{
-		{10,25,createEnemyFactory<Enemy>(),{glm::vec2(25.0f),"pizza","instancedSprite",25}},
-		{10,50,createEnemyFactory<Enemy>(),{glm::vec2(50.0f),"tomato","instancedSprite",100}}
+		{10,25,createEnemyFactory<Enemy>(),{glm::vec2(100.0f),"pizza","instancedSprite",50}},
+		{10,100,createEnemyFactory<Enemy>(),{glm::vec2(250.0f),"BurgerBase","instancedSprite",200}}
 	};
 
 }

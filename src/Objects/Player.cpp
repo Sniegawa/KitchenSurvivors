@@ -4,7 +4,6 @@ Player::Player(glm::vec2 pos, glm::vec2 size, Texture2D* sprite, Shader* shader,
 	: GameObject(pos, size, rotation, sprite, shader, layer, color)
 {
 	this->SetRenderLayer(layer);
-	this->Kills = 0;
 	this->Level = 1;
 	this->InvulnerabilityCD = 0.0f;
 	this->stats.projectileCount = 1;
@@ -23,7 +22,7 @@ void Player::TakeDamage(float amount)
 	this->Health -= amount;
 	if (this->Health <= 0.0f)
 	{
-		this -> Alive = false;
+		this->Alive = false;
 	}
 	this->InvulnerabilityCD = 0.1f; // Shouldn't be fixed amount
 }
