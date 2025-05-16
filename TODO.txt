@@ -5,7 +5,7 @@ COOKING MECHANIC
 
 ENEMY SPAWN
 -Figure out how to spawn enemies, ror2 director system seems fun	x
--Enemy Spawn manager class
+-Enemy Spawn manager class											x
 -Diffuculty based on mold, hud changes, map changes
 
 MAP GENERATION
@@ -20,8 +20,8 @@ CLARITY
 
 Engine
 -Migrate Text rendering into Renderer class							? (Rewrite of text rendering needed)
--another rewrite of Renderer, i would like to use 
-Command like system
+-Another rewrite of Renderer, i would like to use  Command like system
+-Rendering mold on top of enemies
 
 
 Good practices

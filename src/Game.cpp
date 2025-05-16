@@ -89,6 +89,7 @@ void Game::LoadTextures()
 	ResourceManager::LoadTexture("src/Textures/lvlup.png", true, "lvluphud");
 	ResourceManager::LoadTexture("src/Textures/BurgerBase.png", true, "BurgerBase");
 	ResourceManager::LoadTexture("src/Textures/burger-mold.png", true, "BurgerMold");
+	ResourceManager::LoadTexture("src/Textures/HPBAR.png", true, "HPBar");
 }
 
 void Game::LoadShaders()
@@ -232,6 +233,8 @@ void Game::RenderUI()
 {
 	if (this->isCooking)
 		this->renderer.RenderCookingMenu(&this->player->inventory,this->cookingMenu);
+	glm::vec2 HPBarOrigin = glm::vec2(64.0f, 16.0f) * 2.0f;
+	this->renderer.RenderSprite(ResourceManager::GetTexture("HPBar"), HPBarOrigin + glm::vec2(20.0f,20.0f), 0.0f, HPBarOrigin);
 }
 
 void Game::Update(float dt)
